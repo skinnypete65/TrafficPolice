@@ -17,7 +17,7 @@ func Run() {
 	mux.HandleFunc("GET /case/{id}/img", handler.GetCaseImg)
 
 	server := http.Server{
-		Addr:    "localhost:8000",
+		Addr:    ":8000",
 		Handler: mux,
 	}
 
