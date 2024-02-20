@@ -31,6 +31,7 @@ func UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 	// parse input, type multipart/form-data
 	// 10 MB
 	maxMemory := int64(10 << 20)
+
 	err := r.ParseMultipartForm(maxMemory)
 	if err != nil {
 		log.Printf("Error while ParseMultipartForm: %v", err)

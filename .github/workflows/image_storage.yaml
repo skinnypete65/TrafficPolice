@@ -1,16 +1,19 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Go
+name: image_storage
 
 on:
   push:
+    paths:
+      - image_storage/**
     branches: [ "master", "main" ]
   pull_request:
+    paths:
+      - image_storage/**
     branches: [ "master", "main" ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -22,7 +25,7 @@ jobs:
           go-version: 'stable'
 
       - name: Build
-        working-directory: ./homework
+        working-directory: ./image_storage
         run: |
           go mod tidy
           go build -v ./...
@@ -31,10 +34,10 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
-          working-directory: ./homework
+          working-directory: ./image_storage
 
       - name: Test
-        working-directory: ./homework
+        working-directory: ./image_storage
         run: |
           go mod tidy
           go test -v -race -coverpkg=./... ./...
