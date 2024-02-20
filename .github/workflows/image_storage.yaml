@@ -25,7 +25,7 @@ jobs:
           go-version: 'stable'
 
       - name: Build
-        working-directory: .
+        working-directory: ./image_storage
         run: |
           go mod tidy
           go build -v ./...
@@ -34,10 +34,10 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
-          working-directory: .
+          working-directory: ./image_storage
 
       - name: Test
-        working-directory: .
+        working-directory: ./image_storage
         run: |
           go mod tidy
           go test -v -race -coverpkg=./... ./...
