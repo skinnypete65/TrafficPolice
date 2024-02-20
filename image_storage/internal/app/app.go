@@ -10,6 +10,7 @@ func Run() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("POST /case/{id}/img", transport.UploadCaseImg)
+	mux.HandleFunc("GET /case/{id}/img", transport.GetCaseImg)
 
 	server := http.Server{
 		Addr:    "localhost:8000",

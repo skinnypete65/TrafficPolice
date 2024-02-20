@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -100,4 +101,21 @@ func getImgExtension(contentType string) (string, error) {
 	} else {
 		return "", fmt.Errorf("extension %s is not allowed", extension)
 	}
+}
+
+func GetCaseImg(w http.ResponseWriter, r *http.Request) {
+	caseID := r.PathValue("id")
+	if caseID == "" {
+		http.Error(w, "bad case id", http.StatusBadRequest)
+		return
+	}
+
+	pattern := fmt.Sprintf("images/%s.*", caseID)
+	files, err := filepath.Glob(pattern)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	http.ServeFile(w, r, files[0])
 }
