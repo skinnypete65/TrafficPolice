@@ -2,10 +2,10 @@ package transport
 
 import (
 	"fmt"
+	"image_storage/internal/services"
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -21,7 +21,15 @@ const (
 	contentImage   = "image"
 )
 
-func UploadCaseImg(w http.ResponseWriter, r *http.Request) {
+type ImgHandler struct {
+	service services.ImgService
+}
+
+func NewImgHandler(service services.ImgService) *ImgHandler {
+	return &ImgHandler{service: service}
+}
+
+func (h *ImgHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 	caseID := r.PathValue("id")
 	if caseID == "" {
 		http.Error(w, "id is empty", http.StatusBadRequest)
@@ -44,7 +52,6 @@ func UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error retrieving file from form-data: %v\n", err)
 		return
 	}
-
 	defer file.Close()
 
 	log.Printf("Uploaded file: %+v\n", handler.Filename)
@@ -60,22 +67,15 @@ func UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 
 	// write file to server
 	imgFilePath := fmt.Sprintf("images/%s.%s", caseID, extension)
-	imgFile, err := os.Create(imgFilePath)
-	if err != nil {
-		log.Printf("Error while create file to server: %v\n", err)
-		return
-	}
-	defer imgFile.Close()
-
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		log.Printf("Error while reading fileBytes: %v\n", fileBytes)
 		return
 	}
 
-	_, err = imgFile.Write(fileBytes)
+	err = h.service.SaveImg(fileBytes, imgFilePath)
 	if err != nil {
-		log.Printf("Error while writing tempFile: %v\n", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -104,7 +104,7 @@ func getImgExtension(contentType string) (string, error) {
 	}
 }
 
-func GetCaseImg(w http.ResponseWriter, r *http.Request) {
+func (h *ImgHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) {
 	caseID := r.PathValue("id")
 	if caseID == "" {
 		http.Error(w, "bad case id", http.StatusBadRequest)
