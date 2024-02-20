@@ -9,3 +9,8 @@ services:
       POSTGRES_PASSWORD: "user"
     ports:
       - "5440:5432"
+
+  image_storage:
+    build: ./image_storage
+    ports:
+      - "8000:8000"
