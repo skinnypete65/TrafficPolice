@@ -15,9 +15,6 @@ func Run() {
 
 	mux.HandleFunc("POST /case/{id}/img", handler.UploadCaseImg)
 	mux.HandleFunc("GET /case/{id}/img", handler.GetCaseImg)
-	mux.HandleFunc("GET /test", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Write([]byte("OK!"))
-	})
 
 	server := http.Server{
 		Addr:    ":8000",
