@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   postgres:
-    image: postgres:16
+    image: postgres:16-alpine
     environment:
       POSTGRES_DB: "traffic_police_db"
       POSTGRES_USER: "user"
@@ -14,3 +14,13 @@ services:
     build: ./image_storage
     ports:
       - "8000:8000"
+
+  service:
+    build: ./service
+    ports:
+      - "8080:8080"
+    environment:
+      POSTGRESQL_URL: "postgresql://user:user@postgres:5432/traffic_police_db?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_started
