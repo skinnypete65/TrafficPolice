@@ -41,11 +41,11 @@ ALTER TABLE
     ADD PRIMARY KEY ("id");
 CREATE TABLE "cameras"
 (
-    "camera_id"        UUID         NOT NULL,
-    "camera_type_id"   UUID         NOT NULL,
-    "camera_latitude"  VARCHAR(255) NOT NULL,
-    "camera_longitude" VARCHAR(255) NOT NULL,
-    "short_desc"       VARCHAR(255) NOT NULL
+    "camera_id"        UUID             NOT NULL,
+    "camera_type_id"   UUID             NOT NULL,
+    "camera_latitude"  DOUBLE PRECISION NOT NULL NOT NULL,
+    "camera_longitude" DOUBLE PRECISION NOT NULL NOT NULL,
+    "short_desc"       VARCHAR(255)     NOT NULL
 );
 ALTER TABLE
     "cameras"

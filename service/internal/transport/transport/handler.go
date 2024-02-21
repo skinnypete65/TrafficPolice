@@ -46,3 +46,30 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+
+func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
+	var camera models.Camera
+	err := json.NewDecoder(r.Body).Decode(&camera)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = validate.Struct(camera)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = h.service.RegisterCamera(camera)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = w.Write([]byte("camera added successfully"))
+	if err != nil {
+		log.Println(err)
+	}
+}

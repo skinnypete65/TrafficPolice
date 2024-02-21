@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v5"
-	"log"
 )
 
 type DBPostgres struct {
@@ -22,7 +21,6 @@ func (db *DBPostgres) AddCameraType(cameraType models.CameraType) error {
 
 	_, err := db.conn.Exec(context.Background(), query, cameraType.ID, cameraType.Name, cameraType.Desc)
 	if err != nil {
-		log.Println(err)
 		return fmt.Errorf("unable to insert camera type %v", cameraType)
 	}
 
@@ -30,5 +28,15 @@ func (db *DBPostgres) AddCameraType(cameraType models.CameraType) error {
 }
 
 func (db *DBPostgres) RegisterCamera(camera models.Camera) error {
+	query := `INSERT INTO cameras (camera_id, camera_type_id, camera_latitude, camera_longitude, short_desc) 
+		VALUES ($1, $2, $3, $4, $5)`
+
+	_, err := db.conn.Exec(context.Background(), query,
+		camera.ID, camera.CameraTypeID, camera.Latitude, camera.Longitude, camera.ShortDesc)
+
+	if err != nil {
+		return fmt.Errorf("unable to insert camera: %v", camera)
+	}
+
 	return nil
 }
