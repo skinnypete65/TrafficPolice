@@ -21,7 +21,8 @@ func Run() {
 	cameraHandler := transport.NewCameraHandler(cameraService)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /camera", cameraHandler.AddCameraType)
+	mux.HandleFunc("POST /camera/type", cameraHandler.AddCameraType)
+	mux.HandleFunc("POST /camera", cameraHandler.RegisterCamera)
 
 	server := http.Server{
 		Addr:    ":8080",

@@ -4,7 +4,6 @@ import (
 	"TrafficPolice/internal/database"
 	"TrafficPolice/internal/models"
 	"github.com/google/uuid"
-	"log"
 )
 
 type CameraService interface {
@@ -23,13 +22,11 @@ func NewCameraService(db database.CameraDB) CameraService {
 func (s *cameraService) AddCameraType(cameraType models.CameraType) error {
 	id := uuid.New()
 	cameraType.ID = id.String()
-
-	log.Println(cameraType)
-	log.Println(id)
-
 	return s.db.AddCameraType(cameraType)
 }
 
 func (s *cameraService) RegisterCamera(camera models.Camera) error {
-	return nil
+	id := uuid.New()
+	camera.ID = id.String()
+	return s.db.RegisterCamera(camera)
 }
