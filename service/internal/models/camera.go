@@ -1,11 +1,11 @@
 package models
 
 type Camera struct {
-	ID         string
-	CameraType CameraType
-	latitude   float64
-	longitude  float64
-	ShortDesc  string
+	ID           string  `json:"camera_id"`
+	CameraTypeID string  `json:"camera_type_id"`
+	Latitude     float64 `json:"latitude"`
+	Longitude    float64 `json:"longitude"`
+	ShortDesc    string  `json:"short_desc"`
 }
 
 type CameraType struct {

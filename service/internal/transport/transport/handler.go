@@ -5,6 +5,7 @@ import (
 	"TrafficPolice/internal/services/service"
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
+	"log"
 	"net/http"
 )
 
@@ -40,5 +41,8 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("camera type added successfully"))
+	_, err = w.Write([]byte("camera type added successfully"))
+	if err != nil {
+		log.Println(err)
+	}
 }
