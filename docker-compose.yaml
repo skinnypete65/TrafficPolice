@@ -9,6 +9,8 @@ services:
       POSTGRES_PASSWORD: "user"
     ports:
       - "5440:5432"
+    volumes:
+      - pg_vol:/var/lib/postgresql/data
 
   image_storage:
     build: ./image_storage
@@ -24,3 +26,6 @@ services:
     depends_on:
       postgres:
         condition: service_started
+
+volumes:
+  pg_vol:

@@ -1,21 +1,21 @@
-CREATE TABLE "offense_types"
+CREATE TABLE "violation_types"
 (
-    "offense_type_id" UUID         NOT NULL,
-    "offense_name"    VARCHAR(255) NOT NULL,
-    "fine_amount"     BIGINT       NOT NULL
+    "vaiolation_type_id" UUID         NOT NULL,
+    "violation_name"     VARCHAR(255) NOT NULL,
+    "fine_amount"        BIGINT       NOT NULL
 );
 ALTER TABLE
-    "offense_types"
-    ADD PRIMARY KEY ("offense_type_id");
+    "violation_types"
+    ADD PRIMARY KEY ("vaiolation_type_id");
 CREATE TABLE "cases"
 (
-    "case_id"        UUID         NOT NULL,
-    "transport_id"   UUID         NOT NULL,
-    "camera_id"      UUID         NOT NULL,
-    "offense_id"     UUID         NOT NULL,
-    "offense_value"  VARCHAR(255) NOT NULL,
-    "required_skill" INTEGER      NOT NULL,
-    "case_date"      DATE         NOT NULL
+    "case_id"         UUID         NOT NULL,
+    "transport_id"    UUID         NOT NULL,
+    "camera_id"       UUID         NOT NULL,
+    "violation_id"    UUID         NOT NULL,
+    "violation_value" VARCHAR(255) NOT NULL,
+    "required_skill"  INTEGER      NOT NULL,
+    "case_date"       DATE         NOT NULL
 );
 ALTER TABLE
     "cases"
@@ -23,8 +23,7 @@ ALTER TABLE
 CREATE TABLE "camera_types"
 (
     "camera_type_id"   UUID         NOT NULL,
-    "camera_type_name" VARCHAR(255) NOT NULL,
-    "camera_type_desc" VARCHAR(255) NOT NULL
+    "camera_type_name" VARCHAR(255) NOT NULL
 );
 ALTER TABLE
     "camera_types"
@@ -43,8 +42,8 @@ CREATE TABLE "cameras"
 (
     "camera_id"        UUID             NOT NULL,
     "camera_type_id"   UUID             NOT NULL,
-    "camera_latitude"  DOUBLE PRECISION NOT NULL NOT NULL,
-    "camera_longitude" DOUBLE PRECISION NOT NULL NOT NULL,
+    "camera_latitude"  DOUBLE PRECISION NOT NULL,
+    "camera_longitude" DOUBLE PRECISION NOT NULL,
     "short_desc"       VARCHAR(255)     NOT NULL
 );
 ALTER TABLE
@@ -58,7 +57,7 @@ ALTER TABLE
     ADD CONSTRAINT "cases_camera_id_foreign" FOREIGN KEY ("camera_id") REFERENCES "cameras" ("camera_id");
 ALTER TABLE
     "cases"
-    ADD CONSTRAINT "cases_offense_id_foreign" FOREIGN KEY ("offense_id") REFERENCES "offense_types" ("offense_type_id");
+    ADD CONSTRAINT "cases_violation_id_foreign" FOREIGN KEY ("violation_id") REFERENCES "violation_types" ("vaiolation_type_id");
 ALTER TABLE
     "cases"
     ADD CONSTRAINT "cases_transport_id_foreign" FOREIGN KEY ("transport_id") REFERENCES "transport_numbers" ("id");

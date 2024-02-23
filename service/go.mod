@@ -3,6 +3,7 @@ module TrafficPolice
 go 1.22
 
 require (
+	github.com/aviate-labs/leb128 v0.3.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect

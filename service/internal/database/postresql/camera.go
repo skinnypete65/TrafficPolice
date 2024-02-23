@@ -4,7 +4,6 @@ import (
 	"TrafficPolice/internal/database"
 	"TrafficPolice/internal/models"
 	"context"
-	"fmt"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -17,11 +16,11 @@ func NewCameraDBPostgres(conn *pgx.Conn) database.CameraDB {
 }
 
 func (db *DBPostgres) AddCameraType(cameraType models.CameraType) error {
-	query := "INSERT INTO camera_types (camera_type_id, camera_type_name, camera_type_desc) VALUES ($1, $2, $3)"
+	query := "INSERT INTO camera_types (camera_type_id, camera_type_name) VALUES ($1, $2)"
 
-	_, err := db.conn.Exec(context.Background(), query, cameraType.ID, cameraType.Name, cameraType.Desc)
+	_, err := db.conn.Exec(context.Background(), query, cameraType.ID, cameraType.Name)
 	if err != nil {
-		return fmt.Errorf("unable to insert camera type %v", cameraType)
+		return err
 	}
 
 	return nil
@@ -35,7 +34,7 @@ func (db *DBPostgres) RegisterCamera(camera models.Camera) error {
 		camera.ID, camera.CameraTypeID, camera.Latitude, camera.Longitude, camera.ShortDesc)
 
 	if err != nil {
-		return fmt.Errorf("unable to insert camera: %v", camera)
+		return err
 	}
 
 	return nil

@@ -1,4 +1,4 @@
-package service
+package services
 
 import (
 	"TrafficPolice/internal/database"

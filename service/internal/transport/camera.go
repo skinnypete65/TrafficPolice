@@ -2,7 +2,7 @@ package transport
 
 import (
 	"TrafficPolice/internal/models"
-	"TrafficPolice/internal/services/service"
+	"TrafficPolice/internal/services"
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
 	"log"
@@ -12,10 +12,10 @@ import (
 var validate = validator.New(validator.WithRequiredStructEnabled())
 
 type CameraHandler struct {
-	service service.CameraService
+	service services.CameraService
 }
 
-func NewCameraHandler(service service.CameraService) *CameraHandler {
+func NewCameraHandler(service services.CameraService) *CameraHandler {
 	return &CameraHandler{service: service}
 }
 
