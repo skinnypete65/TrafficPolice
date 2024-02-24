@@ -96,7 +96,10 @@ func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Case added successfully"))
+	_, err = w.Write([]byte("Case added successfully"))
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func parseCase(payload []byte) (*models.Case, error) {
@@ -121,8 +124,6 @@ func parseCase(payload []byte) (*models.Case, error) {
 		payload = payload[keySize+valueSize:]
 
 		f := mapping[string(keyValue)]
-		log.Println(string(keyValue))
-		log.Println(f)
 
 		var err error
 		if valueType == 0 {
