@@ -7,21 +7,22 @@ import (
 	"github.com/xuri/excelize/v2"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 const (
-	contactInfoSheet = "Лист1"
+	violationSheet = "Лист1"
 )
 
-type ContactInfoHandler struct {
-	service services.ContactInfoService
+type ViolationHandler struct {
+	service services.ViolationService
 }
 
-func NewContactInfoHandler(service services.ContactInfoService) *ContactInfoHandler {
-	return &ContactInfoHandler{service: service}
+func NewViolationHandler(service services.ViolationService) *ViolationHandler {
+	return &ViolationHandler{service: service}
 }
 
-func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Request) {
+func (h *ViolationHandler) InsertViolations(w http.ResponseWriter, r *http.Request) {
 	maxMemory := int64(10 << 30)
 
 	err := r.ParseMultipartForm(maxMemory)
@@ -46,43 +47,41 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	rows, err := f.GetRows(contactInfoSheet)
+	rows, err := f.GetRows(violationSheet)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	m := make(map[string][]*models.Transport)
+	violations := make([]*models.Violation, 0)
 
 	for _, row := range rows {
-		transport := &models.Transport{
-			Chars:  row[0],
-			Num:    row[1],
-			Region: row[2],
+		isValid := true
+		for _, val := range row {
+			if val == "" {
+				isValid = false
+			}
+			break
+		}
+		if !isValid {
+			continue
+		}
+		fineAmount, err := strconv.Atoi(row[1])
+		if err != nil {
+			continue
 		}
 
-		person := &models.Person{
-			PhoneNum: row[3],
-			Email:    row[4],
-			VkID:     row[5],
-			TgID:     row[6],
+		v := &models.Violation{
+			Name:       row[0],
+			FineAmount: fineAmount,
 		}
-		transport.Person = person
 
-		if _, ok := m[person.PhoneNum]; !ok {
-			m[person.PhoneNum] = make([]*models.Transport, 0)
-		}
-		m[person.PhoneNum] = append(m[person.PhoneNum], transport)
+		violations = append(violations, v)
 	}
 
-	err = h.service.InsertContactInfo(m)
+	err = h.service.InsertViolations(violations)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
-	}
-
-	_, err = w.Write([]byte("Added successfully"))
-	if err != nil {
-		log.Println(err)
 	}
 }

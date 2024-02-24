@@ -14,3 +14,7 @@ type CaseDB interface {
 type ContactInfoDB interface {
 	InsertContactInfo(m map[string][]*models.Transport) error
 }
+
+type ViolationDB interface {
+	InsertViolations(violations []*models.Violation) error
+}
