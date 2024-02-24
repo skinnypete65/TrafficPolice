@@ -1,9 +1,9 @@
 package app
 
 import (
-	"TrafficPolice/internal/database/database"
-	"TrafficPolice/internal/services/service"
-	"TrafficPolice/internal/transport/transport"
+	"TrafficPolice/internal/database/postresql"
+	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/transport"
 	"context"
 	"github.com/jackc/pgx/v5"
 	"log"
@@ -16,13 +16,19 @@ func Run() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	cameraDB := database.NewCameraDBPostgres(conn)
-	cameraService := service.NewCameraService(cameraDB)
+	cameraService := services.NewCameraService(cameraDB)
 	cameraHandler := transport.NewCameraHandler(cameraService)
+
+	caseDB := database.NewCaseDBPostgres(conn)
+	caseService := services.NewCaseService(caseDB)
+	caseHandler := transport.NewCaseHandler(caseService)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /camera/type", cameraHandler.AddCameraType)
 	mux.HandleFunc("POST /camera", cameraHandler.RegisterCamera)
+	mux.HandleFunc("POST /case", caseHandler.AddCase)
 
 	server := http.Server{
 		Addr:    ":8080",
