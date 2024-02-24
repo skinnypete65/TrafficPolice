@@ -16,6 +16,8 @@ services:
     build: ./image_storage
     ports:
       - "8000:8000"
+    volumes:
+      - image_vol:/app/images
 
   service:
     build: ./service
@@ -29,3 +31,4 @@ services:
 
 volumes:
   pg_vol:
+  image_vol:
