@@ -25,10 +25,17 @@ func Run() {
 	caseService := services.NewCaseService(caseDB)
 	caseHandler := transport.NewCaseHandler(caseService)
 
+	contactInfoDB := database.NewContactInfoDBPostgres(conn)
+	contactService := services.NewContactInfoService(contactInfoDB)
+	contactInfoHandler := transport.NewContactInfoHandler(contactService)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /camera/type", cameraHandler.AddCameraType)
 	mux.HandleFunc("POST /camera", cameraHandler.RegisterCamera)
+
 	mux.HandleFunc("POST /case", caseHandler.AddCase)
+
+	mux.HandleFunc("POST /contact_info", contactInfoHandler.InsertContactInfo)
 
 	server := http.Server{
 		Addr:    ":8080",

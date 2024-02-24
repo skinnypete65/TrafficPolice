@@ -10,3 +10,7 @@ type CameraDB interface {
 type CaseDB interface {
 	InsertCase(c *models.Case) error
 }
+
+type ContactInfoDB interface {
+	InsertContactInfo(m map[string][]*models.Transport) error
+}
