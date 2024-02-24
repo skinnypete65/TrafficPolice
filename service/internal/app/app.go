@@ -29,6 +29,10 @@ func Run() {
 	contactService := services.NewContactInfoService(contactInfoDB)
 	contactInfoHandler := transport.NewContactInfoHandler(contactService)
 
+	violationDB := database.NewViolationDBPostgres(conn)
+	violationService := services.NewViolationService(violationDB)
+	violationHandler := transport.NewViolationHandler(violationService)
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /camera/type", cameraHandler.AddCameraType)
 	mux.HandleFunc("POST /camera", cameraHandler.RegisterCamera)
@@ -36,6 +40,8 @@ func Run() {
 	mux.HandleFunc("POST /case", caseHandler.AddCase)
 
 	mux.HandleFunc("POST /contact_info", contactInfoHandler.InsertContactInfo)
+
+	mux.HandleFunc("POST /violations", violationHandler.InsertViolations)
 
 	server := http.Server{
 		Addr:    ":8080",

@@ -1,12 +1,12 @@
-CREATE TABLE "violation_types"
+CREATE TABLE "violations"
 (
-    "violation_type_id" UUID         NOT NULL,
-    "violation_name"    VARCHAR(255) NOT NULL,
-    "fine_amount"       BIGINT       NOT NULL
+    "violation_id"   UUID         NOT NULL,
+    "violation_name" VARCHAR(255) NOT NULL,
+    "fine_amount"    BIGINT       NOT NULL
 );
 ALTER TABLE
-    "violation_types"
-    ADD PRIMARY KEY ("violation_type_id");
+    "violations"
+    ADD PRIMARY KEY ("violation_id");
 CREATE TABLE "cases"
 (
     "case_id"         UUID         NOT NULL,
@@ -69,7 +69,7 @@ ALTER TABLE
     ADD CONSTRAINT "cases_camera_id_foreign" FOREIGN KEY ("camera_id") REFERENCES "cameras" ("camera_id");
 ALTER TABLE
     "cases"
-    ADD CONSTRAINT "cases_violation_id_foreign" FOREIGN KEY ("violation_id") REFERENCES "violation_types" ("violation_type_id");
+    ADD CONSTRAINT "cases_violation_id_foreign" FOREIGN KEY ("violation_id") REFERENCES "violations" ("violation_id");
 ALTER TABLE
     "cases"
     ADD CONSTRAINT "cases_transport_id_foreign" FOREIGN KEY ("transport_id") REFERENCES "transports" ("transport_id");
