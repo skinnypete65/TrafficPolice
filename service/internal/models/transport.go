@@ -5,4 +5,5 @@ type Transport struct {
 	Chars  string
 	Num    string
 	Region string
+	Person *Person
 }
