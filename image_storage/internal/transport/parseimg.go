@@ -8,6 +8,17 @@ import (
 	"strings"
 )
 
+var allowedExtensions = map[string]struct{}{
+	"png":  {},
+	"jpeg": {},
+	"jpg":  {},
+}
+
+const (
+	contentTypeKey = "Content-Type"
+	contentImage   = "image"
+)
+
 func parseMultipartForm(r *http.Request, key string) (multipart.File, *multipart.FileHeader, error) {
 	// parse input, type multipart/form-data
 	// 10 MB

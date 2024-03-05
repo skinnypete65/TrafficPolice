@@ -8,7 +8,8 @@ FROM alpine
 WORKDIR /app
 COPY --from=builder /app/main .
 
-RUN mkdir "images"
+RUN mkdir cases
+RUN mkdir experts
 
 EXPOSE 8000
 CMD ["/app/main"]

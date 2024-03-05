@@ -10,27 +10,27 @@ import (
 )
 
 const (
-	casesDir            = "cases"
-	caseContentImageKey = "image"
-	caseIDPathValue     = "id"
+	expertsDir            = "experts"
+	expertContentImageKey = "image"
+	expertIDPathValue     = "id"
 )
 
-type CaseHandler struct {
+type ExpertHandler struct {
 	service services.ImgService
 }
 
-func NewCaseHandler(service services.ImgService) *CaseHandler {
-	return &CaseHandler{service: service}
+func NewExpertHandler(service services.ImgService) *ExpertHandler {
+	return &ExpertHandler{service: service}
 }
 
-func (h *CaseHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
-	caseID := r.PathValue(caseIDPathValue)
-	if caseID == "" {
+func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) {
+	expertID := r.PathValue(expertIDPathValue)
+	if expertID == "" {
 		http.Error(w, "id is empty", http.StatusBadRequest)
 		return
 	}
 
-	file, header, err := parseMultipartForm(r, caseContentImageKey)
+	file, header, err := parseMultipartForm(r, expertContentImageKey)
 
 	contentType := header.Header.Get(contentTypeKey)
 	extension, err := getImgExtension(contentType)
@@ -39,7 +39,7 @@ func (h *CaseHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imgFilePath := fmt.Sprintf("%s/%s.%s", casesDir, caseID, extension)
+	imgFilePath := fmt.Sprintf("%s/%s.%s", expertsDir, expertID, extension)
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		log.Printf("Error while reading fileBytes: %v\n", fileBytes)
@@ -56,14 +56,14 @@ func (h *CaseHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Succesfully uploaded image")
 }
 
-func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) {
-	caseID := r.PathValue(caseIDPathValue)
-	if caseID == "" {
-		http.Error(w, "bad case id", http.StatusBadRequest)
+func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) {
+	expertID := r.PathValue(expertIDPathValue)
+	if expertID == "" {
+		http.Error(w, "bad expert id", http.StatusBadRequest)
 		return
 	}
 
-	pattern := fmt.Sprintf("%s/%s.*", casesDir, caseID)
+	pattern := fmt.Sprintf("%s/%s.*", expertsDir, expertID)
 	files, err := filepath.Glob(pattern)
 	if err != nil {
 		fmt.Println("Error:", err)
