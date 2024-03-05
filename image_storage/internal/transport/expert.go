@@ -31,6 +31,10 @@ func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) 
 	}
 
 	file, header, err := parseMultipartForm(r, expertContentImageKey)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	contentType := header.Header.Get(contentTypeKey)
 	extension, err := getImgExtension(contentType)
