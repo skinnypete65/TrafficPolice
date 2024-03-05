@@ -58,7 +58,7 @@ func Run() {
 
 	mux.HandleFunc("POST /case", caseHandler.AddCase)
 	mux.Handle("POST /case/{id}/img",
-		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.UploadCaseImg)),
+		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.UploadCaseImg), domain.DirectorRole, domain.ExpertRole),
 	)
 	mux.Handle("GET /case/{id}/img",
 		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.GetCaseImg), domain.DirectorRole, domain.ExpertRole),
