@@ -1,8 +1,8 @@
 package services
 
 import (
-	"TrafficPolice/internal/database"
 	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/repository"
 	"github.com/google/uuid"
 )
 
@@ -11,10 +11,10 @@ type ViolationService interface {
 }
 
 type violationService struct {
-	db database.ViolationDB
+	db repository.ViolationDB
 }
 
-func NewViolationService(db database.ViolationDB) ViolationService {
+func NewViolationService(db repository.ViolationDB) ViolationService {
 	return &violationService{db: db}
 }
 

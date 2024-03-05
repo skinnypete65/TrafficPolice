@@ -1,8 +1,8 @@
-package database
+package repository
 
 import (
-	"TrafficPolice/internal/database"
 	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/repository"
 	"context"
 	"github.com/jackc/pgx/v5"
 )
@@ -11,7 +11,7 @@ type violationDBPostgres struct {
 	conn *pgx.Conn
 }
 
-func NewViolationDBPostgres(conn *pgx.Conn) database.ViolationDB {
+func NewViolationDBPostgres(conn *pgx.Conn) repository.ViolationDB {
 	return &violationDBPostgres{conn: conn}
 }
 

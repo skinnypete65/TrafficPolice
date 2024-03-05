@@ -1,8 +1,8 @@
 package services
 
 import (
-	"TrafficPolice/internal/database"
 	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/repository"
 	"github.com/google/uuid"
 )
 
@@ -11,10 +11,10 @@ type CaseService interface {
 }
 
 type caseService struct {
-	db database.CaseDB
+	db repository.CaseDB
 }
 
-func NewCaseService(conn database.CaseDB) CaseService {
+func NewCaseService(conn repository.CaseDB) CaseService {
 	return &caseService{db: conn}
 }
 

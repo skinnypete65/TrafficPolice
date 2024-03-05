@@ -1,8 +1,8 @@
 package services
 
 import (
-	"TrafficPolice/internal/database"
 	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/repository"
 	"github.com/google/uuid"
 )
 
@@ -12,10 +12,10 @@ type CameraService interface {
 }
 
 type cameraService struct {
-	db database.CameraDB
+	db repository.CameraDB
 }
 
-func NewCameraService(db database.CameraDB) CameraService {
+func NewCameraService(db repository.CameraDB) CameraService {
 	return &cameraService{db: db}
 }
 

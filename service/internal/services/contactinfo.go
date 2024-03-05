@@ -1,8 +1,8 @@
 package services
 
 import (
-	"TrafficPolice/internal/database"
 	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/repository"
 	"github.com/google/uuid"
 )
 
@@ -11,10 +11,10 @@ type ContactInfoService interface {
 }
 
 type contactInfoService struct {
-	db database.ContactInfoDB
+	db repository.ContactInfoDB
 }
 
-func NewContactInfoService(db database.ContactInfoDB) ContactInfoService {
+func NewContactInfoService(db repository.ContactInfoDB) ContactInfoService {
 	return &contactInfoService{db: db}
 }
 

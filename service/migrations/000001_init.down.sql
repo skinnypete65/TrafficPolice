@@ -4,7 +4,9 @@ DROP TABLE cameras;
 
 DROP TABLE camera_types;
 
-DROP TABLE violation_types;
+DROP TABLE violations;
 
-DROP TABLE transport_numbers;
+DROP TABLE transports;
+
+DROP TABLE persons
 
