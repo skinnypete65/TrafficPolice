@@ -28,4 +28,5 @@ type AuthRepo interface {
 	InsertExpert(expert domain.Expert) error
 	InsertDirector(director domain.Director) error
 	SignIn(username string) (domain.User, error)
+	ConfirmExpert(data domain.ConfirmExpert) error
 }

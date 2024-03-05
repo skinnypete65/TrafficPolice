@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+type Role string
+
+const (
+	NoneRole     Role = "none"
+	DirectorRole Role = "director"
+	ExpertRole   Role = "expert"
+)
+
 type Director struct {
 	ID   uuid.UUID
 	User User
@@ -22,4 +30,9 @@ type User struct {
 	Password   string
 	RegisterAt time.Time
 	UserRole   string
+}
+
+type ConfirmExpert struct {
+	ExpertID    string
+	IsConfirmed bool
 }

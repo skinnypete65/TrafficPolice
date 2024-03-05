@@ -1,6 +1,7 @@
-package auth
+package tokens
 
 import (
+	"TrafficPolice/internal/domain"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
@@ -9,7 +10,7 @@ import (
 
 type TokenInfo struct {
 	UserID   string
-	UserRole string
+	UserRole domain.Role
 }
 
 type TokenManager interface {
@@ -62,6 +63,6 @@ func (m *manager) Parse(accessToken string) (TokenInfo, error) {
 
 	return TokenInfo{
 		UserID:   claims["sub"].(string),
-		UserRole: claims["role"].(string),
+		UserRole: domain.Role(claims["role"].(string)),
 	}, nil
 }

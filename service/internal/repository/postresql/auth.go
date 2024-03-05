@@ -67,3 +67,10 @@ func (r *AuthRepoPostgres) SignIn(username string) (domain.User, error) {
 
 	return user, nil
 }
+
+const confirmExpertQuery = "UPDATE experts SET is_confirmed = $1 WHERE expert_id = $2"
+
+func (r *AuthRepoPostgres) ConfirmExpert(data domain.ConfirmExpert) error {
+	_, err := r.conn.Exec(context.Background(), confirmExpertQuery, data.IsConfirmed, data.ExpertID)
+	return err
+}

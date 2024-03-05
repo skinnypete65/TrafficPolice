@@ -1,10 +1,10 @@
 package services
 
 import (
-	"TrafficPolice/hash"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
-	"TrafficPolice/pkg/auth"
+	"TrafficPolice/internal/tokens"
+	"TrafficPolice/pkg/hash"
 	"fmt"
 	"github.com/google/uuid"
 	"time"
@@ -13,21 +13,22 @@ import (
 type AuthService interface {
 	RegisterExpert(input domain.User) error
 	SignIn(input domain.User) (string, error)
+	ConfirmExpert(data domain.ConfirmExpert) error
+	ParseAccessToken(accessToken string) (tokens.TokenInfo, error)
 }
 
 type authService struct {
 	repo           repository.AuthRepo
 	hasher         hash.PasswordHasher
-	tokenManager   auth.TokenManager
+	tokenManager   tokens.TokenManager
 	accessTokenTTL time.Duration
 }
 
-func NewAuthService(repo repository.AuthRepo) AuthService {
-	manager, _ := auth.NewTokenManager("sign")
+func NewAuthService(repo repository.AuthRepo, tokenManager tokens.TokenManager) AuthService {
 	return &authService{
 		repo:           repo,
 		hasher:         hash.NewSHA1Hasher("salt"),
-		tokenManager:   manager,
+		tokenManager:   tokenManager,
 		accessTokenTTL: 30 * 24 * time.Hour,
 	}
 }
@@ -74,8 +75,16 @@ func (s *authService) SignIn(input domain.User) (string, error) {
 		return "", fmt.Errorf("invalid password")
 	}
 
-	return s.tokenManager.NewJWT(auth.TokenInfo{
+	return s.tokenManager.NewJWT(tokens.TokenInfo{
 		UserID:   user.ID.String(),
-		UserRole: user.UserRole,
+		UserRole: domain.Role(user.UserRole),
 	}, s.accessTokenTTL)
+}
+
+func (s *authService) ConfirmExpert(data domain.ConfirmExpert) error {
+	return s.repo.ConfirmExpert(data)
+}
+
+func (s *authService) ParseAccessToken(accessToken string) (tokens.TokenInfo, error) {
+	return s.tokenManager.Parse(accessToken)
 }
