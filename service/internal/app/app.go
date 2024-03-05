@@ -1,9 +1,12 @@
 package app
 
 import (
-	"TrafficPolice/internal/database/postresql"
+	"TrafficPolice/internal/domain"
+	"TrafficPolice/internal/repository/postresql"
 	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/tokens"
 	"TrafficPolice/internal/transport"
+	"TrafficPolice/internal/transport/middlewares"
 	"context"
 	"github.com/jackc/pgx/v5"
 	"log"
@@ -17,21 +20,29 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	cameraDB := database.NewCameraDBPostgres(conn)
+	tokenManager, _ := tokens.NewTokenManager("sign")
+
+	cameraDB := repository.NewCameraRepoPostgres(conn)
 	cameraService := services.NewCameraService(cameraDB)
 	cameraHandler := transport.NewCameraHandler(cameraService)
 
-	caseDB := database.NewCaseDBPostgres(conn)
+	caseDB := repository.NewCaseDBPostgres(conn)
 	caseService := services.NewCaseService(caseDB)
 	caseHandler := transport.NewCaseHandler(caseService)
 
-	contactInfoDB := database.NewContactInfoDBPostgres(conn)
+	contactInfoDB := repository.NewContactInfoDBPostgres(conn)
 	contactService := services.NewContactInfoService(contactInfoDB)
 	contactInfoHandler := transport.NewContactInfoHandler(contactService)
 
-	violationDB := database.NewViolationDBPostgres(conn)
+	violationDB := repository.NewViolationDBPostgres(conn)
 	violationService := services.NewViolationService(violationDB)
 	violationHandler := transport.NewViolationHandler(violationService)
+
+	authRepo := repository.NewAuthRepoPostgres(conn)
+	authService := services.NewAuthService(authRepo, tokenManager)
+	authHandler := transport.NewAuthHandler(authService)
+
+	authMiddleware := middlewares.NewAuthMiddleware(tokenManager)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /camera/type", cameraHandler.AddCameraType)
@@ -42,6 +53,12 @@ func Run() {
 	mux.HandleFunc("POST /contact_info", contactInfoHandler.InsertContactInfo)
 
 	mux.HandleFunc("POST /violations", violationHandler.InsertViolations)
+
+	mux.HandleFunc("POST /auth/sign_up", authHandler.SignUp)
+	mux.HandleFunc("POST /auth/sign_in", authHandler.SignIn)
+	mux.Handle("POST /auth/confirm/expert",
+		authMiddleware.IdentifyRole(http.HandlerFunc(authHandler.ConfirmExpert), domain.DirectorRole),
+	)
 
 	server := http.Server{
 		Addr:    ":8080",
