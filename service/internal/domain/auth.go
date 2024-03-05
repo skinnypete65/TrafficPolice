@@ -20,7 +20,7 @@ type Director struct {
 
 type Expert struct {
 	ID          uuid.UUID
-	isConfirmed bool
+	IsConfirmed bool
 	User        User
 }
 
