@@ -10,11 +10,16 @@ import (
 func Run() {
 	mux := http.NewServeMux()
 
-	service := services.NewImgService()
-	handler := transport.NewImgHandler(service)
+	imgService := services.NewImgService()
+	caseHandler := transport.NewCaseHandler(imgService)
 
-	mux.HandleFunc("POST /case/{id}/img", handler.UploadCaseImg)
-	mux.HandleFunc("GET /case/{id}/img", handler.GetCaseImg)
+	expertHandler := transport.NewExpertHandler(imgService)
+
+	mux.HandleFunc("POST /case/{id}/img", caseHandler.UploadCaseImg)
+	mux.HandleFunc("GET /case/{id}/img", caseHandler.GetCaseImg)
+
+	mux.HandleFunc("POST /expert/{id}/img", expertHandler.UploadExpertImg)
+	mux.HandleFunc("GET /expert/{id}/img", expertHandler.GetExpertImg)
 
 	server := http.Server{
 		Addr:    ":8000",
