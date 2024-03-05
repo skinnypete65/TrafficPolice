@@ -11,7 +11,7 @@ func Run() {
 	mux := http.NewServeMux()
 
 	service := services.NewImgService()
-	handler := transport.NewImgHandler(service)
+	handler := transport.NewCaseHandler(service)
 
 	mux.HandleFunc("POST /case/{id}/img", handler.UploadCaseImg)
 	mux.HandleFunc("GET /case/{id}/img", handler.GetCaseImg)

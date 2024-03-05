@@ -17,7 +17,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - image_vol:/app/images
+      - image_vol:/app/cases
 
   service:
     build: ./service
