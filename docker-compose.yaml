@@ -12,13 +12,6 @@ services:
     volumes:
       - pg_vol:/var/lib/postgresql/data
 
-  image_storage:
-    build: ./image_storage
-    ports:
-      - "8000:8000"
-    volumes:
-      - image_vol:/app/cases
-
   service:
     build: ./service
     ports:
@@ -28,7 +21,11 @@ services:
     depends_on:
       postgres:
         condition: service_started
+    volumes:
+      - cases_vol:/cases
+      - experts_vol:/experts
 
 volumes:
   pg_vol:
-  image_vol:
+  cases_vol:
+  experts_vol:
