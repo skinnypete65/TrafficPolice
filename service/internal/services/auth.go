@@ -45,6 +45,7 @@ func (s *authService) RegisterExpert(user domain.User) error {
 
 	user.ID = uuid.New()
 	user.Password = hashedPass
+	user.UserRole = "expert"
 	err = s.repo.InsertUser(user)
 	if err != nil {
 		return err
@@ -73,5 +74,8 @@ func (s *authService) SignIn(input domain.User) (string, error) {
 		return "", fmt.Errorf("invalid password")
 	}
 
-	return s.tokenManager.NewJWT(user.ID.String(), s.accessTokenTTL)
+	return s.tokenManager.NewJWT(auth.TokenInfo{
+		UserID:   user.ID.String(),
+		UserRole: user.UserRole,
+	}, s.accessTokenTTL)
 }

@@ -3,7 +3,9 @@ CREATE TABLE "users"
     "user_id"     UUID                      NOT NULL,
     "username"    VARCHAR(255)              NOT NULL,
     "hash_pass"   VARCHAR(255)              NOT NULL,
-    "register_at" TIME(0) WITHOUT TIME ZONE NOT NULL DEFAULT current_time
+    "register_at" TIME(0) WITHOUT TIME ZONE NOT NULL DEFAULT current_time,
+    "role"        VARCHAR(255) CHECK
+        ("role" IN ('director', 'expert'))                    NOT NULL
 );
 ALTER TABLE
     "users"

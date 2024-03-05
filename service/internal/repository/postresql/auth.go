@@ -24,14 +24,15 @@ func (r *AuthRepoPostgres) CheckUserExists(username string) error {
 	return err
 }
 
-const insertUserQuery = `INSERT INTO users (user_id, username, hash_pass) 
-	VALUES ($1, $2, $3)`
+const insertUserQuery = `INSERT INTO users (user_id, username, hash_pass, role) 
+	VALUES ($1, $2, $3, $4)`
 
 func (r *AuthRepoPostgres) InsertUser(user domain.User) error {
 	_, err := r.conn.Exec(context.Background(), insertUserQuery,
 		user.ID.String(),
 		user.Username,
 		user.Password,
+		user.UserRole,
 	)
 
 	return err
@@ -51,19 +52,18 @@ func (r *AuthRepoPostgres) InsertDirector(director domain.Director) error {
 	return err
 }
 
-const signInQuery = `SELECT user_id, hash_pass FROM users WHERE username = $1`
+const signInQuery = `SELECT user_id, hash_pass, role FROM users WHERE username = $1`
 
 func (r *AuthRepoPostgres) SignIn(username string) (domain.User, error) {
 	row := r.conn.QueryRow(context.Background(), signInQuery, username)
 
-	var userID, hashPass string
-	err := row.Scan(&userID, &hashPass)
+	var user domain.User
+	var userID string
+	err := row.Scan(&userID, &user.Password, &user.UserRole)
 	if err != nil {
 		return domain.User{}, err
 	}
+	user.ID = uuid.MustParse(userID)
 
-	return domain.User{
-		ID:       uuid.MustParse(userID),
-		Password: hashPass,
-	}, nil
+	return user, nil
 }

@@ -17,9 +17,9 @@ type Expert struct {
 }
 
 type User struct {
-	ID           uuid.UUID
-	Username     string
-	Password     string
-	RegisterAt   time.Time
-	UserRoleType string
+	ID         uuid.UUID
+	Username   string
+	Password   string
+	RegisterAt time.Time
+	UserRole   string
 }
