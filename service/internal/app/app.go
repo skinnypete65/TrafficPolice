@@ -22,13 +22,16 @@ func Run() {
 
 	tokenManager, _ := tokens.NewTokenManager("sign")
 
-	cameraDB := repository.NewCameraRepoPostgres(conn)
-	cameraService := services.NewCameraService(cameraDB)
-	cameraHandler := transport.NewCameraHandler(cameraService)
+	imgService := services.NewImgService()
+	expertHandler := transport.NewExpertHandler(imgService)
 
 	caseDB := repository.NewCaseDBPostgres(conn)
 	caseService := services.NewCaseService(caseDB)
-	caseHandler := transport.NewCaseHandler(caseService)
+	caseHandler := transport.NewCaseHandler(caseService, imgService)
+
+	cameraDB := repository.NewCameraRepoPostgres(conn)
+	cameraService := services.NewCameraService(cameraDB)
+	cameraHandler := transport.NewCameraHandler(cameraService)
 
 	contactInfoDB := repository.NewContactInfoDBPostgres(conn)
 	contactService := services.NewContactInfoService(contactInfoDB)
@@ -45,19 +48,41 @@ func Run() {
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /camera/type", cameraHandler.AddCameraType)
-	mux.HandleFunc("POST /camera", cameraHandler.RegisterCamera)
+
+	mux.Handle("POST /camera/type",
+		authMiddleware.IdentifyRole(http.HandlerFunc(cameraHandler.AddCameraType), domain.DirectorRole),
+	)
+	mux.Handle("POST /camera",
+		authMiddleware.IdentifyRole(http.HandlerFunc(cameraHandler.RegisterCamera), domain.DirectorRole),
+	)
 
 	mux.HandleFunc("POST /case", caseHandler.AddCase)
+	mux.Handle("POST /case/{id}/img",
+		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.UploadCaseImg), domain.DirectorRole, domain.ExpertRole),
+	)
+	mux.Handle("GET /case/{id}/img",
+		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.GetCaseImg), domain.DirectorRole, domain.ExpertRole),
+	)
 
-	mux.HandleFunc("POST /contact_info", contactInfoHandler.InsertContactInfo)
+	mux.Handle("POST /contact_info",
+		authMiddleware.IdentifyRole(http.HandlerFunc(contactInfoHandler.InsertContactInfo), domain.DirectorRole),
+	)
 
-	mux.HandleFunc("POST /violations", violationHandler.InsertViolations)
+	mux.Handle("POST /violations",
+		authMiddleware.IdentifyRole(http.HandlerFunc(violationHandler.InsertViolations), domain.DirectorRole),
+	)
 
 	mux.HandleFunc("POST /auth/sign_up", authHandler.SignUp)
 	mux.HandleFunc("POST /auth/sign_in", authHandler.SignIn)
 	mux.Handle("POST /auth/confirm/expert",
 		authMiddleware.IdentifyRole(http.HandlerFunc(authHandler.ConfirmExpert), domain.DirectorRole),
+	)
+
+	mux.Handle("POST /expert/{id}/img", authMiddleware.IdentifyRole(
+		http.HandlerFunc(expertHandler.UploadExpertImg), domain.DirectorRole, domain.ExpertRole),
+	)
+	mux.Handle("GET /expert/{id}/img",
+		authMiddleware.IdentifyRole(http.HandlerFunc(expertHandler.GetExpertImg), domain.DirectorRole, domain.ExpertRole),
 	)
 
 	server := http.Server{

@@ -1,8 +1,8 @@
 package transport
 
 import (
+	"TrafficPolice/internal/services"
 	"fmt"
-	"image_storage/internal/services"
 	"io"
 	"log"
 	"net/http"

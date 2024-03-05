@@ -20,7 +20,7 @@ func NewAuthMiddleware(tokenManager tokens.TokenManager) *AuthMiddleware {
 	return &AuthMiddleware{tokenManager: tokenManager}
 }
 
-func (h *AuthMiddleware) IdentifyRole(next http.Handler, role domain.Role) http.Handler {
+func (h *AuthMiddleware) IdentifyRole(next http.Handler, roles ...domain.Role) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get(authorizationHeader)
 		tokenInfo, err := h.parseAuthHeader(authHeader)
@@ -30,11 +30,18 @@ func (h *AuthMiddleware) IdentifyRole(next http.Handler, role domain.Role) http.
 			return
 		}
 
-		if tokenInfo.UserRole != role {
+		hasPermission := false
+		for _, role := range roles {
+			if tokenInfo.UserRole == role {
+				hasPermission = true
+				break
+			}
+		}
+
+		if !hasPermission {
 			authError(w)
 			return
 		}
-
 		next.ServeHTTP(w, r)
 	})
 }
