@@ -16,11 +16,15 @@ const (
 )
 
 type ExpertHandler struct {
-	service services.ImgService
+	imgService    services.ImgService
+	expertService services.ExpertService
 }
 
-func NewExpertHandler(service services.ImgService) *ExpertHandler {
-	return &ExpertHandler{service: service}
+func NewExpertHandler(imgService services.ImgService, expertService services.ExpertService) *ExpertHandler {
+	return &ExpertHandler{
+		imgService:    imgService,
+		expertService: expertService,
+	}
 }
 
 func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +54,7 @@ func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.service.SaveImg(fileBytes, imgFilePath)
+	err = h.imgService.SaveImg(fileBytes, imgFilePath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

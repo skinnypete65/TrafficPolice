@@ -37,7 +37,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.RegisterExpert(domain.User{
+	err = h.service.RegisterExpert(domain.UserInfo{
 		Username: input.Username,
 		Password: input.Password,
 	})
@@ -62,7 +62,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.service.SignIn(domain.User{
+	token, err := h.service.SignIn(domain.UserInfo{
 		Username: input.Username,
 		Password: input.Password,
 	})

@@ -11,11 +11,11 @@ type CaseService interface {
 }
 
 type caseService struct {
-	db repository.CaseDB
+	repo repository.CaseRepo
 }
 
-func NewCaseService(conn repository.CaseDB) CaseService {
-	return &caseService{db: conn}
+func NewCaseService(conn repository.CaseRepo) CaseService {
+	return &caseService{repo: conn}
 }
 
 func (s *caseService) AddCase(c *models.Case) error {
@@ -23,5 +23,5 @@ func (s *caseService) AddCase(c *models.Case) error {
 	c.ID = id.String()
 	c.Transport.ID = "f6e34d03-9c1c-4117-988b-fa61ca6f6c3d"
 
-	return s.db.InsertCase(c)
+	return s.repo.InsertCase(c)
 }

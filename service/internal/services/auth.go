@@ -11,8 +11,8 @@ import (
 )
 
 type AuthService interface {
-	RegisterExpert(input domain.User) error
-	SignIn(input domain.User) (string, error)
+	RegisterExpert(input domain.UserInfo) error
+	SignIn(input domain.UserInfo) (string, error)
 	ConfirmExpert(data domain.ConfirmExpert) error
 	ParseAccessToken(accessToken string) (tokens.TokenInfo, error)
 }
@@ -33,7 +33,7 @@ func NewAuthService(repo repository.AuthRepo, tokenManager tokens.TokenManager) 
 	}
 }
 
-func (s *authService) RegisterExpert(user domain.User) error {
+func (s *authService) RegisterExpert(user domain.UserInfo) error {
 	err := s.repo.CheckUserExists(user.Username)
 	if err == nil {
 		return fmt.Errorf("user with username '%s' already exists", user.Username)
@@ -53,14 +53,14 @@ func (s *authService) RegisterExpert(user domain.User) error {
 	}
 
 	err = s.repo.InsertExpert(domain.Expert{
-		ID:   uuid.New(),
-		User: user,
+		ID:       uuid.New().String(),
+		UserInfo: user,
 	})
 
 	return err
 }
 
-func (s *authService) SignIn(input domain.User) (string, error) {
+func (s *authService) SignIn(input domain.UserInfo) (string, error) {
 	user, err := s.repo.SignIn(input.Username)
 	if err != nil {
 		return "", err

@@ -10,7 +10,7 @@ type CameraDB interface {
 	RegisterCamera(camera models.Camera) error
 }
 
-type CaseDB interface {
+type CaseRepo interface {
 	InsertCase(c *models.Case) error
 }
 
@@ -24,9 +24,14 @@ type ViolationDB interface {
 
 type AuthRepo interface {
 	CheckUserExists(username string) error
-	InsertUser(user domain.User) error
+	InsertUser(user domain.UserInfo) error
 	InsertExpert(expert domain.Expert) error
 	InsertDirector(director domain.Director) error
-	SignIn(username string) (domain.User, error)
+	SignIn(username string) (domain.UserInfo, error)
 	ConfirmExpert(data domain.ConfirmExpert) error
+}
+
+type ExpertRepo interface {
+	GetLastNotSolvedCase(expertID string) (string, error)
+	GetExpertByUserID(userID string) (domain.Expert, error)
 }

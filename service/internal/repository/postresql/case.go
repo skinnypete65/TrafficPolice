@@ -11,7 +11,7 @@ type caseDBPostgres struct {
 	conn *pgx.Conn
 }
 
-func NewCaseDBPostgres(conn *pgx.Conn) repository.CaseDB {
+func NewCaseDBPostgres(conn *pgx.Conn) repository.CaseRepo {
 	return &caseDBPostgres{conn: conn}
 }
 

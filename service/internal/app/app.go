@@ -21,9 +21,7 @@ func Run() {
 	}
 
 	tokenManager, _ := tokens.NewTokenManager("sign")
-
 	imgService := services.NewImgService()
-	expertHandler := transport.NewExpertHandler(imgService)
 
 	caseDB := repository.NewCaseDBPostgres(conn)
 	caseService := services.NewCaseService(caseDB)
@@ -45,7 +43,11 @@ func Run() {
 	authService := services.NewAuthService(authRepo, tokenManager)
 	authHandler := transport.NewAuthHandler(authService)
 
-	authMiddleware := middlewares.NewAuthMiddleware(tokenManager)
+	expertRepo := repository.NewExpertRepoPostgres(conn)
+	expertService := services.NewExpertService(expertRepo)
+	expertHandler := transport.NewExpertHandler(imgService, expertService)
+
+	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
 
 	mux := http.NewServeMux()
 
@@ -57,11 +59,12 @@ func Run() {
 	)
 
 	mux.HandleFunc("POST /case", caseHandler.AddCase)
-	mux.Handle("POST /case/{id}/img",
-		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.UploadCaseImg), domain.DirectorRole, domain.ExpertRole),
-	)
+	mux.Handle("POST /case/{id}/img", http.HandlerFunc(caseHandler.UploadCaseImg))
 	mux.Handle("GET /case/{id}/img",
-		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.GetCaseImg), domain.DirectorRole, domain.ExpertRole),
+		authMiddleware.IdentifyRole(
+			authMiddleware.IsExpertConfirmed(http.HandlerFunc(caseHandler.GetCaseImg)),
+			domain.DirectorRole, domain.ExpertRole,
+		),
 	)
 
 	mux.Handle("POST /contact_info",
@@ -79,10 +82,14 @@ func Run() {
 	)
 
 	mux.Handle("POST /expert/{id}/img", authMiddleware.IdentifyRole(
-		http.HandlerFunc(expertHandler.UploadExpertImg), domain.DirectorRole, domain.ExpertRole),
+		authMiddleware.IsExpertConfirmed(http.HandlerFunc(expertHandler.UploadExpertImg)),
+		domain.DirectorRole, domain.ExpertRole),
 	)
 	mux.Handle("GET /expert/{id}/img",
-		authMiddleware.IdentifyRole(http.HandlerFunc(expertHandler.GetExpertImg), domain.DirectorRole, domain.ExpertRole),
+		authMiddleware.IdentifyRole(
+			authMiddleware.IsExpertConfirmed(http.HandlerFunc(expertHandler.GetExpertImg)),
+			domain.DirectorRole, domain.ExpertRole,
+		),
 	)
 
 	server := http.Server{

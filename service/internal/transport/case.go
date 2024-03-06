@@ -202,3 +202,7 @@ func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) {
 
 	http.ServeFile(w, r, files[0])
 }
+
+func (h *CaseHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) {
+
+}

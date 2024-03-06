@@ -2,8 +2,10 @@ package middlewares
 
 import (
 	"TrafficPolice/internal/domain"
+	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
 	"errors"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -13,11 +15,15 @@ const (
 )
 
 type AuthMiddleware struct {
-	tokenManager tokens.TokenManager
+	tokenManager  tokens.TokenManager
+	expertService services.ExpertService
 }
 
-func NewAuthMiddleware(tokenManager tokens.TokenManager) *AuthMiddleware {
-	return &AuthMiddleware{tokenManager: tokenManager}
+func NewAuthMiddleware(tokenManager tokens.TokenManager, expertService services.ExpertService) *AuthMiddleware {
+	return &AuthMiddleware{
+		tokenManager:  tokenManager,
+		expertService: expertService,
+	}
 }
 
 func (h *AuthMiddleware) IdentifyRole(next http.Handler, roles ...domain.Role) http.Handler {
@@ -46,6 +52,35 @@ func (h *AuthMiddleware) IdentifyRole(next http.Handler, roles ...domain.Role) h
 	})
 }
 
+func (h *AuthMiddleware) IsExpertConfirmed(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		authHeader := r.Header.Get(authorizationHeader)
+		tokenInfo, err := h.parseAuthHeader(authHeader)
+
+		if err != nil {
+			authError(w)
+			return
+		}
+
+		if tokenInfo.UserRole != domain.ExpertRole {
+			next.ServeHTTP(w, r)
+		}
+
+		expert, err := h.expertService.GetExpertByUserID(tokenInfo.UserID)
+		if err != nil {
+			log.Println(err)
+			authError(w)
+			return
+		}
+		if !expert.IsConfirmed {
+			notConfirmedError(w)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (h *AuthMiddleware) parseAuthHeader(authHeader string) (tokens.TokenInfo, error) {
 	if authHeader == "" {
 		return tokens.TokenInfo{}, errors.New("empty auth header")
@@ -62,9 +97,4 @@ func (h *AuthMiddleware) parseAuthHeader(authHeader string) (tokens.TokenInfo, e
 	accessToken := headerParts[1]
 
 	return h.tokenManager.Parse(accessToken)
-}
-
-func authError(w http.ResponseWriter) {
-	w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
-	http.Error(w, "Unauthorized", http.StatusUnauthorized)
 }

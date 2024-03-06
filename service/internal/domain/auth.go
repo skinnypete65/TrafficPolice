@@ -15,16 +15,17 @@ const (
 
 type Director struct {
 	ID   uuid.UUID
-	User User
+	User UserInfo
 }
 
 type Expert struct {
-	ID          uuid.UUID
-	IsConfirmed bool
-	User        User
+	ID              string
+	IsConfirmed     bool
+	CompetenceSkill int
+	UserInfo        UserInfo
 }
 
-type User struct {
+type UserInfo struct {
 	ID         uuid.UUID
 	Username   string
 	Password   string
