@@ -5,7 +5,7 @@ CREATE TABLE "users"
     "hash_pass"   VARCHAR(255)              NOT NULL,
     "register_at" TIME(0) WITHOUT TIME ZONE NOT NULL DEFAULT current_time,
     "role"        VARCHAR(255) CHECK
-        ("role" IN ('director', 'expert'))                    NOT NULL
+        ("role" IN ('director', 'expert'))  NOT NULL
 );
 ALTER TABLE
     "users"
@@ -21,9 +21,10 @@ ALTER TABLE
 
 CREATE TABLE "experts"
 (
-    "expert_id"    UUID    NOT NULL,
-    "is_confirmed" BOOLEAN NOT NULL,
-    "user_id"      UUID    NOT NULL
+    "expert_id"        UUID    NOT NULL,
+    "is_confirmed"     BOOLEAN NOT NULL,
+    "user_id"          UUID    NOT NULL,
+    "competence_skill" BIGINT  NOT NULL
 );
 ALTER TABLE
     "experts"
