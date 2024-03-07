@@ -1,13 +1,13 @@
 package services
 
 import (
-	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"github.com/google/uuid"
 )
 
 type ViolationService interface {
-	InsertViolations(violations []*models.Violation) error
+	InsertViolations(violations []*domain.Violation) error
 }
 
 type violationService struct {
@@ -18,7 +18,7 @@ func NewViolationService(db repository.ViolationDB) ViolationService {
 	return &violationService{db: db}
 }
 
-func (s *violationService) InsertViolations(violations []*models.Violation) error {
+func (s *violationService) InsertViolations(violations []*domain.Violation) error {
 	for i := range violations {
 		violations[i].ID = uuid.New().String()
 	}

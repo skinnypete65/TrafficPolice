@@ -2,24 +2,24 @@ package repository
 
 import (
 	"TrafficPolice/internal/domain"
-	"TrafficPolice/internal/models"
 )
 
 type CameraDB interface {
-	AddCameraType(cameraType models.CameraType) error
-	RegisterCamera(camera models.Camera) error
+	AddCameraType(cameraType domain.CameraType) error
+	RegisterCamera(camera domain.Camera) error
 }
 
 type CaseRepo interface {
-	InsertCase(c *models.Case) error
+	InsertCase(c *domain.Case) error
+	GetCaseByID(caseID string) (domain.Case, error)
 }
 
 type ContactInfoDB interface {
-	InsertContactInfo(m map[string][]*models.Transport) error
+	InsertContactInfo(m map[string][]*domain.Transport) error
 }
 
 type ViolationDB interface {
-	InsertViolations(violations []*models.Violation) error
+	InsertViolations(violations []*domain.Violation) error
 }
 
 type AuthRepo interface {
@@ -32,6 +32,8 @@ type AuthRepo interface {
 }
 
 type ExpertRepo interface {
-	GetLastNotSolvedCase(expertID string) (string, error)
+	GetLastNotSolvedCaseID(expertID string) (string, error)
 	GetExpertByUserID(userID string) (domain.Expert, error)
+	GetNotSolvedCase(expert domain.Expert) (domain.Case, error)
+	InsertNotSolvedCase(solvedCase domain.SolvedCase) error
 }

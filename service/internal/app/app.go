@@ -23,8 +23,8 @@ func Run() {
 	tokenManager, _ := tokens.NewTokenManager("sign")
 	imgService := services.NewImgService()
 
-	caseDB := repository.NewCaseDBPostgres(conn)
-	caseService := services.NewCaseService(caseDB)
+	caseRepo := repository.NewCaseRepoPostgres(conn)
+	caseService := services.NewCaseService(caseRepo)
 	caseHandler := transport.NewCaseHandler(caseService, imgService)
 
 	cameraDB := repository.NewCameraRepoPostgres(conn)
@@ -44,7 +44,7 @@ func Run() {
 	authHandler := transport.NewAuthHandler(authService)
 
 	expertRepo := repository.NewExpertRepoPostgres(conn)
-	expertService := services.NewExpertService(expertRepo)
+	expertService := services.NewExpertService(expertRepo, caseRepo)
 	expertHandler := transport.NewExpertHandler(imgService, expertService)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
@@ -87,10 +87,20 @@ func Run() {
 	)
 	mux.Handle("GET /expert/{id}/img",
 		authMiddleware.IdentifyRole(
-			authMiddleware.IsExpertConfirmed(http.HandlerFunc(expertHandler.GetExpertImg)),
+			authMiddleware.IsExpertConfirmed(
+				http.HandlerFunc(expertHandler.GetExpertImg),
+			),
 			domain.DirectorRole, domain.ExpertRole,
 		),
 	)
+
+	mux.Handle("GET /expert/get_case",
+		authMiddleware.IdentifyRole(
+			authMiddleware.IsExpertConfirmed(
+				http.HandlerFunc(expertHandler.GetCaseForExpert),
+			),
+			domain.ExpertRole,
+		))
 
 	server := http.Server{
 		Addr:    ":8080",

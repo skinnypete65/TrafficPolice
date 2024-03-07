@@ -2,6 +2,10 @@ package transport
 
 import (
 	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/tokens"
+	"TrafficPolice/internal/transport/dto"
+	"TrafficPolice/internal/transport/middlewares"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -79,4 +83,55 @@ func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.ServeFile(w, r, files[0])
+}
+
+func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) {
+	tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
+	log.Println(tokenInfo)
+
+	c, err := h.expertService.GetCase(tokenInfo.UserID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	cDto := dto.Case{
+		ID: c.ID,
+		Transport: dto.Transport{
+			ID:     c.Transport.ID,
+			Chars:  c.Transport.Chars,
+			Num:    c.Transport.Num,
+			Region: c.Transport.Region,
+			Person: dto.Person{
+				ID: c.Transport.Person.ID,
+			},
+		},
+		Camera: dto.Camera{
+			ID:           c.Camera.ID,
+			CameraTypeID: c.Camera.CameraTypeID,
+			Latitude:     c.Camera.Latitude,
+			Longitude:    c.Camera.Longitude,
+			ShortDesc:    c.Camera.ShortDesc,
+		},
+		Violation: dto.Violation{
+			ID:         c.Violation.ID,
+			Name:       c.Violation.Name,
+			FineAmount: c.Violation.FineAmount,
+		},
+		ViolationValue: c.ViolationValue,
+		RequiredSkill:  c.RequiredSkill,
+		IsSolved:       c.IsSolved,
+		FineDecision:   c.FineDecision,
+	}
+
+	cBytes, err := json.Marshal(cDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write(cBytes)
+	if err != nil {
+		log.Println()
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
+	"context"
 	"errors"
 	"log"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 
 const (
 	authorizationHeader = "Authorization"
+	TokenInfoKey        = "token_info"
 )
 
 type AuthMiddleware struct {
@@ -48,7 +50,9 @@ func (h *AuthMiddleware) IdentifyRole(next http.Handler, roles ...domain.Role) h
 			authError(w)
 			return
 		}
-		next.ServeHTTP(w, r)
+
+		ctx := context.WithValue(r.Context(), TokenInfoKey, tokenInfo)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

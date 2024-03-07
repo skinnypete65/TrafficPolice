@@ -1,4 +1,4 @@
-package models
+package domain
 
 type Transport struct {
 	ID     string

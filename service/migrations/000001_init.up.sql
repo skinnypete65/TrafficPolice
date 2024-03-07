@@ -15,7 +15,9 @@ CREATE TABLE "cases"
     "violation_id"    UUID         NOT NULL,
     "violation_value" VARCHAR(255) NOT NULL,
     "required_skill"  INTEGER      NOT NULL,
-    "case_date"       DATE         NOT NULL
+    "case_date"       DATE         NOT NULL,
+    "is_solved"       BOOLEAN      NOT NULL,
+    "fine_decision"   BOOLEAN      NOT NULL
 );
 ALTER TABLE
     "cases"

@@ -1,4 +1,4 @@
-package models
+package domain
 
 type Person struct {
 	ID       string

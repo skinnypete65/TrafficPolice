@@ -1,6 +1,8 @@
-package models
+package domain
 
-import "time"
+import (
+	"time"
+)
 
 type CaseDTO struct {
 	Payload string `json:"payload"`
@@ -14,4 +16,6 @@ type Case struct {
 	ViolationValue string
 	RequiredSkill  int
 	Date           time.Time
+	IsSolved       bool
+	FineDecision   bool
 }

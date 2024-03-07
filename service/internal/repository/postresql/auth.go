@@ -38,7 +38,8 @@ func (r *AuthRepoPostgres) InsertUser(user domain.UserInfo) error {
 	return err
 }
 
-const insertExpertQuery = "INSERT INTO experts (expert_id, is_confirmed, user_id) VALUES ($1, false, $2)"
+const insertExpertQuery = `INSERT INTO experts (expert_id, is_confirmed, user_id, competence_skill) 
+	VALUES ($1, false, $2, 1)`
 
 func (r *AuthRepoPostgres) InsertExpert(expert domain.Expert) error {
 	_, err := r.conn.Exec(context.Background(), insertExpertQuery, expert.ID, expert.UserInfo.ID.String())

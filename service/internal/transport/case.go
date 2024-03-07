@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"encoding/binary"
 	"fmt"
@@ -18,7 +18,7 @@ const (
 	caseIDPathValue     = "id"
 )
 
-var mapping = map[string]func(c *models.Case, value any) error{
+var mapping = map[string]func(c *domain.Case, value any) error{
 	"transport_chars":   setTransportChars,
 	"transport_numbers": setTransportNums,
 	"transport_region":  setTransportRegion,
@@ -29,42 +29,42 @@ var mapping = map[string]func(c *models.Case, value any) error{
 	"datetime":          setDatetime,
 }
 
-func setTransportChars(c *models.Case, value any) error {
+func setTransportChars(c *domain.Case, value any) error {
 	c.Transport.Chars = value.(string)
 	return nil
 }
 
-func setTransportNums(c *models.Case, value any) error {
+func setTransportNums(c *domain.Case, value any) error {
 	c.Transport.Num = value.(string)
 	return nil
 }
 
-func setTransportRegion(c *models.Case, value any) error {
+func setTransportRegion(c *domain.Case, value any) error {
 	c.Transport.Region = value.(string)
 	return nil
 }
 
-func setCameraID(c *models.Case, value any) error {
+func setCameraID(c *domain.Case, value any) error {
 	c.Camera.ID = value.(string)
 	return nil
 }
 
-func setViolationID(c *models.Case, value any) error {
+func setViolationID(c *domain.Case, value any) error {
 	c.Violation.ID = value.(string)
 	return nil
 }
 
-func setViolationValue(c *models.Case, value any) error {
+func setViolationValue(c *domain.Case, value any) error {
 	c.ViolationValue = value.(string)
 	return nil
 }
 
-func setSkillValue(c *models.Case, value any) error {
+func setSkillValue(c *domain.Case, value any) error {
 	c.RequiredSkill = value.(int)
 	return nil
 }
 
-func setDatetime(c *models.Case, value any) error {
+func setDatetime(c *domain.Case, value any) error {
 	t, err := time.Parse(time.RFC3339, value.(string))
 	if err != nil {
 		return err
@@ -113,11 +113,11 @@ func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func parseCase(payload []byte) (*models.Case, error) {
+func parseCase(payload []byte) (*domain.Case, error) {
 	if len(payload) == 0 {
 		return nil, fmt.Errorf("payload is empty")
 	}
-	transportCase := &models.Case{}
+	transportCase := &domain.Case{}
 	payload = payload[2:]
 
 	for len(payload) > 0 {
@@ -201,8 +201,4 @@ func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.ServeFile(w, r, files[0])
-}
-
-func (h *CaseHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) {
-
 }

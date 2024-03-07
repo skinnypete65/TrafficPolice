@@ -1,14 +1,14 @@
 package services
 
 import (
-	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"github.com/google/uuid"
 )
 
 type CameraService interface {
-	AddCameraType(cameraType models.CameraType) error
-	RegisterCamera(camera models.Camera) error
+	AddCameraType(cameraType domain.CameraType) error
+	RegisterCamera(camera domain.Camera) error
 }
 
 type cameraService struct {
@@ -19,13 +19,13 @@ func NewCameraService(db repository.CameraDB) CameraService {
 	return &cameraService{db: db}
 }
 
-func (s *cameraService) AddCameraType(cameraType models.CameraType) error {
+func (s *cameraService) AddCameraType(cameraType domain.CameraType) error {
 	id := uuid.New()
 	cameraType.ID = id.String()
 	return s.db.AddCameraType(cameraType)
 }
 
-func (s *cameraService) RegisterCamera(camera models.Camera) error {
+func (s *cameraService) RegisterCamera(camera domain.Camera) error {
 	id := uuid.New()
 	camera.ID = id.String()
 	return s.db.RegisterCamera(camera)
