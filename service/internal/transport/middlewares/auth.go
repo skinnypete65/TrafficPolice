@@ -11,9 +11,11 @@ import (
 	"strings"
 )
 
+type ContextKey int
+
 const (
-	authorizationHeader = "Authorization"
-	TokenInfoKey        = "token_info"
+	authorizationHeader string     = "Authorization"
+	TokenInfoKey        ContextKey = 1
 )
 
 type AuthMiddleware struct {
