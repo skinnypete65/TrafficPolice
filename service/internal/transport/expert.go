@@ -1,11 +1,14 @@
 package transport
 
 import (
+	"TrafficPolice/errs"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
 	"TrafficPolice/internal/transport/dto"
 	"TrafficPolice/internal/transport/middlewares"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -87,9 +90,12 @@ func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) {
 
 func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) {
 	tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
-	log.Println(tokenInfo)
 
 	c, err := h.expertService.GetCase(tokenInfo.UserID)
+	if errors.Is(err, errs.ErrNoNotSolvedCase) {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -133,5 +139,34 @@ func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request)
 	_, err = w.Write(cBytes)
 	if err != nil {
 		log.Println()
+	}
+}
+
+func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) {
+	tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
+
+	var decision dto.Decision
+	err := json.NewDecoder(r.Body).Decode(&decision)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	expert, err := h.expertService.GetExpertByUserID(tokenInfo.UserID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = h.expertService.SetCaseDecision(
+		domain.Decision{
+			CaseID:       decision.CaseID,
+			ExpertID:     expert.ID,
+			FineDecision: decision.FineDecision,
+		})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 }

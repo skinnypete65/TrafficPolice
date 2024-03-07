@@ -89,7 +89,7 @@ func (r *expertRepoPostgres) GetNotSolvedCase(expert domain.Expert) (domain.Case
 		&c.RequiredSkill, &c.Date, &c.IsSolved, &c.FineDecision)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		return domain.Case{}, errs.ErrNoLastNotSolvedCase
+		return domain.Case{}, errs.ErrNoNotSolvedCase
 	}
 	if err != nil {
 		return domain.Case{}, err
@@ -109,6 +109,19 @@ func (r *expertRepoPostgres) InsertNotSolvedCase(solvedCase domain.SolvedCase) e
 		solvedCase.CaseID,
 		solvedCase.IsExpertSolve,
 		solvedCase.FineDecision,
+	)
+
+	return err
+}
+
+const setCaseDecisionQuery = `UPDATE solved_cases SET is_expert_solve = true, fine_decision = $1
+    WHERE expert_id = $2 and case_id = $3`
+
+func (r *expertRepoPostgres) SetCaseDecision(decision domain.Decision) error {
+	_, err := r.conn.Exec(context.Background(), setCaseDecisionQuery,
+		decision.FineDecision,
+		decision.ExpertID,
+		decision.CaseID,
 	)
 
 	return err

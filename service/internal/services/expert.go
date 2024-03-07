@@ -11,6 +11,7 @@ import (
 type ExpertService interface {
 	GetExpertByUserID(userID string) (domain.Expert, error)
 	GetCase(userID string) (domain.Case, error)
+	SetCaseDecision(decision domain.Decision) error
 }
 
 type expertService struct {
@@ -60,4 +61,8 @@ func (s *expertService) GetCase(userID string) (domain.Case, error) {
 
 func (s *expertService) GetExpertByUserID(userID string) (domain.Expert, error) {
 	return s.expertRepo.GetExpertByUserID(userID)
+}
+
+func (s *expertService) SetCaseDecision(decision domain.Decision) error {
+	return s.expertRepo.SetCaseDecision(decision)
 }

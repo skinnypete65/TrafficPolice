@@ -100,7 +100,16 @@ func Run() {
 				http.HandlerFunc(expertHandler.GetCaseForExpert),
 			),
 			domain.ExpertRole,
-		))
+		),
+	)
+	mux.Handle("POST /expert/decision",
+		authMiddleware.IdentifyRole(
+			authMiddleware.IsExpertConfirmed(
+				http.HandlerFunc(expertHandler.SetCaseDecision),
+			),
+			domain.ExpertRole,
+		),
+	)
 
 	server := http.Server{
 		Addr:    ":8080",

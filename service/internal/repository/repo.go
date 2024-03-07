@@ -36,4 +36,5 @@ type ExpertRepo interface {
 	GetExpertByUserID(userID string) (domain.Expert, error)
 	GetNotSolvedCase(expert domain.Expert) (domain.Case, error)
 	InsertNotSolvedCase(solvedCase domain.SolvedCase) error
+	SetCaseDecision(decision domain.Decision) error
 }
