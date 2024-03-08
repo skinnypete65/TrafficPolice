@@ -161,7 +161,7 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 	err = h.expertService.SetCaseDecision(
 		domain.Decision{
 			CaseID:       decision.CaseID,
-			ExpertID:     expert.ID,
+			Expert:       expert,
 			FineDecision: decision.FineDecision,
 		})
 

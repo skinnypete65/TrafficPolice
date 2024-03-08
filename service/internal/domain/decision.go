@@ -2,6 +2,11 @@ package domain
 
 type Decision struct {
 	CaseID       string
-	ExpertID     string
+	Expert       Expert
 	FineDecision bool
+}
+
+type FineDecisions struct {
+	PositiveDecisions int
+	NegativeDecisions int
 }

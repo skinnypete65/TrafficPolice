@@ -20,7 +20,9 @@ const checkUserExistsQuery = "SELECT username FROM users WHERE username = $1"
 func (r *AuthRepoPostgres) CheckUserExists(username string) error {
 	row := r.conn.QueryRow(context.Background(), checkUserExistsQuery, username)
 
-	err := row.Scan()
+	var userName string
+	err := row.Scan(&userName)
+
 	return err
 }
 

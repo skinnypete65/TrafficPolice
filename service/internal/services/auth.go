@@ -24,10 +24,10 @@ type authService struct {
 	accessTokenTTL time.Duration
 }
 
-func NewAuthService(repo repository.AuthRepo, tokenManager tokens.TokenManager) AuthService {
+func NewAuthService(repo repository.AuthRepo, tokenManager tokens.TokenManager, passSalt string) AuthService {
 	return &authService{
 		repo:           repo,
-		hasher:         hash.NewSHA1Hasher("salt"),
+		hasher:         hash.NewSHA1Hasher(passSalt),
 		tokenManager:   tokenManager,
 		accessTokenTTL: 30 * 24 * time.Hour,
 	}

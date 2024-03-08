@@ -12,6 +12,8 @@ type CameraDB interface {
 type CaseRepo interface {
 	InsertCase(c *domain.Case) error
 	GetCaseByID(caseID string) (domain.Case, error)
+	SetCaseFineDecision(caseID string, fineDecision bool) error
+	UpdateCaseRequiredSkill(caseID string, requiredSkill int) error
 }
 
 type ContactInfoDB interface {
@@ -37,4 +39,6 @@ type ExpertRepo interface {
 	GetNotSolvedCase(expert domain.Expert) (domain.Case, error)
 	InsertNotSolvedCase(solvedCase domain.SolvedCase) error
 	SetCaseDecision(decision domain.Decision) error
+	GetCaseFineDecisions(caseID string) (domain.FineDecisions, error)
+	GetExpertsCountBySkill(competenceSkill int) (int, error)
 }

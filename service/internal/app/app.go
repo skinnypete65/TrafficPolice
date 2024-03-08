@@ -1,6 +1,7 @@
 package app
 
 import (
+	"TrafficPolice/internal/config"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository/postresql"
 	"TrafficPolice/internal/services"
@@ -8,6 +9,7 @@ import (
 	"TrafficPolice/internal/transport"
 	"TrafficPolice/internal/transport/middlewares"
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
@@ -15,12 +17,17 @@ import (
 )
 
 func Run() {
+	cfg, err := config.ParseConfig("config.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	conn, err := pgx.Connect(context.Background(), os.Getenv("POSTGRESQL_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tokenManager, _ := tokens.NewTokenManager("sign")
+	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
 
 	caseRepo := repository.NewCaseRepoPostgres(conn)
@@ -40,11 +47,11 @@ func Run() {
 	violationHandler := transport.NewViolationHandler(violationService)
 
 	authRepo := repository.NewAuthRepoPostgres(conn)
-	authService := services.NewAuthService(authRepo, tokenManager)
+	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
 	authHandler := transport.NewAuthHandler(authService)
 
 	expertRepo := repository.NewExpertRepoPostgres(conn)
-	expertService := services.NewExpertService(expertRepo, caseRepo)
+	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
 	expertHandler := transport.NewExpertHandler(imgService, expertService)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
@@ -111,8 +118,9 @@ func Run() {
 		),
 	)
 
+	port := fmt.Sprintf(":%d", cfg.ServerPort)
 	server := http.Server{
-		Addr:    ":8080",
+		Addr:    port,
 		Handler: mux,
 	}
 

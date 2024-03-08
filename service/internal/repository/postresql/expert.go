@@ -120,9 +120,35 @@ const setCaseDecisionQuery = `UPDATE solved_cases SET is_expert_solve = true, fi
 func (r *expertRepoPostgres) SetCaseDecision(decision domain.Decision) error {
 	_, err := r.conn.Exec(context.Background(), setCaseDecisionQuery,
 		decision.FineDecision,
-		decision.ExpertID,
+		decision.Expert.ID,
 		decision.CaseID,
 	)
 
 	return err
+}
+
+const gGetCaseFineDecisions = `SELECT 
+    SUM(CASE WHEN fine_decision = true THEN 1 ELSE 0 END) AS positive_decisions,
+    SUM(CASE WHEN fine_decision = false THEN 1 ELSE 0 END) AS negative_decisions
+FROM solved_cases
+WHERE case_id = $1`
+
+func (r *expertRepoPostgres) GetCaseFineDecisions(caseID string) (domain.FineDecisions, error) {
+	row := r.conn.QueryRow(context.Background(), gGetCaseFineDecisions, caseID)
+
+	var fineDecisions domain.FineDecisions
+	err := row.Scan(&fineDecisions.PositiveDecisions, &fineDecisions.NegativeDecisions)
+	return fineDecisions, err
+}
+
+const getExpertsCountByRequiredSkillQuery = `SELECT COUNT(*)
+FROM experts
+WHERE competence_skill = $1`
+
+func (r *expertRepoPostgres) GetExpertsCountBySkill(competenceSkill int) (int, error) {
+	row := r.conn.QueryRow(context.Background(), getExpertsCountByRequiredSkillQuery, competenceSkill)
+
+	var cnt int
+	err := row.Scan(&cnt)
+	return cnt, err
 }

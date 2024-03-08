@@ -17,12 +17,18 @@ type ExpertService interface {
 type expertService struct {
 	expertRepo repository.ExpertRepo
 	caseRepo   repository.CaseRepo
+	consensus  int
 }
 
-func NewExpertService(expertRepo repository.ExpertRepo, caseRepo repository.CaseRepo) ExpertService {
+func NewExpertService(
+	expertRepo repository.ExpertRepo,
+	caseRepo repository.CaseRepo,
+	consensus int,
+) ExpertService {
 	return &expertService{
 		expertRepo: expertRepo,
 		caseRepo:   caseRepo,
+		consensus:  consensus,
 	}
 }
 
@@ -64,5 +70,35 @@ func (s *expertService) GetExpertByUserID(userID string) (domain.Expert, error) 
 }
 
 func (s *expertService) SetCaseDecision(decision domain.Decision) error {
-	return s.expertRepo.SetCaseDecision(decision)
+	err := s.expertRepo.SetCaseDecision(decision)
+	if err != nil {
+		return err
+	}
+
+	caseDecisions, err := s.expertRepo.GetCaseFineDecisions(decision.CaseID)
+	if err != nil {
+		return err
+	}
+
+	if caseDecisions.PositiveDecisions >= s.consensus {
+		return s.caseRepo.SetCaseFineDecision(decision.CaseID, true)
+	}
+	if caseDecisions.NegativeDecisions >= s.consensus {
+		return s.caseRepo.SetCaseFineDecision(decision.CaseID, false)
+	}
+
+	expertsCnt, err := s.expertRepo.GetExpertsCountBySkill(decision.Expert.CompetenceSkill)
+	if err != nil {
+		return err
+	}
+
+	totalDecisions := caseDecisions.PositiveDecisions + caseDecisions.NegativeDecisions
+
+	leftExperts := expertsCnt - totalDecisions
+	leftDecisions := s.consensus - max(caseDecisions.PositiveDecisions, caseDecisions.NegativeDecisions)
+	if leftExperts < leftDecisions {
+		return s.caseRepo.UpdateCaseRequiredSkill(decision.CaseID, decision.Expert.CompetenceSkill+1)
+	}
+
+	return nil
 }

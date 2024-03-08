@@ -17,12 +17,12 @@ func NewCaseRepoPostgres(conn *pgx.Conn) repository.CaseRepo {
 	return &caseRepoPostgres{conn: conn}
 }
 
-func (r *caseRepoPostgres) InsertCase(c *domain.Case) error {
-	query := `INSERT INTO cases (case_id, transport_id, camera_id, 
+const insertCaseQuery = `INSERT INTO cases (case_id, transport_id, camera_id, 
                    violation_id, violation_value, required_skill, case_date) 
 		VALUES ($1, $2, $3, $4, $5, $6, $7)`
 
-	_, err := r.conn.Exec(context.Background(), query,
+func (r *caseRepoPostgres) InsertCase(c *domain.Case) error {
+	_, err := r.conn.Exec(context.Background(), insertCaseQuery,
 		c.ID, c.Transport.ID, c.Camera.ID, c.Violation.ID, c.ViolationValue, c.RequiredSkill, c.Date,
 	)
 	return err
@@ -58,4 +58,22 @@ func (r *caseRepoPostgres) GetCaseByID(caseID string) (domain.Case, error) {
 	}
 
 	return c, nil
+}
+
+const setCaseFineDecisionQuery = `UPDATE cases
+SET fine_decision = $1, is_solved = true
+WHERE case_id = $2`
+
+func (r *caseRepoPostgres) SetCaseFineDecision(caseID string, fineDecision bool) error {
+	_, err := r.conn.Exec(context.Background(), setCaseFineDecisionQuery, fineDecision, caseID)
+	return err
+}
+
+const updateCaseRequiredSkillQuery = `UPDATE cases
+SET required_skill = $1
+WHERE case_id = $2`
+
+func (r *caseRepoPostgres) UpdateCaseRequiredSkill(caseID string, requiredSkill int) error {
+	_, err := r.conn.Exec(context.Background(), updateCaseRequiredSkillQuery, requiredSkill, caseID)
+	return err
 }
