@@ -6,10 +6,11 @@ import (
 )
 
 type Config struct {
-	ServerPort int    `yaml:"serverPort"`
-	Consensus  int    `yaml:"consensus"`
-	PassSalt   string `yaml:"passSalt"`
-	SigningKey string `yaml:"signingKey"`
+	ServerPort int            `yaml:"serverPort"`
+	Consensus  int            `yaml:"consensus"`
+	PassSalt   string         `yaml:"passSalt"`
+	SigningKey string         `yaml:"signingKey"`
+	Directors  []DirectorInfo `yaml:"directors"`
 }
 
 func ParseConfig(path string) (*Config, error) {

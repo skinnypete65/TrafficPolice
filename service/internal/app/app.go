@@ -58,6 +58,8 @@ func Run() {
 
 	mux := http.NewServeMux()
 
+	registerDirectors(cfg, authService)
+
 	mux.Handle("POST /camera/type",
 		authMiddleware.IdentifyRole(http.HandlerFunc(cameraHandler.AddCameraType), domain.DirectorRole),
 	)
@@ -129,4 +131,17 @@ func Run() {
 		log.Fatal(err)
 	}
 
+}
+
+func registerDirectors(cfg *config.Config, authService services.AuthService) {
+	users := make([]domain.UserInfo, len(cfg.Directors))
+
+	for i, d := range cfg.Directors {
+		users[i] = domain.UserInfo{Username: d.Username, Password: d.Password}
+	}
+
+	err := authService.RegisterDirectors(users)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
