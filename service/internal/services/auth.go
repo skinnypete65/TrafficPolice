@@ -12,6 +12,7 @@ import (
 
 type AuthService interface {
 	RegisterExpert(input domain.UserInfo) error
+	RegisterDirectors(users []domain.UserInfo) error
 	SignIn(input domain.UserInfo) (string, error)
 	ConfirmExpert(data domain.ConfirmExpert) error
 	ParseAccessToken(accessToken string) (tokens.TokenInfo, error)
@@ -34,8 +35,8 @@ func NewAuthService(repo repository.AuthRepo, tokenManager tokens.TokenManager, 
 }
 
 func (s *authService) RegisterExpert(user domain.UserInfo) error {
-	err := s.repo.CheckUserExists(user.Username)
-	if err == nil {
+	alreadyExists := s.repo.CheckUserExists(user.Username)
+	if alreadyExists {
 		return fmt.Errorf("user with username '%s' already exists", user.Username)
 	}
 
@@ -58,6 +59,40 @@ func (s *authService) RegisterExpert(user domain.UserInfo) error {
 	})
 
 	return err
+}
+
+func (s *authService) RegisterDirectors(users []domain.UserInfo) error {
+	for i := range users {
+		alreadyExists := s.repo.CheckUserExists(users[i].Username)
+		if alreadyExists {
+			continue
+		}
+
+		hashedPass, err := s.hasher.Hash(users[i].Password)
+		if err != nil {
+			return err
+		}
+
+		users[i].ID = uuid.New()
+		users[i].Password = hashedPass
+		users[i].UserRole = "director"
+
+		err = s.repo.InsertUser(users[i])
+		if err != nil {
+			return err
+		}
+
+		err = s.repo.InsertDirector(domain.Director{
+			ID:   uuid.New(),
+			User: users[i],
+		})
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *authService) SignIn(input domain.UserInfo) (string, error) {

@@ -25,7 +25,7 @@ type ViolationDB interface {
 }
 
 type AuthRepo interface {
-	CheckUserExists(username string) error
+	CheckUserExists(username string) bool
 	InsertUser(user domain.UserInfo) error
 	InsertExpert(expert domain.Expert) error
 	InsertDirector(director domain.Director) error
@@ -41,4 +41,8 @@ type ExpertRepo interface {
 	SetCaseDecision(decision domain.Decision) error
 	GetCaseFineDecisions(caseID string) (domain.FineDecisions, error)
 	GetExpertsCountBySkill(competenceSkill int) (int, error)
+}
+
+type DirectorRepo interface {
+	InsertDirectors(directors []domain.Director) error
 }

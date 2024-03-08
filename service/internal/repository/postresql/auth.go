@@ -17,13 +17,13 @@ func NewAuthRepoPostgres(conn *pgx.Conn) *AuthRepoPostgres {
 
 const checkUserExistsQuery = "SELECT username FROM users WHERE username = $1"
 
-func (r *AuthRepoPostgres) CheckUserExists(username string) error {
+func (r *AuthRepoPostgres) CheckUserExists(username string) bool {
 	row := r.conn.QueryRow(context.Background(), checkUserExistsQuery, username)
 
 	var userName string
 	err := row.Scan(&userName)
 
-	return err
+	return err == nil
 }
 
 const insertUserQuery = `INSERT INTO users (user_id, username, hash_pass, role) 
@@ -51,7 +51,7 @@ func (r *AuthRepoPostgres) InsertExpert(expert domain.Expert) error {
 const insertDirectorQuery = "INSERT INTO directors (director_id, user_id) VALUES ($1, $2)"
 
 func (r *AuthRepoPostgres) InsertDirector(director domain.Director) error {
-	_, err := r.conn.Exec(context.Background(), insertDirectorQuery, director.ID.String(), director.User.ID.String())
+	_, err := r.conn.Exec(context.Background(), insertDirectorQuery, director.ID, director.User.ID)
 	return err
 }
 
