@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"fmt"
 	"github.com/xuri/excelize/v2"
@@ -52,16 +52,16 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	m := make(map[string][]*models.Transport)
+	m := make(map[string][]*domain.Transport)
 
 	for _, row := range rows {
-		transport := &models.Transport{
+		transport := &domain.Transport{
 			Chars:  row[0],
 			Num:    row[1],
 			Region: row[2],
 		}
 
-		person := &models.Person{
+		person := &domain.Person{
 			PhoneNum: row[3],
 			Email:    row[4],
 			VkID:     row[5],
@@ -70,7 +70,7 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 		transport.Person = person
 
 		if _, ok := m[person.PhoneNum]; !ok {
-			m[person.PhoneNum] = make([]*models.Transport, 0)
+			m[person.PhoneNum] = make([]*domain.Transport, 0)
 		}
 		m[person.PhoneNum] = append(m[person.PhoneNum], transport)
 	}

@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
@@ -20,7 +20,7 @@ func NewCameraHandler(service services.CameraService) *CameraHandler {
 }
 
 func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
-	var cameraType models.CameraType
+	var cameraType domain.CameraType
 	err := json.NewDecoder(r.Body).Decode(&cameraType)
 
 	if err != nil {
@@ -48,7 +48,7 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
-	var camera models.Camera
+	var camera domain.Camera
 	err := json.NewDecoder(r.Body).Decode(&camera)
 
 	if err != nil {

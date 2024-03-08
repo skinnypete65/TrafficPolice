@@ -1,13 +1,13 @@
 package services
 
 import (
-	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"github.com/google/uuid"
 )
 
 type ContactInfoService interface {
-	InsertContactInfo(m map[string][]*models.Transport) error
+	InsertContactInfo(m map[string][]*domain.Transport) error
 }
 
 type contactInfoService struct {
@@ -18,7 +18,7 @@ func NewContactInfoService(db repository.ContactInfoDB) ContactInfoService {
 	return &contactInfoService{db: db}
 }
 
-func (s *contactInfoService) InsertContactInfo(m map[string][]*models.Transport) error {
+func (s *contactInfoService) InsertContactInfo(m map[string][]*domain.Transport) error {
 
 	for _, transports := range m {
 		personID := uuid.New().String()

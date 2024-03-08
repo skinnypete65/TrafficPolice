@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"fmt"
 	"github.com/xuri/excelize/v2"
@@ -53,7 +53,7 @@ func (h *ViolationHandler) InsertViolations(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	violations := make([]*models.Violation, 0)
+	violations := make([]*domain.Violation, 0)
 
 	for _, row := range rows {
 		isValid := true
@@ -71,7 +71,7 @@ func (h *ViolationHandler) InsertViolations(w http.ResponseWriter, r *http.Reque
 			continue
 		}
 
-		v := &models.Violation{
+		v := &domain.Violation{
 			Name:       row[0],
 			FineAmount: fineAmount,
 		}

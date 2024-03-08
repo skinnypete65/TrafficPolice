@@ -1,4 +1,4 @@
-package models
+package domain
 
 type Camera struct {
 	ID           string  `json:"camera_id"`

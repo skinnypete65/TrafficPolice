@@ -1,6 +1,7 @@
 package app
 
 import (
+	"TrafficPolice/internal/config"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository/postresql"
 	"TrafficPolice/internal/services"
@@ -8,6 +9,7 @@ import (
 	"TrafficPolice/internal/transport"
 	"TrafficPolice/internal/transport/middlewares"
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
@@ -15,18 +17,21 @@ import (
 )
 
 func Run() {
+	cfg, err := config.ParseConfig("config.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	conn, err := pgx.Connect(context.Background(), os.Getenv("POSTGRESQL_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tokenManager, _ := tokens.NewTokenManager("sign")
-
+	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
-	expertHandler := transport.NewExpertHandler(imgService)
 
-	caseDB := repository.NewCaseDBPostgres(conn)
-	caseService := services.NewCaseService(caseDB)
+	caseRepo := repository.NewCaseRepoPostgres(conn)
+	caseService := services.NewCaseService(caseRepo)
 	caseHandler := transport.NewCaseHandler(caseService, imgService)
 
 	cameraDB := repository.NewCameraRepoPostgres(conn)
@@ -42,10 +47,14 @@ func Run() {
 	violationHandler := transport.NewViolationHandler(violationService)
 
 	authRepo := repository.NewAuthRepoPostgres(conn)
-	authService := services.NewAuthService(authRepo, tokenManager)
+	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
 	authHandler := transport.NewAuthHandler(authService)
 
-	authMiddleware := middlewares.NewAuthMiddleware(tokenManager)
+	expertRepo := repository.NewExpertRepoPostgres(conn)
+	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
+	expertHandler := transport.NewExpertHandler(imgService, expertService)
+
+	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
 
 	mux := http.NewServeMux()
 
@@ -57,11 +66,12 @@ func Run() {
 	)
 
 	mux.HandleFunc("POST /case", caseHandler.AddCase)
-	mux.Handle("POST /case/{id}/img",
-		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.UploadCaseImg), domain.DirectorRole, domain.ExpertRole),
-	)
+	mux.Handle("POST /case/{id}/img", http.HandlerFunc(caseHandler.UploadCaseImg))
 	mux.Handle("GET /case/{id}/img",
-		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.GetCaseImg), domain.DirectorRole, domain.ExpertRole),
+		authMiddleware.IdentifyRole(
+			authMiddleware.IsExpertConfirmed(http.HandlerFunc(caseHandler.GetCaseImg)),
+			domain.DirectorRole, domain.ExpertRole,
+		),
 	)
 
 	mux.Handle("POST /contact_info",
@@ -79,14 +89,38 @@ func Run() {
 	)
 
 	mux.Handle("POST /expert/{id}/img", authMiddleware.IdentifyRole(
-		http.HandlerFunc(expertHandler.UploadExpertImg), domain.DirectorRole, domain.ExpertRole),
+		authMiddleware.IsExpertConfirmed(http.HandlerFunc(expertHandler.UploadExpertImg)),
+		domain.DirectorRole, domain.ExpertRole),
 	)
 	mux.Handle("GET /expert/{id}/img",
-		authMiddleware.IdentifyRole(http.HandlerFunc(expertHandler.GetExpertImg), domain.DirectorRole, domain.ExpertRole),
+		authMiddleware.IdentifyRole(
+			authMiddleware.IsExpertConfirmed(
+				http.HandlerFunc(expertHandler.GetExpertImg),
+			),
+			domain.DirectorRole, domain.ExpertRole,
+		),
 	)
 
+	mux.Handle("GET /expert/get_case",
+		authMiddleware.IdentifyRole(
+			authMiddleware.IsExpertConfirmed(
+				http.HandlerFunc(expertHandler.GetCaseForExpert),
+			),
+			domain.ExpertRole,
+		),
+	)
+	mux.Handle("POST /expert/decision",
+		authMiddleware.IdentifyRole(
+			authMiddleware.IsExpertConfirmed(
+				http.HandlerFunc(expertHandler.SetCaseDecision),
+			),
+			domain.ExpertRole,
+		),
+	)
+
+	port := fmt.Sprintf(":%d", cfg.ServerPort)
 	server := http.Server{
-		Addr:    ":8080",
+		Addr:    port,
 		Handler: mux,
 	}
 

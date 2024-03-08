@@ -20,14 +20,16 @@ const checkUserExistsQuery = "SELECT username FROM users WHERE username = $1"
 func (r *AuthRepoPostgres) CheckUserExists(username string) error {
 	row := r.conn.QueryRow(context.Background(), checkUserExistsQuery, username)
 
-	err := row.Scan()
+	var userName string
+	err := row.Scan(&userName)
+
 	return err
 }
 
 const insertUserQuery = `INSERT INTO users (user_id, username, hash_pass, role) 
 	VALUES ($1, $2, $3, $4)`
 
-func (r *AuthRepoPostgres) InsertUser(user domain.User) error {
+func (r *AuthRepoPostgres) InsertUser(user domain.UserInfo) error {
 	_, err := r.conn.Exec(context.Background(), insertUserQuery,
 		user.ID.String(),
 		user.Username,
@@ -38,10 +40,11 @@ func (r *AuthRepoPostgres) InsertUser(user domain.User) error {
 	return err
 }
 
-const insertExpertQuery = "INSERT INTO experts (expert_id, is_confirmed, user_id) VALUES ($1, false, $2)"
+const insertExpertQuery = `INSERT INTO experts (expert_id, is_confirmed, user_id, competence_skill) 
+	VALUES ($1, false, $2, 1)`
 
 func (r *AuthRepoPostgres) InsertExpert(expert domain.Expert) error {
-	_, err := r.conn.Exec(context.Background(), insertExpertQuery, expert.ID.String(), expert.User.ID.String())
+	_, err := r.conn.Exec(context.Background(), insertExpertQuery, expert.ID, expert.UserInfo.ID.String())
 	return err
 }
 
@@ -54,14 +57,14 @@ func (r *AuthRepoPostgres) InsertDirector(director domain.Director) error {
 
 const signInQuery = `SELECT user_id, hash_pass, role FROM users WHERE username = $1`
 
-func (r *AuthRepoPostgres) SignIn(username string) (domain.User, error) {
+func (r *AuthRepoPostgres) SignIn(username string) (domain.UserInfo, error) {
 	row := r.conn.QueryRow(context.Background(), signInQuery, username)
 
-	var user domain.User
+	var user domain.UserInfo
 	var userID string
 	err := row.Scan(&userID, &user.Password, &user.UserRole)
 	if err != nil {
-		return domain.User{}, err
+		return domain.UserInfo{}, err
 	}
 	user.ID = uuid.MustParse(userID)
 

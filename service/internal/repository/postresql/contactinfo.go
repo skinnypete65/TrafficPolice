@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"context"
 	"github.com/jackc/pgx/v5"
@@ -15,7 +15,7 @@ func NewContactInfoDBPostgres(conn *pgx.Conn) repository.ContactInfoDB {
 	return &contactInfoDBPostgres{conn: conn}
 }
 
-func (db *contactInfoDBPostgres) InsertContactInfo(m map[string][]*models.Transport) error {
+func (db *contactInfoDBPostgres) InsertContactInfo(m map[string][]*domain.Transport) error {
 	batch := &pgx.Batch{}
 
 	personQuery := `INSERT INTO persons (id, phone_num, email, vk_id, tg_id) VALUES ($1, $2, $3, $4, $5)`

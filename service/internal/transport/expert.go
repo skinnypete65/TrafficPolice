@@ -1,7 +1,14 @@
 package transport
 
 import (
+	"TrafficPolice/errs"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/tokens"
+	"TrafficPolice/internal/transport/dto"
+	"TrafficPolice/internal/transport/middlewares"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -16,11 +23,15 @@ const (
 )
 
 type ExpertHandler struct {
-	service services.ImgService
+	imgService    services.ImgService
+	expertService services.ExpertService
 }
 
-func NewExpertHandler(service services.ImgService) *ExpertHandler {
-	return &ExpertHandler{service: service}
+func NewExpertHandler(imgService services.ImgService, expertService services.ExpertService) *ExpertHandler {
+	return &ExpertHandler{
+		imgService:    imgService,
+		expertService: expertService,
+	}
 }
 
 func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) {
@@ -50,7 +61,7 @@ func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.service.SaveImg(fileBytes, imgFilePath)
+	err = h.imgService.SaveImg(fileBytes, imgFilePath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -75,4 +86,87 @@ func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.ServeFile(w, r, files[0])
+}
+
+func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) {
+	tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
+
+	c, err := h.expertService.GetCase(tokenInfo.UserID)
+	if errors.Is(err, errs.ErrNoNotSolvedCase) {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	cDto := dto.Case{
+		ID: c.ID,
+		Transport: dto.Transport{
+			ID:     c.Transport.ID,
+			Chars:  c.Transport.Chars,
+			Num:    c.Transport.Num,
+			Region: c.Transport.Region,
+			Person: dto.Person{
+				ID: c.Transport.Person.ID,
+			},
+		},
+		Camera: dto.Camera{
+			ID:           c.Camera.ID,
+			CameraTypeID: c.Camera.CameraTypeID,
+			Latitude:     c.Camera.Latitude,
+			Longitude:    c.Camera.Longitude,
+			ShortDesc:    c.Camera.ShortDesc,
+		},
+		Violation: dto.Violation{
+			ID:         c.Violation.ID,
+			Name:       c.Violation.Name,
+			FineAmount: c.Violation.FineAmount,
+		},
+		ViolationValue: c.ViolationValue,
+		RequiredSkill:  c.RequiredSkill,
+		IsSolved:       c.IsSolved,
+		FineDecision:   c.FineDecision,
+	}
+
+	cBytes, err := json.Marshal(cDto)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write(cBytes)
+	if err != nil {
+		log.Println()
+	}
+}
+
+func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) {
+	tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
+
+	var decision dto.Decision
+	err := json.NewDecoder(r.Body).Decode(&decision)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	expert, err := h.expertService.GetExpertByUserID(tokenInfo.UserID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = h.expertService.SetCaseDecision(
+		domain.Decision{
+			CaseID:       decision.CaseID,
+			Expert:       expert,
+			FineDecision: decision.FineDecision,
+		})
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 }

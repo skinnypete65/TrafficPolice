@@ -11,6 +11,7 @@ COPY --from=builder /app/main .
 COPY --from=builder /app/migrate ./migrate
 COPY migrations ./migrations
 COPY start.sh .
+COPY config.yaml .
 
 EXPOSE 8080
 CMD ["/app/main"]

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"TrafficPolice/internal/models"
+	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"context"
 	"github.com/jackc/pgx/v5"
@@ -15,7 +15,7 @@ func NewViolationDBPostgres(conn *pgx.Conn) repository.ViolationDB {
 	return &violationDBPostgres{conn: conn}
 }
 
-func (db *violationDBPostgres) InsertViolations(violations []*models.Violation) error {
+func (db *violationDBPostgres) InsertViolations(violations []*domain.Violation) error {
 	batch := &pgx.Batch{}
 
 	query := `INSERT INTO violations (violation_id, violation_name, fine_amount) VALUES ($1, $2, $3)`

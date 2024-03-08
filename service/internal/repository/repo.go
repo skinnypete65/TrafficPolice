@@ -2,31 +2,43 @@ package repository
 
 import (
 	"TrafficPolice/internal/domain"
-	"TrafficPolice/internal/models"
 )
 
 type CameraDB interface {
-	AddCameraType(cameraType models.CameraType) error
-	RegisterCamera(camera models.Camera) error
+	AddCameraType(cameraType domain.CameraType) error
+	RegisterCamera(camera domain.Camera) error
 }
 
-type CaseDB interface {
-	InsertCase(c *models.Case) error
+type CaseRepo interface {
+	InsertCase(c *domain.Case) error
+	GetCaseByID(caseID string) (domain.Case, error)
+	SetCaseFineDecision(caseID string, fineDecision bool) error
+	UpdateCaseRequiredSkill(caseID string, requiredSkill int) error
 }
 
 type ContactInfoDB interface {
-	InsertContactInfo(m map[string][]*models.Transport) error
+	InsertContactInfo(m map[string][]*domain.Transport) error
 }
 
 type ViolationDB interface {
-	InsertViolations(violations []*models.Violation) error
+	InsertViolations(violations []*domain.Violation) error
 }
 
 type AuthRepo interface {
 	CheckUserExists(username string) error
-	InsertUser(user domain.User) error
+	InsertUser(user domain.UserInfo) error
 	InsertExpert(expert domain.Expert) error
 	InsertDirector(director domain.Director) error
-	SignIn(username string) (domain.User, error)
+	SignIn(username string) (domain.UserInfo, error)
 	ConfirmExpert(data domain.ConfirmExpert) error
+}
+
+type ExpertRepo interface {
+	GetLastNotSolvedCaseID(expertID string) (string, error)
+	GetExpertByUserID(userID string) (domain.Expert, error)
+	GetNotSolvedCase(expert domain.Expert) (domain.Case, error)
+	InsertNotSolvedCase(solvedCase domain.SolvedCase) error
+	SetCaseDecision(decision domain.Decision) error
+	GetCaseFineDecisions(caseID string) (domain.FineDecisions, error)
+	GetExpertsCountBySkill(competenceSkill int) (int, error)
 }
