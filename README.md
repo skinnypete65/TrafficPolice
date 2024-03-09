@@ -12,7 +12,7 @@ directors: array of
     password: string
 ```
 
-
+Пример:
 ``` yaml
 serverPort: 8080
 consensus: 3
