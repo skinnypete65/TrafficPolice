@@ -30,11 +30,20 @@ JOIN camera_types AS type ON cam.camera_type_id = type.camera_type_id
 JOIN violations AS v ON c.violation_id = v.violation_id
 WHERE c.is_solved = true AND cam.camera_id = $1 AND c.required_skill = $2
 AND v.violation_id = $3
-AND c.case_date BETWEEN $4 and $5`
+AND c.case_date BETWEEN $4 and $5
+LIMIT $6
+OFFSET $7`
 
-func (r *trainingRepoPostgres) GetSolvedCasesByParams(params domain.SolvedCasesParams) ([]domain.Case, error) {
+func (r *trainingRepoPostgres) GetSolvedCasesByParams(
+	params domain.SolvedCasesParams,
+	paginationParams domain.PaginationParams,
+) ([]domain.Case, error) {
+	offset := paginationParams.Limit * (paginationParams.Page - 1)
+
 	rows, err := r.conn.Query(context.Background(), getSolvedCasesByParamsQuery,
-		params.CameraID, params.RequiredSkill, params.ViolationID, params.StartTime, params.EndTime)
+		params.CameraID, params.RequiredSkill, params.ViolationID, params.StartTime, params.EndTime,
+		paginationParams.Limit, offset,
+	)
 	if err != nil {
 		return nil, err
 	}

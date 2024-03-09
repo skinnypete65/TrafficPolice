@@ -34,6 +34,9 @@ func Run() {
 	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
 
+	paginationRepo := repository.NewPaginationRepoPostgres(conn)
+	paginationService := services.NewPaginationService(paginationRepo)
+
 	caseRepo := repository.NewCaseRepoPostgres(conn)
 	caseService := services.NewCaseService(caseRepo)
 	caseHandler := transport.NewCaseHandler(caseService, imgService)
@@ -62,7 +65,7 @@ func Run() {
 
 	trainingRepo := repository.NewTrainingRepoPostgres(conn)
 	trainingService := services.NewTrainingService(trainingRepo)
-	trainingHandler := transport.NewTrainingHandler(trainingService, validate)
+	trainingHandler := transport.NewTrainingHandler(trainingService, paginationService, validate)
 
 	mux := http.NewServeMux()
 

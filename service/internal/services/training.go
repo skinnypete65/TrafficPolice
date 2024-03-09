@@ -6,7 +6,7 @@ import (
 )
 
 type TrainingService interface {
-	GetSolvedCasesByParams(params domain.SolvedCasesParams) ([]domain.Case, error)
+	GetSolvedCasesByParams(params domain.SolvedCasesParams, paginationParams domain.PaginationParams) ([]domain.Case, error)
 }
 
 type trainingService struct {
@@ -19,6 +19,9 @@ func NewTrainingService(trainingRepo repository.TrainingRepo) TrainingService {
 	}
 }
 
-func (s *trainingService) GetSolvedCasesByParams(params domain.SolvedCasesParams) ([]domain.Case, error) {
-	return s.trainingRepo.GetSolvedCasesByParams(params)
+func (s *trainingService) GetSolvedCasesByParams(
+	params domain.SolvedCasesParams,
+	paginationParams domain.PaginationParams,
+) ([]domain.Case, error) {
+	return s.trainingRepo.GetSolvedCasesByParams(params, paginationParams)
 }

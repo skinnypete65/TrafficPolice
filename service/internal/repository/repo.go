@@ -48,5 +48,9 @@ type DirectorRepo interface {
 }
 
 type TrainingRepo interface {
-	GetSolvedCasesByParams(params domain.SolvedCasesParams) ([]domain.Case, error)
+	GetSolvedCasesByParams(params domain.SolvedCasesParams, paginationParams domain.PaginationParams) ([]domain.Case, error)
+}
+
+type PaginationRepo interface {
+	GetRecordsCount(table string) (int, error)
 }

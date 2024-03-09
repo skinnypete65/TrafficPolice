@@ -7,3 +7,8 @@ type SolvedCasesParams struct {
 	StartTime     string `json:"start_time" validate:"required,is_date_only"`
 	EndTime       string `json:"end_time" validate:"required,is_date_only"`
 }
+
+type TrainingInfo struct {
+	Cases      []Case     `json:"cases"`
+	Pagination Pagination `json:"pagination"`
+}
