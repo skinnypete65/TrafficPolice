@@ -15,10 +15,10 @@ type AuthHandler struct {
 	validate *validator.Validate
 }
 
-func NewAuthHandler(service services.AuthService) *AuthHandler {
+func NewAuthHandler(service services.AuthService, validate *validator.Validate) *AuthHandler {
 	return &AuthHandler{
 		service:  service,
-		validate: validator.New(validator.WithRequiredStructEnabled()),
+		validate: validate,
 	}
 }
 

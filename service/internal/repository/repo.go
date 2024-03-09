@@ -46,3 +46,11 @@ type ExpertRepo interface {
 type DirectorRepo interface {
 	InsertDirectors(directors []domain.Director) error
 }
+
+type TrainingRepo interface {
+	GetSolvedCasesByParams(params domain.SolvedCasesParams, paginationParams domain.PaginationParams) ([]domain.Case, error)
+}
+
+type PaginationRepo interface {
+	GetRecordsCount(table string) (int, error)
+}

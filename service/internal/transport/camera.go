@@ -3,20 +3,23 @@ package transport
 import (
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/transport/dto"
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
 )
 
-var validate = validator.New(validator.WithRequiredStructEnabled())
-
 type CameraHandler struct {
-	service services.CameraService
+	service  services.CameraService
+	validate *validator.Validate
 }
 
-func NewCameraHandler(service services.CameraService) *CameraHandler {
-	return &CameraHandler{service: service}
+func NewCameraHandler(service services.CameraService, validate *validator.Validate) *CameraHandler {
+	return &CameraHandler{
+		service:  service,
+		validate: validate,
+	}
 }
 
 func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +31,7 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = validate.Struct(cameraType)
+	err = h.validate.Struct(cameraType)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -48,7 +51,7 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
-	var camera domain.Camera
+	var camera dto.Camera
 	err := json.NewDecoder(r.Body).Decode(&camera)
 
 	if err != nil {
@@ -56,13 +59,19 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = validate.Struct(camera)
+	err = h.validate.Struct(camera)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = h.service.RegisterCamera(camera)
+	err = h.service.RegisterCamera(domain.Camera{
+		ID:         camera.ID,
+		CameraType: domain.CameraType{ID: camera.CameraTypeID},
+		Latitude:   camera.Latitude,
+		Longitude:  camera.Longitude,
+		ShortDesc:  camera.ShortDesc,
+	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

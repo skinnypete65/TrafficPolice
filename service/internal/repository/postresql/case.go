@@ -46,7 +46,7 @@ func (r *caseRepoPostgres) GetCaseByID(caseID string) (domain.Case, error) {
 	row := r.conn.QueryRow(context.Background(), getCaseByIDQuery, caseID)
 
 	err := row.Scan(&c.ID, &c.Transport.ID, &c.Transport.Chars, &c.Transport.Num, &c.Transport.Region,
-		&c.Transport.Person.ID, &c.Camera.CameraTypeID, &c.Camera.Latitude, &c.Camera.Longitude,
+		&c.Transport.Person.ID, &c.Camera.CameraType.ID, &c.Camera.Latitude, &c.Camera.Longitude,
 		&c.Camera.ShortDesc, &c.Violation.Name, &c.Violation.FineAmount, &c.ViolationValue,
 		&c.RequiredSkill, &c.Date, &c.IsSolved, &c.FineDecision)
 
