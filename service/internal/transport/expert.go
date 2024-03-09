@@ -108,13 +108,13 @@ func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request)
 			Chars:  c.Transport.Chars,
 			Num:    c.Transport.Num,
 			Region: c.Transport.Region,
-			Person: dto.Person{
+			Person: &dto.Person{
 				ID: c.Transport.Person.ID,
 			},
 		},
 		Camera: dto.Camera{
 			ID:           c.Camera.ID,
-			CameraTypeID: c.Camera.CameraTypeID,
+			CameraTypeID: c.Camera.CameraType.ID,
 			Latitude:     c.Camera.Latitude,
 			Longitude:    c.Camera.Longitude,
 			ShortDesc:    c.Camera.ShortDesc,

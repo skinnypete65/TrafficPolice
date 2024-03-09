@@ -31,7 +31,7 @@ func (db *cameraRepoPostgres) RegisterCamera(camera domain.Camera) error {
 		VALUES ($1, $2, $3, $4, $5)`
 
 	_, err := db.conn.Exec(context.Background(), query,
-		camera.ID, camera.CameraTypeID, camera.Latitude, camera.Longitude, camera.ShortDesc)
+		camera.ID, camera.CameraType.ID, camera.Latitude, camera.Longitude, camera.ShortDesc)
 
 	if err != nil {
 		return err

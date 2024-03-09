@@ -46,3 +46,7 @@ type ExpertRepo interface {
 type DirectorRepo interface {
 	InsertDirectors(directors []domain.Director) error
 }
+
+type TrainingRepo interface {
+	GetSolvedCasesByParams(params domain.SolvedCasesParams) ([]domain.Case, error)
+}

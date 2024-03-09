@@ -8,8 +8,10 @@ import (
 	"TrafficPolice/internal/tokens"
 	"TrafficPolice/internal/transport"
 	"TrafficPolice/internal/transport/middlewares"
+	"TrafficPolice/internal/validation"
 	"context"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
@@ -27,6 +29,8 @@ func Run() {
 		log.Fatal(err)
 	}
 
+	validate := newValidate()
+
 	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
 
@@ -36,7 +40,7 @@ func Run() {
 
 	cameraDB := repository.NewCameraRepoPostgres(conn)
 	cameraService := services.NewCameraService(cameraDB)
-	cameraHandler := transport.NewCameraHandler(cameraService)
+	cameraHandler := transport.NewCameraHandler(cameraService, validate)
 
 	contactInfoDB := repository.NewContactInfoDBPostgres(conn)
 	contactService := services.NewContactInfoService(contactInfoDB)
@@ -48,13 +52,17 @@ func Run() {
 
 	authRepo := repository.NewAuthRepoPostgres(conn)
 	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
-	authHandler := transport.NewAuthHandler(authService)
+	authHandler := transport.NewAuthHandler(authService, validate)
 
 	expertRepo := repository.NewExpertRepoPostgres(conn)
 	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
 	expertHandler := transport.NewExpertHandler(imgService, expertService)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
+
+	trainingRepo := repository.NewTrainingRepoPostgres(conn)
+	trainingService := services.NewTrainingService(trainingRepo)
+	trainingHandler := transport.NewTrainingHandler(trainingService, validate)
 
 	mux := http.NewServeMux()
 
@@ -120,6 +128,15 @@ func Run() {
 		),
 	)
 
+	mux.Handle("POST /expert/training",
+		authMiddleware.IdentifyRole(
+			authMiddleware.IsExpertConfirmed(
+				http.HandlerFunc(trainingHandler.GetSolvedCasesByParams),
+			),
+			domain.ExpertRole,
+		),
+	)
+
 	port := fmt.Sprintf(":%d", cfg.ServerPort)
 	server := http.Server{
 		Addr:    port,
@@ -144,4 +161,14 @@ func registerDirectors(cfg *config.Config, authService services.AuthService) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func newValidate() *validator.Validate {
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	err := validate.RegisterValidation("is_date_only", validation.IsDateOnly)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return validate
 }
