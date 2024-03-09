@@ -3,6 +3,8 @@
 ``` yaml
 serverPort: int
 consensus: 3
+reportPeriod: duration
+minSolvedCases: int
 
 passSalt: string
 signingKey: string
@@ -16,6 +18,8 @@ directors: array of
 ``` yaml
 serverPort: 8080
 consensus: 3
+reportPeriod: 3m
+minSolvedCases: 2
 
 passSalt: "salt"
 signingKey: "sign"
