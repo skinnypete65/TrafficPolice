@@ -9,6 +9,7 @@ import (
 	"TrafficPolice/internal/transport/rest"
 	"TrafficPolice/internal/transport/rest/middlewares"
 	"TrafficPolice/internal/validation"
+	"TrafficPolice/pkg/rabbitmq"
 	"context"
 	"fmt"
 	"github.com/go-playground/validator/v10"
@@ -24,46 +25,53 @@ func Run() {
 		log.Fatal(err)
 	}
 
-	conn, err := pgx.Connect(context.Background(), os.Getenv("POSTGRESQL_URL"))
+	dbConn, err := pgx.Connect(context.Background(), os.Getenv("POSTGRESQL_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer dbConn.Close(context.Background())
+
+	rabbitMQConn, err := rabbitmq.NewRabbitMQConn()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rabbitMQConn.Close()
 
 	validate := newValidate()
 
 	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
 
-	paginationRepo := repository.NewPaginationRepoPostgres(conn)
+	paginationRepo := repository.NewPaginationRepoPostgres(dbConn)
 	paginationService := services.NewPaginationService(paginationRepo)
 
-	caseRepo := repository.NewCaseRepoPostgres(conn)
+	caseRepo := repository.NewCaseRepoPostgres(dbConn)
 	caseService := services.NewCaseService(caseRepo)
 	caseHandler := rest.NewCaseHandler(caseService, imgService)
 
-	cameraDB := repository.NewCameraRepoPostgres(conn)
+	cameraDB := repository.NewCameraRepoPostgres(dbConn)
 	cameraService := services.NewCameraService(cameraDB)
 	cameraHandler := rest.NewCameraHandler(cameraService, validate)
 
-	contactInfoDB := repository.NewContactInfoDBPostgres(conn)
+	contactInfoDB := repository.NewContactInfoDBPostgres(dbConn)
 	contactService := services.NewContactInfoService(contactInfoDB)
 	contactInfoHandler := rest.NewContactInfoHandler(contactService)
 
-	violationDB := repository.NewViolationDBPostgres(conn)
+	violationDB := repository.NewViolationDBPostgres(dbConn)
 	violationService := services.NewViolationService(violationDB)
 	violationHandler := rest.NewViolationHandler(violationService)
 
-	authRepo := repository.NewAuthRepoPostgres(conn)
+	authRepo := repository.NewAuthRepoPostgres(dbConn)
 	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
 	authHandler := rest.NewAuthHandler(authService, validate)
 
-	expertRepo := repository.NewExpertRepoPostgres(conn)
+	expertRepo := repository.NewExpertRepoPostgres(dbConn)
 	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
 	expertHandler := rest.NewExpertHandler(imgService, expertService)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
 
-	trainingRepo := repository.NewTrainingRepoPostgres(conn)
+	trainingRepo := repository.NewTrainingRepoPostgres(dbConn)
 	trainingService := services.NewTrainingService(trainingRepo)
 	trainingHandler := rest.NewTrainingHandler(trainingService, paginationService, validate)
 

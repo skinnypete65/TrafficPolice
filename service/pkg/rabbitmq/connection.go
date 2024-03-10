@@ -6,5 +6,5 @@ import (
 )
 
 func NewRabbitMQConn() (*amqp.Connection, error) {
-	return amqp.Dial(os.Getenv("RABBITMQ_URL"))
+	return amqp.Dial(os.Getenv("amqp://guest:guest@localhost:5672/"))
 }
