@@ -1,12 +1,12 @@
-package transport
+package rest
 
 import (
 	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
-	"TrafficPolice/internal/transport/dto"
-	"TrafficPolice/internal/transport/middlewares"
+	"TrafficPolice/internal/transport/rest/dto"
+	"TrafficPolice/internal/transport/rest/middlewares"
 	"encoding/json"
 	"errors"
 	"fmt"

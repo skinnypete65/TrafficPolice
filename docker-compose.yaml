@@ -12,6 +12,12 @@ services:
     volumes:
       - pg_vol:/var/lib/postgresql/data
 
+  rabbitmq:
+    image: rabbitmq:3.13.0-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   service:
     build: ./service
     ports:
@@ -20,6 +26,8 @@ services:
       POSTGRESQL_URL: "postgresql://user:user@postgres:5432/traffic_police_db?sslmode=disable"
     depends_on:
       postgres:
+        condition: service_started
+      rabbitmq:
         condition: service_started
     volumes:
       - cases_vol:/cases
