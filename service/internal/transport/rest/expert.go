@@ -5,6 +5,7 @@ import (
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
+	"TrafficPolice/internal/transport/rabbitmq"
 	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/internal/transport/rest/middlewares"
 	"encoding/json"
@@ -25,12 +26,18 @@ const (
 type ExpertHandler struct {
 	imgService    services.ImgService
 	expertService services.ExpertService
+	finePublisher *rabbitmq.FinePublisher
 }
 
-func NewExpertHandler(imgService services.ImgService, expertService services.ExpertService) *ExpertHandler {
+func NewExpertHandler(
+	imgService services.ImgService,
+	expertService services.ExpertService,
+	finePublisher *rabbitmq.FinePublisher,
+) *ExpertHandler {
 	return &ExpertHandler{
 		imgService:    imgService,
 		expertService: expertService,
+		finePublisher: finePublisher,
 	}
 }
 
@@ -138,7 +145,7 @@ func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request)
 
 	_, err = w.Write(cBytes)
 	if err != nil {
-		log.Println()
+		log.Println(err)
 	}
 }
 
@@ -158,7 +165,7 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = h.expertService.SetCaseDecision(
+	shouldSendFine, err := h.expertService.SetCaseDecision(
 		domain.Decision{
 			CaseID:       decision.CaseID,
 			Expert:       expert,
@@ -168,5 +175,53 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	if shouldSendFine {
+		caseInfo, err := h.expertService.GetCaseWithPersonInfo(decision.CaseID)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		err = h.finePublisher.PublishFine(mapCaseWithPersonToDTO(caseInfo))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}
+}
+
+func mapCaseWithPersonToDTO(c domain.Case) dto.Case {
+	return dto.Case{
+		ID: c.ID,
+		Transport: dto.Transport{
+			ID:    c.Transport.ID,
+			Chars: c.Transport.Chars,
+			Num:   c.Transport.Num,
+			Person: &dto.Person{
+				ID:       c.Transport.Person.ID,
+				PhoneNum: c.Transport.Person.PhoneNum,
+				Email:    c.Transport.Person.Email,
+				VkID:     c.Transport.Person.VkID,
+				TgID:     c.Transport.Person.TgID,
+			},
+		},
+		Camera: dto.Camera{
+			ID:           c.Camera.ID,
+			CameraTypeID: c.Camera.CameraType.ID,
+			Latitude:     c.Camera.Latitude,
+			Longitude:    c.Camera.Longitude,
+			ShortDesc:    c.Camera.ShortDesc,
+		},
+		Violation: dto.Violation{
+			ID:         c.Violation.ID,
+			Name:       c.Violation.Name,
+			FineAmount: c.Violation.FineAmount,
+		},
+		ViolationValue: c.ViolationValue,
+		RequiredSkill:  c.RequiredSkill,
+		Date:           c.Date,
+		IsSolved:       c.IsSolved,
+		FineDecision:   c.FineDecision,
 	}
 }

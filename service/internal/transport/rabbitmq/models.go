@@ -22,6 +22,7 @@ type ExchangeParams struct {
 }
 
 type BindingParams struct {
+	Queue    string
 	Key      string
 	Exchange string
 	NoWait   bool

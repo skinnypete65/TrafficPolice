@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
-	"log"
 )
 
 type expertRepoPostgres struct {
@@ -46,7 +45,7 @@ func (r *expertRepoPostgres) GetExpertByUserID(userID string) (domain.Expert, er
 	expert := domain.Expert{UserInfo: domain.UserInfo{}}
 
 	row := r.conn.QueryRow(context.Background(), getExpertByUserIDQuery, userID)
-	log.Println(userID)
+
 	err := row.Scan(&expert.ID, &expert.IsConfirmed, &expert.CompetenceSkill,
 		&expert.UserInfo.ID, &expert.UserInfo.Username, &expert.UserInfo.Password,
 		&expert.UserInfo.RegisterAt, &expert.UserInfo.UserRole)

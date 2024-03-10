@@ -1,11 +1,17 @@
 package rabbitmq
 
 import (
-	"TrafficPolice/pkg/rabbitmq"
+	"TrafficPolice/internal/transport/rest/dto"
 	"context"
+	"encoding/json"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 	"time"
+)
+
+const (
+	jsonContentType = "application/json"
+	FineExchange    = "fine"
 )
 
 type FinePublisher struct {
@@ -13,7 +19,7 @@ type FinePublisher struct {
 }
 
 func NewFinePublisher() (*FinePublisher, error) {
-	mqConn, err := rabbitmq.NewRabbitMQConn()
+	mqConn, err := NewRabbitMQConn()
 	if err != nil {
 		return nil, err
 	}
@@ -29,9 +35,9 @@ func NewFinePublisher() (*FinePublisher, error) {
 }
 
 func (p *FinePublisher) SetupExchangeAndQueue(
-	exchangeParams rabbitmq.ExchangeParams,
-	queueParams rabbitmq.QueueParams,
-	bindingsParams rabbitmq.BindingParams,
+	exchangeParams ExchangeParams,
+	queueParams QueueParams,
+	bindingsParams BindingParams,
 ) error {
 	err := p.amqpChan.ExchangeDeclare(
 		exchangeParams.Name,
@@ -47,7 +53,7 @@ func (p *FinePublisher) SetupExchangeAndQueue(
 		return err
 	}
 
-	queue, err := p.amqpChan.QueueDeclare(
+	_, err = p.amqpChan.QueueDeclare(
 		queueParams.Name,
 		queueParams.Durable,
 		queueParams.AutoDelete,
@@ -60,7 +66,7 @@ func (p *FinePublisher) SetupExchangeAndQueue(
 	}
 
 	err = p.amqpChan.QueueBind(
-		queue.Name,
+		bindingsParams.Queue,
 		bindingsParams.Key,
 		bindingsParams.Exchange,
 		bindingsParams.NoWait,
@@ -75,7 +81,7 @@ func (p *FinePublisher) SetupExchangeAndQueue(
 
 func (p *FinePublisher) CloseChan() {
 	if err := p.amqpChan.Close(); err != nil {
-		log.Printf("EmailsPublisher CloseChan: %v\n", err)
+		log.Printf("FinePublisher CloseChan: %v\n", err)
 	}
 }
 
@@ -96,4 +102,13 @@ func (p *FinePublisher) Publish(exchange string, contentType string, body []byte
 	)
 
 	return err
+}
+
+func (p *FinePublisher) PublishFine(c dto.Case) error {
+	cBytes, err := json.Marshal(c)
+	if err != nil {
+		return err
+	}
+
+	return p.Publish(FineExchange, jsonContentType, cBytes)
 }
