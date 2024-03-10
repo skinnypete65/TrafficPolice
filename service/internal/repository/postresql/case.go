@@ -77,3 +77,34 @@ func (r *caseRepoPostgres) UpdateCaseRequiredSkill(caseID string, requiredSkill 
 	_, err := r.conn.Exec(context.Background(), updateCaseRequiredSkillQuery, requiredSkill, caseID)
 	return err
 }
+
+const getCaseWithPersonInfoQuery = `SELECT c.case_id, t.transport_id, t.transport_chars, 
+       t.transport_nums, t.region, p.id, p.phone_num, p.email, p.vk_id, p.tg_id, 
+       cam.camera_id ,cam.camera_type_id, cam.camera_latitude, cam.camera_longitude, cam.short_desc, 
+       v.violation_id, v.violation_name, v.fine_amount, 
+       c.violation_value, c.required_skill, c.case_date, c.is_solved, c.fine_decision
+FROM cases as c
+JOIN transports AS t ON c.transport_id = t.transport_id
+JOIN persons AS p ON t.person_id = p.id
+JOIN violations AS v ON c.violation_id = v.violation_id
+JOIN cameras AS cam ON c.camera_id = cam.camera_id
+WHERE c.case_id = $1
+LIMIT 1`
+
+func (r *caseRepoPostgres) GetCaseWithPersonInfo(caseID string) (domain.Case, error) {
+	c := domain.Case{Transport: domain.Transport{Person: &domain.Person{}}, Camera: domain.Camera{}, Violation: domain.Violation{}}
+
+	row := r.conn.QueryRow(context.Background(), getCaseWithPersonInfoQuery, caseID)
+
+	err := row.Scan(&c.ID, &c.Transport.ID, &c.Transport.Chars, &c.Transport.Num,
+		&c.Transport.Region, &c.Transport.Person.ID, &c.Transport.Person.PhoneNum,
+		&c.Transport.Person.Email, &c.Transport.Person.VkID, &c.Transport.Person.TgID,
+		&c.Camera.ID, &c.Camera.CameraType.ID, &c.Camera.Latitude, &c.Camera.Longitude,
+		&c.Camera.ShortDesc, &c.Violation.ID, &c.Violation.Name, &c.Violation.FineAmount,
+		&c.ViolationValue, &c.RequiredSkill, &c.Date, &c.IsSolved, &c.FineDecision)
+
+	if err != nil {
+		return domain.Case{}, err
+	}
+	return c, nil
+}

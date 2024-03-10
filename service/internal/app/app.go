@@ -6,10 +6,11 @@ import (
 	"TrafficPolice/internal/repository/postresql"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
+	"TrafficPolice/internal/transport/rabbitmq"
 	"TrafficPolice/internal/transport/rest"
 	"TrafficPolice/internal/transport/rest/middlewares"
 	"TrafficPolice/internal/validation"
-	"TrafficPolice/pkg/rabbitmq"
+	mqcommon "TrafficPolice/pkg/rabbitmq"
 	"context"
 	"fmt"
 	"github.com/go-playground/validator/v10"
@@ -31,11 +32,13 @@ func Run() {
 	}
 	defer dbConn.Close(context.Background())
 
-	rabbitMQConn, err := rabbitmq.NewRabbitMQConn()
+	mQConn, err := mqcommon.NewRabbitMQConn()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer rabbitMQConn.Close()
+	defer mQConn.Close()
+
+	finePublisher := setupFinePublisher()
 
 	validate := newValidate()
 
@@ -67,7 +70,7 @@ func Run() {
 
 	expertRepo := repository.NewExpertRepoPostgres(dbConn)
 	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
-	expertHandler := rest.NewExpertHandler(imgService, expertService)
+	expertHandler := rest.NewExpertHandler(imgService, expertService, finePublisher)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
 
@@ -182,4 +185,42 @@ func newValidate() *validator.Validate {
 	}
 
 	return validate
+}
+
+func setupFinePublisher() *rabbitmq.FinePublisher {
+	finePublisher, err := rabbitmq.NewFinePublisher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = finePublisher.SetupExchangeAndQueue(
+		mqcommon.ExchangeParams{
+			Name:       rabbitmq.FineExchange,
+			Kind:       "fanout",
+			Durable:    true,
+			AutoDelete: false,
+			Internal:   false,
+			NoWait:     false,
+			Args:       nil,
+		}, mqcommon.QueueParams{
+			Name:       "fine_queue",
+			Durable:    false,
+			AutoDelete: false,
+			Exclusive:  false,
+			NoWait:     false,
+			Args:       nil,
+		},
+		mqcommon.BindingParams{
+			Queue:    "fine_queue",
+			Key:      "",
+			Exchange: rabbitmq.FineExchange,
+			NoWait:   false,
+			Args:     nil,
+		},
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return finePublisher
 }

@@ -1,11 +1,18 @@
 package rabbitmq
 
 import (
+	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/pkg/rabbitmq"
 	"context"
+	"encoding/json"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 	"time"
+)
+
+const (
+	jsonContentType = "application/json"
+	FineExchange    = "fine"
 )
 
 type FinePublisher struct {
@@ -47,7 +54,7 @@ func (p *FinePublisher) SetupExchangeAndQueue(
 		return err
 	}
 
-	queue, err := p.amqpChan.QueueDeclare(
+	_, err = p.amqpChan.QueueDeclare(
 		queueParams.Name,
 		queueParams.Durable,
 		queueParams.AutoDelete,
@@ -60,7 +67,7 @@ func (p *FinePublisher) SetupExchangeAndQueue(
 	}
 
 	err = p.amqpChan.QueueBind(
-		queue.Name,
+		bindingsParams.Queue,
 		bindingsParams.Key,
 		bindingsParams.Exchange,
 		bindingsParams.NoWait,
@@ -75,7 +82,7 @@ func (p *FinePublisher) SetupExchangeAndQueue(
 
 func (p *FinePublisher) CloseChan() {
 	if err := p.amqpChan.Close(); err != nil {
-		log.Printf("EmailsPublisher CloseChan: %v\n", err)
+		log.Printf("FinePublisher CloseChan: %v\n", err)
 	}
 }
 
@@ -96,4 +103,13 @@ func (p *FinePublisher) Publish(exchange string, contentType string, body []byte
 	)
 
 	return err
+}
+
+func (p *FinePublisher) PublishFine(c dto.Case) error {
+	cBytes, err := json.Marshal(c)
+	if err != nil {
+		return err
+	}
+
+	return p.Publish(FineExchange, jsonContentType, cBytes)
 }

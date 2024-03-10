@@ -11,7 +11,8 @@ import (
 type ExpertService interface {
 	GetExpertByUserID(userID string) (domain.Expert, error)
 	GetCase(userID string) (domain.Case, error)
-	SetCaseDecision(decision domain.Decision) error
+	SetCaseDecision(decision domain.Decision) (bool, error)
+	GetCaseWithPersonInfo(caseID string) (domain.Case, error)
 }
 
 type expertService struct {
@@ -69,27 +70,27 @@ func (s *expertService) GetExpertByUserID(userID string) (domain.Expert, error) 
 	return s.expertRepo.GetExpertByUserID(userID)
 }
 
-func (s *expertService) SetCaseDecision(decision domain.Decision) error {
+func (s *expertService) SetCaseDecision(decision domain.Decision) (bool, error) {
 	err := s.expertRepo.SetCaseDecision(decision)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	caseDecisions, err := s.expertRepo.GetCaseFineDecisions(decision.CaseID)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	if caseDecisions.PositiveDecisions >= s.consensus {
-		return s.caseRepo.SetCaseFineDecision(decision.CaseID, true)
+		return true, s.caseRepo.SetCaseFineDecision(decision.CaseID, true)
 	}
 	if caseDecisions.NegativeDecisions >= s.consensus {
-		return s.caseRepo.SetCaseFineDecision(decision.CaseID, false)
+		return false, s.caseRepo.SetCaseFineDecision(decision.CaseID, false)
 	}
 
 	expertsCnt, err := s.expertRepo.GetExpertsCountBySkill(decision.Expert.CompetenceSkill)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	totalDecisions := caseDecisions.PositiveDecisions + caseDecisions.NegativeDecisions
@@ -97,8 +98,12 @@ func (s *expertService) SetCaseDecision(decision domain.Decision) error {
 	leftExperts := expertsCnt - totalDecisions
 	leftDecisions := s.consensus - max(caseDecisions.PositiveDecisions, caseDecisions.NegativeDecisions)
 	if leftExperts < leftDecisions {
-		return s.caseRepo.UpdateCaseRequiredSkill(decision.CaseID, decision.Expert.CompetenceSkill+1)
+		return false, s.caseRepo.UpdateCaseRequiredSkill(decision.CaseID, decision.Expert.CompetenceSkill+1)
 	}
 
-	return nil
+	return false, nil
+}
+
+func (s *expertService) GetCaseWithPersonInfo(caseID string) (domain.Case, error) {
+	return s.caseRepo.GetCaseWithPersonInfo(caseID)
 }

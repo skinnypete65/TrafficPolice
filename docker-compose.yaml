@@ -11,12 +11,21 @@ services:
       - "5440:5432"
     volumes:
       - pg_vol:/var/lib/postgresql/data
+    networks:
+      - service_network
 
   rabbitmq:
     image: rabbitmq:3.13.0-management-alpine
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - service_network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 15s
+      timeout: 15s
+      retries: 5
 
   service:
     build: ./service
@@ -28,12 +37,28 @@ services:
       postgres:
         condition: service_started
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     volumes:
       - cases_vol:/cases
       - experts_vol:/experts
+    networks:
+      - service_network
+
+  fine_notification:
+    build: ./fine_notification
+    ports:
+      - "8081:8081"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - service_network
 
 volumes:
   pg_vol:
   cases_vol:
   experts_vol:
+
+networks:
+  service_network:
+    driver: bridge

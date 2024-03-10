@@ -2,9 +2,8 @@ package rabbitmq
 
 import (
 	amqp "github.com/rabbitmq/amqp091-go"
-	"os"
 )
 
 func NewRabbitMQConn() (*amqp.Connection, error) {
-	return amqp.Dial(os.Getenv("amqp://guest:guest@localhost:5672/"))
+	return amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 }
