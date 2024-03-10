@@ -1,19 +1,20 @@
 package rabbitmq
 
 import (
-	"fine_notification/internal/services"
-	"fine_notification/pkg/rabbitmq"
+	"encoding/json"
+	"fine_notification/internal/mailer"
+	"fine_notification/internal/transport/dto"
 	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 )
 
 type FineConsumer struct {
-	amqpChan    *amqp.Channel
-	fineService services.FineService
+	amqpChan *amqp.Channel
+	mailer   *mailer.Mailer
 }
 
-func NewFineConsumer(fineService services.FineService) (*FineConsumer, error) {
-	mqConn, err := rabbitmq.NewRabbitMQConn()
+func NewFineConsumer(mailer *mailer.Mailer) (*FineConsumer, error) {
+	mqConn, err := NewRabbitMQConn()
 	if err != nil {
 		return nil, err
 	}
@@ -24,15 +25,15 @@ func NewFineConsumer(fineService services.FineService) (*FineConsumer, error) {
 	}
 
 	return &FineConsumer{
-		amqpChan:    amqpChan,
-		fineService: fineService,
+		amqpChan: amqpChan,
+		mailer:   mailer,
 	}, nil
 }
 
 func (p *FineConsumer) SetupExchangeAndQueue(
-	exchangeParams rabbitmq.ExchangeParams,
-	queueParams rabbitmq.QueueParams,
-	bindingsParams rabbitmq.BindingParams,
+	exchangeParams ExchangeParams,
+	queueParams QueueParams,
+	bindingsParams BindingParams,
 ) error {
 	err := p.amqpChan.ExchangeDeclare(
 		exchangeParams.Name,
@@ -80,7 +81,7 @@ func (p *FineConsumer) CloseChan() {
 	}
 }
 
-func (p *FineConsumer) StartConsume(params rabbitmq.ConsumeParams) error {
+func (p *FineConsumer) StartConsume(params ConsumeParams) error {
 	msgs, err := p.amqpChan.Consume(
 		params.Queue,     // queue
 		params.Consumer,  // consumer
@@ -99,7 +100,23 @@ func (p *FineConsumer) StartConsume(params rabbitmq.ConsumeParams) error {
 
 	go func() {
 		for d := range msgs {
-			log.Printf(" [x] %s\n", d.Body)
+			var cDto dto.Case
+			err = json.Unmarshal(d.Body, &cDto)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
+			email := mailer.Email{
+				From:    "vasyagoose8@gmail.com",
+				To:      cDto.Transport.Person.Email,
+				Subject: "Информация о совершенном правонарушении",
+			}
+
+			err = p.mailer.SendFineMessage(email, cDto)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}()
 

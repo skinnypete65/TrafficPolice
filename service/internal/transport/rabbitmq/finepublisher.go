@@ -2,7 +2,6 @@ package rabbitmq
 
 import (
 	"TrafficPolice/internal/transport/rest/dto"
-	"TrafficPolice/pkg/rabbitmq"
 	"context"
 	"encoding/json"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -20,7 +19,7 @@ type FinePublisher struct {
 }
 
 func NewFinePublisher() (*FinePublisher, error) {
-	mqConn, err := rabbitmq.NewRabbitMQConn()
+	mqConn, err := NewRabbitMQConn()
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +35,9 @@ func NewFinePublisher() (*FinePublisher, error) {
 }
 
 func (p *FinePublisher) SetupExchangeAndQueue(
-	exchangeParams rabbitmq.ExchangeParams,
-	queueParams rabbitmq.QueueParams,
-	bindingsParams rabbitmq.BindingParams,
+	exchangeParams ExchangeParams,
+	queueParams QueueParams,
+	bindingsParams BindingParams,
 ) error {
 	err := p.amqpChan.ExchangeDeclare(
 		exchangeParams.Name,

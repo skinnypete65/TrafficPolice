@@ -1,17 +1,24 @@
 package app
 
 import (
-	"fine_notification/internal/services"
+	"fine_notification/internal/config"
+	"fine_notification/internal/mailer"
 	"fine_notification/internal/transport/rabbitmq"
-	mqcommon "fine_notification/pkg/rabbitmq"
+	"gopkg.in/gomail.v2"
 	"log"
 )
 
 func Run() {
-	fineService := services.NewFineService()
-	fineConsumer := setupFineConsumer(fineService)
+	cfg, err := config.ParseConfig("notification_config.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	dialer := gomail.NewDialer("smtp.gmail.com", 587, cfg.EmailSenderUsername, cfg.EmailSenderPass)
 
-	err := fineConsumer.StartConsume(mqcommon.ConsumeParams{
+	fineMailer := mailer.NewMailer(dialer)
+	fineConsumer := setupFineConsumer(fineMailer)
+
+	err = fineConsumer.StartConsume(rabbitmq.ConsumeParams{
 		Queue:     "fine_queue",
 		Consumer:  "",
 		AutoAck:   true,
@@ -25,21 +32,21 @@ func Run() {
 	}
 }
 
-func setupFineConsumer(fineService services.FineService) *rabbitmq.FineConsumer {
-	fineConsumer, err := rabbitmq.NewFineConsumer(fineService)
+func setupFineConsumer(mailer *mailer.Mailer) *rabbitmq.FineConsumer {
+	fineConsumer, err := rabbitmq.NewFineConsumer(mailer)
 	if err != nil {
 		log.Fatal(err)
 	}
 	err = fineConsumer.SetupExchangeAndQueue(
-		mqcommon.ExchangeParams{
-			Name:       mqcommon.FineExchange,
+		rabbitmq.ExchangeParams{
+			Name:       rabbitmq.FineExchange,
 			Kind:       "fanout",
 			Durable:    true,
 			AutoDelete: false,
 			Internal:   false,
 			NoWait:     false,
 			Args:       nil,
-		}, mqcommon.QueueParams{
+		}, rabbitmq.QueueParams{
 			Name:       "fine_queue",
 			Durable:    false,
 			AutoDelete: false,
@@ -47,10 +54,10 @@ func setupFineConsumer(fineService services.FineService) *rabbitmq.FineConsumer 
 			NoWait:     false,
 			Args:       nil,
 		},
-		mqcommon.BindingParams{
+		rabbitmq.BindingParams{
 			Queue:    "fine_queue",
 			Key:      "",
-			Exchange: mqcommon.FineExchange,
+			Exchange: rabbitmq.FineExchange,
 			NoWait:   false,
 			Args:     nil,
 		},

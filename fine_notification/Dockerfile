@@ -8,5 +8,7 @@ FROM alpine
 WORKDIR /app
 COPY --from=builder /app/main .
 
+COPY notification_config.yaml .
+
 EXPOSE 8081
 CMD ["/app/main"]

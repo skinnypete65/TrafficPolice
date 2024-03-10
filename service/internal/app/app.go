@@ -10,7 +10,6 @@ import (
 	"TrafficPolice/internal/transport/rest"
 	"TrafficPolice/internal/transport/rest/middlewares"
 	"TrafficPolice/internal/validation"
-	mqcommon "TrafficPolice/pkg/rabbitmq"
 	"context"
 	"fmt"
 	"github.com/go-playground/validator/v10"
@@ -21,7 +20,7 @@ import (
 )
 
 func Run() {
-	cfg, err := config.ParseConfig("config.yaml")
+	cfg, err := config.ParseConfig("service_config.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +31,7 @@ func Run() {
 	}
 	defer dbConn.Close(context.Background())
 
-	mQConn, err := mqcommon.NewRabbitMQConn()
+	mQConn, err := rabbitmq.NewRabbitMQConn()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -193,7 +192,7 @@ func setupFinePublisher() *rabbitmq.FinePublisher {
 		log.Fatal(err)
 	}
 	err = finePublisher.SetupExchangeAndQueue(
-		mqcommon.ExchangeParams{
+		rabbitmq.ExchangeParams{
 			Name:       rabbitmq.FineExchange,
 			Kind:       "fanout",
 			Durable:    true,
@@ -201,7 +200,7 @@ func setupFinePublisher() *rabbitmq.FinePublisher {
 			Internal:   false,
 			NoWait:     false,
 			Args:       nil,
-		}, mqcommon.QueueParams{
+		}, rabbitmq.QueueParams{
 			Name:       "fine_queue",
 			Durable:    false,
 			AutoDelete: false,
@@ -209,7 +208,7 @@ func setupFinePublisher() *rabbitmq.FinePublisher {
 			NoWait:     false,
 			Args:       nil,
 		},
-		mqcommon.BindingParams{
+		rabbitmq.BindingParams{
 			Queue:    "fine_queue",
 			Key:      "",
 			Exchange: rabbitmq.FineExchange,
