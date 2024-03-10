@@ -1,9 +1,9 @@
-package transport
+package rest
 
 import (
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
-	"TrafficPolice/internal/transport/dto"
+	"TrafficPolice/internal/transport/rest/dto"
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
 	"log"

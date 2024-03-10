@@ -6,8 +6,8 @@ import (
 	"TrafficPolice/internal/repository/postresql"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
-	"TrafficPolice/internal/transport"
-	"TrafficPolice/internal/transport/middlewares"
+	"TrafficPolice/internal/transport/rest"
+	"TrafficPolice/internal/transport/rest/middlewares"
 	"TrafficPolice/internal/validation"
 	"context"
 	"fmt"
@@ -39,33 +39,33 @@ func Run() {
 
 	caseRepo := repository.NewCaseRepoPostgres(conn)
 	caseService := services.NewCaseService(caseRepo)
-	caseHandler := transport.NewCaseHandler(caseService, imgService)
+	caseHandler := rest.NewCaseHandler(caseService, imgService)
 
 	cameraDB := repository.NewCameraRepoPostgres(conn)
 	cameraService := services.NewCameraService(cameraDB)
-	cameraHandler := transport.NewCameraHandler(cameraService, validate)
+	cameraHandler := rest.NewCameraHandler(cameraService, validate)
 
 	contactInfoDB := repository.NewContactInfoDBPostgres(conn)
 	contactService := services.NewContactInfoService(contactInfoDB)
-	contactInfoHandler := transport.NewContactInfoHandler(contactService)
+	contactInfoHandler := rest.NewContactInfoHandler(contactService)
 
 	violationDB := repository.NewViolationDBPostgres(conn)
 	violationService := services.NewViolationService(violationDB)
-	violationHandler := transport.NewViolationHandler(violationService)
+	violationHandler := rest.NewViolationHandler(violationService)
 
 	authRepo := repository.NewAuthRepoPostgres(conn)
 	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
-	authHandler := transport.NewAuthHandler(authService, validate)
+	authHandler := rest.NewAuthHandler(authService, validate)
 
 	expertRepo := repository.NewExpertRepoPostgres(conn)
 	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
-	expertHandler := transport.NewExpertHandler(imgService, expertService)
+	expertHandler := rest.NewExpertHandler(imgService, expertService)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
 
 	trainingRepo := repository.NewTrainingRepoPostgres(conn)
 	trainingService := services.NewTrainingService(trainingRepo)
-	trainingHandler := transport.NewTrainingHandler(trainingService, paginationService, validate)
+	trainingHandler := rest.NewTrainingHandler(trainingService, paginationService, validate)
 
 	mux := http.NewServeMux()
 
