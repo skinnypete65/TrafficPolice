@@ -18,32 +18,37 @@ import (
 	_ "github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/source/file"
 	"github.com/jackc/pgx/v5"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"log"
 	"net/http"
-	"os"
+)
+
+const (
+	serviceConfigPath = "service_config.yaml"
 )
 
 func Run() {
-	cfg, err := config.ParseConfig("service_config.yaml")
+	cfg, err := config.ParseConfig(serviceConfigPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	dbConn, err := pgx.Connect(context.Background(), os.Getenv("POSTGRESQL_URL"))
+	dbConnString := setupDBConnString(cfg)
+	dbConn, err := pgx.Connect(context.Background(), dbConnString)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer dbConn.Close(context.Background())
 
-	runMigrations(os.Getenv("POSTGRESQL_URL"))
+	runMigrations(dbConnString)
 
-	mQConn, err := rabbitmq.NewRabbitMQConn()
+	mQConn, err := rabbitmq.NewRabbitMQConn(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer mQConn.Close()
 
-	finePublisher := setupFinePublisher()
+	finePublisher := setupFinePublisher(mQConn)
 
 	validate := newValidate()
 
@@ -210,8 +215,19 @@ func newValidate() *validator.Validate {
 	return validate
 }
 
-func setupFinePublisher() *rabbitmq.FinePublisher {
-	finePublisher, err := rabbitmq.NewFinePublisher()
+func setupDBConnString(cfg *config.Config) string {
+	return fmt.Sprintf(
+		"postgresql://%s:%s@%s:%d/%s?sslmode=disable",
+		cfg.Postgres.User,
+		cfg.Postgres.Password,
+		cfg.Postgres.Host,
+		cfg.Postgres.Port,
+		cfg.Postgres.Database,
+	)
+}
+
+func setupFinePublisher(mqConn *amqp.Connection) *rabbitmq.FinePublisher {
+	finePublisher, err := rabbitmq.NewFinePublisher(mqConn)
 	if err != nil {
 		log.Fatal(err)
 	}

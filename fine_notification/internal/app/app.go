@@ -4,19 +4,30 @@ import (
 	"fine_notification/internal/config"
 	"fine_notification/internal/mailer"
 	"fine_notification/internal/transport/rabbitmq"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"gopkg.in/gomail.v2"
 	"log"
 )
 
+const (
+	notificationConfigPath = "notification_config.yaml"
+)
+
 func Run() {
-	cfg, err := config.ParseConfig("notification_config.yaml")
+	cfg, err := config.ParseConfig(notificationConfigPath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	dialer := gomail.NewDialer("smtp.gmail.com", 587, cfg.EmailSenderUsername, cfg.EmailSenderPass)
+
+	mqConn, err := rabbitmq.NewRabbitMQConn(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dialer := setupMailDialer(cfg)
 
 	fineMailer := mailer.NewMailer(dialer)
-	fineConsumer := setupFineConsumer(fineMailer)
+	fineConsumer := setupFineConsumer(mqConn, fineMailer)
 
 	err = fineConsumer.StartConsume(rabbitmq.ConsumeParams{
 		Queue:     "fine_queue",
@@ -32,8 +43,8 @@ func Run() {
 	}
 }
 
-func setupFineConsumer(mailer *mailer.Mailer) *rabbitmq.FineConsumer {
-	fineConsumer, err := rabbitmq.NewFineConsumer(mailer)
+func setupFineConsumer(mqConn *amqp.Connection, mailer *mailer.Mailer) *rabbitmq.FineConsumer {
+	fineConsumer, err := rabbitmq.NewFineConsumer(mqConn, mailer)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,4 +79,13 @@ func setupFineConsumer(mailer *mailer.Mailer) *rabbitmq.FineConsumer {
 	}
 
 	return fineConsumer
+}
+
+func setupMailDialer(cfg *config.Config) *gomail.Dialer {
+	return gomail.NewDialer(
+		cfg.EmailSender.Host,
+		cfg.EmailSender.Port,
+		cfg.EmailSender.Username,
+		cfg.EmailSender.Password,
+	)
 }
