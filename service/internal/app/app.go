@@ -11,8 +11,12 @@ import (
 	"TrafficPolice/internal/transport/rest/middlewares"
 	"TrafficPolice/internal/validation"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-migrate/migrate"
+	_ "github.com/golang-migrate/migrate/database/postgres"
+	_ "github.com/golang-migrate/migrate/source/file"
 	"github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
@@ -30,6 +34,8 @@ func Run() {
 		log.Fatal(err)
 	}
 	defer dbConn.Close(context.Background())
+
+	runMigrations(os.Getenv("POSTGRESQL_URL"))
 
 	mQConn, err := rabbitmq.NewRabbitMQConn()
 	if err != nil {
@@ -162,6 +168,19 @@ func Run() {
 		log.Fatal(err)
 	}
 
+}
+
+func runMigrations(dbUrl string) {
+	m, err := migrate.New("file://migrations", dbUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = m.Up()
+	if errors.Is(err, migrate.ErrNoChange) {
+		log.Println("Migrate no change")
+	} else if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func registerDirectors(cfg *config.Config, authService services.AuthService) {
