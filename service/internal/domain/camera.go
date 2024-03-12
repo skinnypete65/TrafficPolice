@@ -12,3 +12,9 @@ type CameraType struct {
 	ID   string
 	Name string
 }
+
+type RegisterCamera struct {
+	Camera   Camera
+	Username string
+	Password string
+}

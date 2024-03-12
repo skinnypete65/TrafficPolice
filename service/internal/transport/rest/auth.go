@@ -23,7 +23,7 @@ func NewAuthHandler(service services.AuthService, validate *validator.Validate) 
 }
 
 func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
-	var input dto.SignUpDTO
+	var input dto.SignUp
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
@@ -48,7 +48,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
-	var input dto.SignInInputDTO
+	var input dto.SignInInput
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
@@ -72,7 +72,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ansBytes, err := json.Marshal(dto.SignInOutputDTO{AccessToken: token})
+	ansBytes, err := json.Marshal(dto.SignInOutput{AccessToken: token})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

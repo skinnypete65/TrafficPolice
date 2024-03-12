@@ -11,6 +11,7 @@ const (
 	NoneRole     Role = "none"
 	DirectorRole Role = "director"
 	ExpertRole   Role = "expert"
+	CameraRole   Role = "camera"
 )
 
 type Director struct {

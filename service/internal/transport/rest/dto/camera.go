@@ -12,3 +12,8 @@ type CameraType struct {
 	ID   string `json:"camera_id,omitempty"`
 	Name string `json:"camera_name,omitempty" validate:"required"`
 }
+
+type RegisterCamera struct {
+	Camera Camera `json:"camera" validate:"required"`
+	SignUp SignUp `json:"sign_up" validate:"required"`
+}

@@ -8,7 +8,6 @@ import (
 
 type CameraService interface {
 	AddCameraType(cameraType domain.CameraType) error
-	RegisterCamera(camera domain.Camera) error
 	GetCameraTypeByCameraID(cameraID string) (string, error)
 }
 
@@ -24,12 +23,6 @@ func (s *cameraService) AddCameraType(cameraType domain.CameraType) error {
 	id := uuid.New()
 	cameraType.ID = id.String()
 	return s.cameraRepo.AddCameraType(cameraType)
-}
-
-func (s *cameraService) RegisterCamera(camera domain.Camera) error {
-	id := uuid.New()
-	camera.ID = id.String()
-	return s.cameraRepo.RegisterCamera(camera)
 }
 
 func (s *cameraService) GetCameraTypeByCameraID(cameraID string) (string, error) {

@@ -50,12 +50,16 @@ func Run() {
 	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
 
+	authRepo := repository.NewAuthRepoPostgres(dbConn)
+	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
+	authHandler := rest.NewAuthHandler(authService, validate)
+
 	paginationRepo := repository.NewPaginationRepoPostgres(dbConn)
 	paginationService := services.NewPaginationService(paginationRepo)
 
-	cameraDB := repository.NewCameraRepoPostgres(dbConn)
-	cameraService := services.NewCameraService(cameraDB)
-	cameraHandler := rest.NewCameraHandler(cameraService, validate)
+	cameraRepo := repository.NewCameraRepoPostgres(dbConn)
+	cameraService := services.NewCameraService(cameraRepo)
+	cameraHandler := rest.NewCameraHandler(cameraService, authService, validate)
 
 	transportRepo := repository.NewTransportRepoPostgres(dbConn)
 	caseRepo := repository.NewCaseRepoPostgres(dbConn)
@@ -69,10 +73,6 @@ func Run() {
 	violationDB := repository.NewViolationDBPostgres(dbConn)
 	violationService := services.NewViolationService(violationDB)
 	violationHandler := rest.NewViolationHandler(violationService)
-
-	authRepo := repository.NewAuthRepoPostgres(dbConn)
-	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
-	authHandler := rest.NewAuthHandler(authService, validate)
 
 	expertRepo := repository.NewExpertRepoPostgres(dbConn)
 	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
