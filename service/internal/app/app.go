@@ -95,8 +95,12 @@ func Run() {
 		authMiddleware.IdentifyRole(http.HandlerFunc(cameraHandler.RegisterCamera), domain.DirectorRole),
 	)
 
-	mux.HandleFunc("POST /case", caseHandler.AddCase)
-	mux.Handle("POST /case/{id}/img", http.HandlerFunc(caseHandler.UploadCaseImg))
+	mux.Handle("POST /case",
+		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.AddCase), domain.CameraRole),
+	)
+	mux.Handle("POST /case/{id}/img",
+		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.UploadCaseImg), domain.CameraRole),
+	)
 	mux.Handle("GET /case/{id}/img",
 		authMiddleware.IdentifyRole(
 			authMiddleware.IsExpertConfirmed(http.HandlerFunc(caseHandler.GetCaseImg)),
