@@ -10,7 +10,24 @@ type Config struct {
 	Consensus  int            `yaml:"consensus"`
 	PassSalt   string         `yaml:"passSalt"`
 	SigningKey string         `yaml:"signingKey"`
+	Postgres   PostgresConfig `yaml:"postgres"`
+	RabbitMQ   RabbitMQConfig `yaml:"rabbitmq"`
 	Directors  []DirectorInfo `yaml:"directors"`
+}
+
+type PostgresConfig struct {
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	Database string `yaml:"database"`
+}
+
+type RabbitMQConfig struct {
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
 }
 
 func ParseConfig(path string) (*Config, error) {

@@ -1,9 +1,18 @@
 package rabbitmq
 
 import (
+	"fine_notification/internal/config"
+	"fmt"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func NewRabbitMQConn() (*amqp.Connection, error) {
-	return amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
+func NewRabbitMQConn(cfg *config.Config) (*amqp.Connection, error) {
+	url := fmt.Sprintf(
+		"amqp://%s:%s@%s:%d/",
+		cfg.RabbitMQ.User,
+		cfg.RabbitMQ.Password,
+		cfg.RabbitMQ.Host,
+		cfg.RabbitMQ.Port,
+	)
+	return amqp.Dial(url)
 }

@@ -13,11 +13,10 @@ type FineConsumer struct {
 	mailer   *mailer.Mailer
 }
 
-func NewFineConsumer(mailer *mailer.Mailer) (*FineConsumer, error) {
-	mqConn, err := NewRabbitMQConn()
-	if err != nil {
-		return nil, err
-	}
+func NewFineConsumer(
+	mqConn *amqp.Connection,
+	mailer *mailer.Mailer,
+) (*FineConsumer, error) {
 
 	amqpChan, err := mqConn.Channel()
 	if err != nil {

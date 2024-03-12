@@ -18,12 +18,7 @@ type FinePublisher struct {
 	amqpChan *amqp.Channel
 }
 
-func NewFinePublisher() (*FinePublisher, error) {
-	mqConn, err := NewRabbitMQConn()
-	if err != nil {
-		return nil, err
-	}
-
+func NewFinePublisher(mqConn *amqp.Connection) (*FinePublisher, error) {
 	amqpChan, err := mqConn.Channel()
 	if err != nil {
 		return nil, err
