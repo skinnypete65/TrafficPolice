@@ -1,15 +1,15 @@
 package dto
 
-type SignInInputDTO struct {
+type SignInInput struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
 
-type SignInOutputDTO struct {
+type SignInOutput struct {
 	AccessToken string `json:"accessToken"`
 }
 
-type SignUpDTO struct {
+type SignUp struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }

@@ -2,22 +2,23 @@ package repository
 
 import (
 	"TrafficPolice/internal/domain"
+	"TrafficPolice/internal/repository"
 	"context"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
-type AuthRepoPostgres struct {
+type authRepoPostgres struct {
 	conn *pgx.Conn
 }
 
-func NewAuthRepoPostgres(conn *pgx.Conn) *AuthRepoPostgres {
-	return &AuthRepoPostgres{conn: conn}
+func NewAuthRepoPostgres(conn *pgx.Conn) repository.AuthRepo {
+	return &authRepoPostgres{conn: conn}
 }
 
 const checkUserExistsQuery = "SELECT username FROM users WHERE username = $1"
 
-func (r *AuthRepoPostgres) CheckUserExists(username string) bool {
+func (r *authRepoPostgres) CheckUserExists(username string) bool {
 	row := r.conn.QueryRow(context.Background(), checkUserExistsQuery, username)
 
 	var userName string
@@ -29,7 +30,7 @@ func (r *AuthRepoPostgres) CheckUserExists(username string) bool {
 const insertUserQuery = `INSERT INTO users (user_id, username, hash_pass, role) 
 	VALUES ($1, $2, $3, $4)`
 
-func (r *AuthRepoPostgres) InsertUser(user domain.UserInfo) error {
+func (r *authRepoPostgres) InsertUser(user domain.UserInfo) error {
 	_, err := r.conn.Exec(context.Background(), insertUserQuery,
 		user.ID.String(),
 		user.Username,
@@ -43,21 +44,21 @@ func (r *AuthRepoPostgres) InsertUser(user domain.UserInfo) error {
 const insertExpertQuery = `INSERT INTO experts (expert_id, is_confirmed, user_id, competence_skill) 
 	VALUES ($1, false, $2, 1)`
 
-func (r *AuthRepoPostgres) InsertExpert(expert domain.Expert) error {
+func (r *authRepoPostgres) InsertExpert(expert domain.Expert) error {
 	_, err := r.conn.Exec(context.Background(), insertExpertQuery, expert.ID, expert.UserInfo.ID.String())
 	return err
 }
 
 const insertDirectorQuery = "INSERT INTO directors (director_id, user_id) VALUES ($1, $2)"
 
-func (r *AuthRepoPostgres) InsertDirector(director domain.Director) error {
+func (r *authRepoPostgres) InsertDirector(director domain.Director) error {
 	_, err := r.conn.Exec(context.Background(), insertDirectorQuery, director.ID, director.User.ID)
 	return err
 }
 
 const signInQuery = `SELECT user_id, hash_pass, role FROM users WHERE username = $1`
 
-func (r *AuthRepoPostgres) SignIn(username string) (domain.UserInfo, error) {
+func (r *authRepoPostgres) SignIn(username string) (domain.UserInfo, error) {
 	row := r.conn.QueryRow(context.Background(), signInQuery, username)
 
 	var user domain.UserInfo
@@ -73,7 +74,23 @@ func (r *AuthRepoPostgres) SignIn(username string) (domain.UserInfo, error) {
 
 const confirmExpertQuery = "UPDATE experts SET is_confirmed = $1 WHERE expert_id = $2"
 
-func (r *AuthRepoPostgres) ConfirmExpert(data domain.ConfirmExpert) error {
+func (r *authRepoPostgres) ConfirmExpert(data domain.ConfirmExpert) error {
 	_, err := r.conn.Exec(context.Background(), confirmExpertQuery, data.IsConfirmed, data.ExpertID)
 	return err
+}
+
+const insertCameraQuery = `INSERT INTO cameras (
+                     camera_id, camera_type_id, camera_latitude, camera_longitude, short_desc, user_id) 
+		VALUES ($1, $2, $3, $4, $5, $6)`
+
+func (r *authRepoPostgres) InsertCamera(camera domain.Camera, userID uuid.UUID) error {
+
+	_, err := r.conn.Exec(context.Background(), insertCameraQuery,
+		camera.ID, camera.CameraType.ID, camera.Latitude, camera.Longitude, camera.ShortDesc, userID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

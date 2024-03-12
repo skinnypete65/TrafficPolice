@@ -11,19 +11,25 @@ import (
 )
 
 type CameraHandler struct {
-	service  services.CameraService
-	validate *validator.Validate
+	cameraService services.CameraService
+	authService   services.AuthService
+	validate      *validator.Validate
 }
 
-func NewCameraHandler(service services.CameraService, validate *validator.Validate) *CameraHandler {
+func NewCameraHandler(
+	service services.CameraService,
+	authService services.AuthService,
+	validate *validator.Validate,
+) *CameraHandler {
 	return &CameraHandler{
-		service:  service,
-		validate: validate,
+		cameraService: service,
+		authService:   authService,
+		validate:      validate,
 	}
 }
 
 func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
-	var cameraType domain.CameraType
+	var cameraType dto.CameraType
 	err := json.NewDecoder(r.Body).Decode(&cameraType)
 
 	if err != nil {
@@ -37,7 +43,9 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.AddCameraType(cameraType)
+	err = h.cameraService.AddCameraType(domain.CameraType{
+		Name: cameraType.Name,
+	})
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -51,26 +59,30 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
-	var camera dto.Camera
-	err := json.NewDecoder(r.Body).Decode(&camera)
+	var registerInfo dto.RegisterCamera
+	err := json.NewDecoder(r.Body).Decode(&registerInfo)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = h.validate.Struct(camera)
+	err = h.validate.Struct(registerInfo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = h.service.RegisterCamera(domain.Camera{
-		ID:         "",
-		CameraType: domain.CameraType{ID: camera.CameraTypeID},
-		Latitude:   camera.Latitude,
-		Longitude:  camera.Longitude,
-		ShortDesc:  camera.ShortDesc,
+	err = h.authService.RegisterCamera(domain.RegisterCamera{
+		Camera: domain.Camera{
+			ID:         "",
+			CameraType: domain.CameraType{ID: registerInfo.Camera.CameraTypeID},
+			Latitude:   registerInfo.Camera.Latitude,
+			Longitude:  registerInfo.Camera.Longitude,
+			ShortDesc:  registerInfo.Camera.ShortDesc,
+		},
+		Username: registerInfo.SignUp.Username,
+		Password: registerInfo.SignUp.Password,
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

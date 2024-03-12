@@ -12,6 +12,7 @@ import (
 
 type AuthService interface {
 	RegisterExpert(input domain.UserInfo) error
+	RegisterCamera(info domain.RegisterCamera) error
 	RegisterDirectors(users []domain.UserInfo) error
 	SignIn(input domain.UserInfo) (string, error)
 	ConfirmExpert(data domain.ConfirmExpert) error
@@ -59,6 +60,34 @@ func (s *authService) RegisterExpert(user domain.UserInfo) error {
 	})
 
 	return err
+}
+
+func (s *authService) RegisterCamera(info domain.RegisterCamera) error {
+	alreadyExists := s.repo.CheckUserExists(info.Username)
+	if alreadyExists {
+		return fmt.Errorf("camera with username '%s' already exists", info.Username)
+	}
+
+	hashedPass, err := s.hasher.Hash(info.Password)
+	if err != nil {
+		return err
+	}
+
+	userID := uuid.New()
+	info.Camera.ID = uuid.New().String()
+
+	userInfo := domain.UserInfo{
+		ID:       userID,
+		Username: info.Username,
+		Password: hashedPass,
+		UserRole: string(domain.CameraRole),
+	}
+	err = s.repo.InsertUser(userInfo)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.InsertCamera(info.Camera, userID)
 }
 
 func (s *authService) RegisterDirectors(users []domain.UserInfo) error {

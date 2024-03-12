@@ -1,11 +1,11 @@
 CREATE TABLE "users"
 (
-    "user_id"     UUID                      NOT NULL,
-    "username"    VARCHAR(255)              NOT NULL,
-    "hash_pass"   VARCHAR(255)              NOT NULL,
-    "register_at" TIME(0) WITHOUT TIME ZONE NOT NULL DEFAULT current_time,
+    "user_id"     UUID                               NOT NULL,
+    "username"    VARCHAR(255)                       NOT NULL,
+    "hash_pass"   VARCHAR(255)                       NOT NULL,
+    "register_at" TIME(0) WITHOUT TIME ZONE          NOT NULL DEFAULT current_time,
     "role"        VARCHAR(255) CHECK
-        ("role" IN ('director', 'expert'))  NOT NULL
+        ("role" IN ('director', 'expert', 'camera')) NOT NULL
 );
 ALTER TABLE
     "users"
@@ -29,3 +29,17 @@ CREATE TABLE "experts"
 ALTER TABLE
     "experts"
     ADD PRIMARY KEY ("expert_id");
+
+ALTER TABLE
+    "directors"
+    ADD CONSTRAINT "directors_user_id_foreign" FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+ALTER TABLE
+    "experts"
+    ADD CONSTRAINT "experts_user_id_foreign" FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+
+ALTER TABLE cameras
+    ADD COLUMN user_id UUID;
+
+ALTER TABLE
+    "cameras"
+    ADD CONSTRAINT "cameras_user_id_foreign" FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
