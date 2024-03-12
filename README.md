@@ -40,5 +40,5 @@ emailSenderPass: string
 Пример:
 ``` yaml
 emailSenderUsername: "justcrazynik@gmail.com"
-emailSenderPass: "uilosjcvrnguuvhc"
+emailSenderPass: ""
 ```
