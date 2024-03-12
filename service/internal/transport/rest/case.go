@@ -1,15 +1,15 @@
 package rest
 
 import (
+	"TrafficPolice/internal/camera"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
-	"encoding/binary"
+	"TrafficPolice/internal/transport/rest/dto"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"path/filepath"
-	"time"
 )
 
 const (
@@ -18,71 +18,24 @@ const (
 	caseIDPathValue     = "id"
 )
 
-var mapping = map[string]func(c *domain.Case, value any) error{
-	"transport_chars":   setTransportChars,
-	"transport_numbers": setTransportNums,
-	"transport_region":  setTransportRegion,
-	"camera_id":         setCameraID,
-	"violation_id":      setViolationID,
-	"violation_value":   setViolationValue,
-	"skill_value":       setSkillValue,
-	"datetime":          setDatetime,
-}
-
-func setTransportChars(c *domain.Case, value any) error {
-	c.Transport.Chars = value.(string)
-	return nil
-}
-
-func setTransportNums(c *domain.Case, value any) error {
-	c.Transport.Num = value.(string)
-	return nil
-}
-
-func setTransportRegion(c *domain.Case, value any) error {
-	c.Transport.Region = value.(string)
-	return nil
-}
-
-func setCameraID(c *domain.Case, value any) error {
-	c.Camera.ID = value.(string)
-	return nil
-}
-
-func setViolationID(c *domain.Case, value any) error {
-	c.Violation.ID = value.(string)
-	return nil
-}
-
-func setViolationValue(c *domain.Case, value any) error {
-	c.ViolationValue = value.(string)
-	return nil
-}
-
-func setSkillValue(c *domain.Case, value any) error {
-	c.RequiredSkill = value.(int)
-	return nil
-}
-
-func setDatetime(c *domain.Case, value any) error {
-	t, err := time.Parse(time.RFC3339, value.(string))
-	if err != nil {
-		return err
-	}
-	c.Date = t
-	return nil
-}
-
 type CaseHandler struct {
-	service    services.CaseService
-	imgService services.ImgService
+	caseService   services.CaseService
+	imgService    services.ImgService
+	cameraService services.CameraService
+	cameraParser  *camera.Parser
 }
 
-func NewCaseHandler(service services.CaseService, imgService services.ImgService) *CaseHandler {
+func NewCaseHandler(
+	service services.CaseService,
+	imgService services.ImgService,
+	cameraService services.CameraService,
+) *CaseHandler {
 
 	return &CaseHandler{
-		service:    service,
-		imgService: imgService,
+		caseService:   service,
+		imgService:    imgService,
+		cameraService: cameraService,
+		cameraParser:  camera.NewParser(cameraService),
 	}
 }
 
@@ -92,61 +45,20 @@ func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	log.Println("BUF:")
 	log.Println(buf)
-	log.Println()
 
-	inputCase, err := parseCase(buf)
+	inputCase, err := h.cameraParser.ParseCameraInfo(buf)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = h.service.AddCase(inputCase)
+	err = h.caseService.AddCase(mapCaseDTOtoDomain(inputCase))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
-
-	_, err = w.Write([]byte("Case added successfully"))
-	if err != nil {
-		log.Println(err)
-	}
-}
-
-func parseCase(payload []byte) (*domain.Case, error) {
-	if len(payload) == 0 {
-		return nil, fmt.Errorf("payload is empty")
-	}
-	transportCase := &domain.Case{}
-	payload = payload[2:]
-
-	for len(payload) > 0 {
-		keySize := binary.BigEndian.Uint16(payload[:2])
-		payload = payload[2:]
-
-		valueSize := binary.BigEndian.Uint16(payload[:2])
-		payload = payload[2:]
-
-		valueType := payload[0]
-		payload = payload[1:]
-
-		keyValue := payload[:keySize]
-		value := payload[keySize : keySize+valueSize]
-		payload = payload[keySize+valueSize:]
-
-		f := mapping[string(keyValue)]
-
-		var err error
-		if valueType == 0 {
-			err = f(transportCase, string(value))
-		}
-
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return transportCase, nil
 }
 
 func (h *CaseHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
@@ -201,4 +113,23 @@ func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.ServeFile(w, r, files[0])
+}
+
+func mapCaseDTOtoDomain(c dto.Case) domain.Case {
+	return domain.Case{
+		Transport: domain.Transport{
+			Chars:  c.Transport.Chars,
+			Num:    c.Transport.Num,
+			Region: c.Transport.Region,
+		},
+		Camera: domain.Camera{
+			ID: c.Camera.ID,
+		},
+		Violation: domain.Violation{
+			ID: c.Violation.ID,
+		},
+		ViolationValue: c.ViolationValue,
+		RequiredSkill:  c.RequiredSkill,
+		Date:           c.Date,
+	}
 }

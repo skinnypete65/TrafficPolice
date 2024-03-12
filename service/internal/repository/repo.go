@@ -4,13 +4,14 @@ import (
 	"TrafficPolice/internal/domain"
 )
 
-type CameraDB interface {
+type CameraRepo interface {
 	AddCameraType(cameraType domain.CameraType) error
 	RegisterCamera(camera domain.Camera) error
+	GetCameraTypeByCameraID(cameraID string) (string, error)
 }
 
 type CaseRepo interface {
-	InsertCase(c *domain.Case) error
+	InsertCase(c domain.Case) error
 	GetCaseByID(caseID string) (domain.Case, error)
 	GetCaseWithPersonInfo(caseID string) (domain.Case, error)
 	SetCaseFineDecision(caseID string, fineDecision bool) error
@@ -54,4 +55,8 @@ type TrainingRepo interface {
 
 type PaginationRepo interface {
 	GetRecordsCount(table string) (int, error)
+}
+
+type TransportRepo interface {
+	GetTransportID(chars string, num string, region string) (string, error)
 }

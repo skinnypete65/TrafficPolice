@@ -66,7 +66,7 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.service.RegisterCamera(domain.Camera{
-		ID:         camera.ID,
+		ID:         "",
 		CameraType: domain.CameraType{ID: camera.CameraTypeID},
 		Latitude:   camera.Latitude,
 		Longitude:  camera.Longitude,
