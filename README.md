@@ -1,4 +1,4 @@
-# Конфиг файл config.yaml
+# Конфиг файл для сервиса service_ config.yaml
 Структура:
 ``` yaml
 serverPort: int
@@ -29,4 +29,16 @@ directors:
     password: "justnik1"
   - username: "justnik2"
     password: "justnik2"
+```
+# Конфиг файл для сервиса уведомлений notification_config.yaml
+Структура:
+``` yaml
+emailSenderUsername: string
+emailSenderPass: string
+```
+
+Пример:
+``` yaml
+emailSenderUsername: "justcrazynik@gmail.com"
+emailSenderPass: "uilosjcvrnguuvhc"
 ```
