@@ -37,7 +37,7 @@ func Run() {
 		NoLocal:   false,
 		NoWait:    false,
 		Args:      nil,
-	})
+	}, cfg.EmailSender.Username, cfg.EmailSender.Subject)
 	if err != nil {
 		log.Fatal(err)
 	}

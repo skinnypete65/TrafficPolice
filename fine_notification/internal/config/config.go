@@ -22,6 +22,7 @@ type EmailSenderConfig struct {
 	Port     int    `yaml:"port"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
+	Subject  string `yaml:"subject"`
 }
 
 func ParseConfig(path string) (*Config, error) {
