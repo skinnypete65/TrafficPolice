@@ -47,13 +47,14 @@ func Run() {
 	paginationRepo := repository.NewPaginationRepoPostgres(dbConn)
 	paginationService := services.NewPaginationService(paginationRepo)
 
-	caseRepo := repository.NewCaseRepoPostgres(dbConn)
-	caseService := services.NewCaseService(caseRepo)
-	caseHandler := rest.NewCaseHandler(caseService, imgService)
-
 	cameraDB := repository.NewCameraRepoPostgres(dbConn)
 	cameraService := services.NewCameraService(cameraDB)
 	cameraHandler := rest.NewCameraHandler(cameraService, validate)
+
+	transportRepo := repository.NewTransportRepoPostgres(dbConn)
+	caseRepo := repository.NewCaseRepoPostgres(dbConn)
+	caseService := services.NewCaseService(caseRepo, transportRepo)
+	caseHandler := rest.NewCaseHandler(caseService, imgService, cameraService)
 
 	contactInfoDB := repository.NewContactInfoDBPostgres(dbConn)
 	contactService := services.NewContactInfoService(contactInfoDB)

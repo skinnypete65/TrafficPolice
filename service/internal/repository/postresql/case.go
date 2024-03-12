@@ -18,10 +18,10 @@ func NewCaseRepoPostgres(conn *pgx.Conn) repository.CaseRepo {
 }
 
 const insertCaseQuery = `INSERT INTO cases (case_id, transport_id, camera_id, 
-                   violation_id, violation_value, required_skill, case_date) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7)`
+                   violation_id, violation_value, required_skill, case_date, is_solved, fine_decision) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, false, false)`
 
-func (r *caseRepoPostgres) InsertCase(c *domain.Case) error {
+func (r *caseRepoPostgres) InsertCase(c domain.Case) error {
 	_, err := r.conn.Exec(context.Background(), insertCaseQuery,
 		c.ID, c.Transport.ID, c.Camera.ID, c.Violation.ID, c.ViolationValue, c.RequiredSkill, c.Date,
 	)

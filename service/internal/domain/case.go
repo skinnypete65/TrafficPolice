@@ -14,7 +14,7 @@ type Case struct {
 	Camera         Camera
 	Violation      Violation
 	ViolationValue string
-	RequiredSkill  int
+	RequiredSkill  int64
 	Date           time.Time
 	IsSolved       bool
 	FineDecision   bool

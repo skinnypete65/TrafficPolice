@@ -7,21 +7,33 @@ import (
 )
 
 type CaseService interface {
-	AddCase(c *domain.Case) error
+	AddCase(c domain.Case) error
 }
 
 type caseService struct {
-	repo repository.CaseRepo
+	caseRepo      repository.CaseRepo
+	transportRepo repository.TransportRepo
 }
 
-func NewCaseService(conn repository.CaseRepo) CaseService {
-	return &caseService{repo: conn}
+func NewCaseService(
+	caseRepo repository.CaseRepo,
+	transportRepo repository.TransportRepo,
+) CaseService {
+	return &caseService{
+		caseRepo:      caseRepo,
+		transportRepo: transportRepo,
+	}
 }
 
-func (s *caseService) AddCase(c *domain.Case) error {
+func (s *caseService) AddCase(c domain.Case) error {
 	id := uuid.New()
 	c.ID = id.String()
-	c.Transport.ID = "f6e34d03-9c1c-4117-988b-fa61ca6f6c3d"
+	transportID, err := s.transportRepo.GetTransportID(c.Transport.Chars, c.Transport.Num, c.Transport.Region)
 
-	return s.repo.InsertCase(c)
+	if err != nil {
+		return err
+	}
+	c.Transport.ID = transportID
+
+	return s.caseRepo.InsertCase(c)
 }

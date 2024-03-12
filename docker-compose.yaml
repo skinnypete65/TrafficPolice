@@ -19,6 +19,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq_vol:/var/lib/rabbitmq
     networks:
       - service_network
     healthcheck:
@@ -58,6 +60,7 @@ volumes:
   pg_vol:
   cases_vol:
   experts_vol:
+  rabbitmq_vol:
 
 networks:
   service_network:
