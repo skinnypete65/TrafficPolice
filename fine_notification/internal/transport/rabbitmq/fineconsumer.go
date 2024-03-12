@@ -80,7 +80,7 @@ func (p *FineConsumer) CloseChan() {
 	}
 }
 
-func (p *FineConsumer) StartConsume(params ConsumeParams) error {
+func (p *FineConsumer) StartConsume(params ConsumeParams, from string, subject string) error {
 	msgs, err := p.amqpChan.Consume(
 		params.Queue,     // queue
 		params.Consumer,  // consumer
@@ -107,9 +107,9 @@ func (p *FineConsumer) StartConsume(params ConsumeParams) error {
 			}
 
 			email := mailer.Email{
-				From:    "vasyagoose8@gmail.com",
+				From:    from,
 				To:      cDto.Transport.Person.Email,
-				Subject: "Информация о совершенном правонарушении",
+				Subject: subject,
 			}
 
 			err = p.mailer.SendFineMessage(email, cDto)
