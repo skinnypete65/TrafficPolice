@@ -29,18 +29,7 @@ func Run() {
 	fineMailer := mailer.NewMailer(dialer)
 	fineConsumer := setupFineConsumer(mqConn, fineMailer)
 
-	err = fineConsumer.StartConsume(rabbitmq.ConsumeParams{
-		Queue:     "fine_queue",
-		Consumer:  "",
-		AutoAck:   true,
-		Exclusive: false,
-		NoLocal:   false,
-		NoWait:    false,
-		Args:      nil,
-	}, cfg.EmailSender.Username, cfg.EmailSender.Subject)
-	if err != nil {
-		log.Fatal(err)
-	}
+	startConsume(fineConsumer, cfg)
 }
 
 func setupFineConsumer(mqConn *amqp.Connection, mailer *mailer.Mailer) *rabbitmq.FineConsumer {
@@ -88,4 +77,20 @@ func setupMailDialer(cfg *config.Config) *gomail.Dialer {
 		cfg.EmailSender.Username,
 		cfg.EmailSender.Password,
 	)
+}
+
+func startConsume(fineConsumer *rabbitmq.FineConsumer, cfg *config.Config) {
+	consumeParams := rabbitmq.ConsumeParams{
+		Queue:     rabbitmq.FineQueue,
+		Consumer:  "",
+		AutoAck:   true,
+		Exclusive: false,
+		NoLocal:   false,
+		NoWait:    false,
+		Args:      nil,
+	}
+	err := fineConsumer.StartConsume(consumeParams, cfg.EmailSender.Username, cfg.EmailSender.Subject)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -2,6 +2,7 @@ package rest
 
 import (
 	"TrafficPolice/errs"
+	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
@@ -14,20 +15,23 @@ import (
 )
 
 type CameraHandler struct {
-	cameraService services.CameraService
-	authService   services.AuthService
-	validate      *validator.Validate
+	cameraService   services.CameraService
+	authService     services.AuthService
+	validate        *validator.Validate
+	cameraConverter *converter.CameraConverter
 }
 
 func NewCameraHandler(
 	service services.CameraService,
 	authService services.AuthService,
 	validate *validator.Validate,
+	cameraConverter *converter.CameraConverter,
 ) *CameraHandler {
 	return &CameraHandler{
-		cameraService: service,
-		authService:   authService,
-		validate:      validate,
+		cameraService:   service,
+		authService:     authService,
+		validate:        validate,
+		cameraConverter: cameraConverter,
 	}
 }
 
@@ -77,17 +81,9 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cameraID, err := h.authService.RegisterCamera(domain.RegisterCamera{
-		Camera: domain.Camera{
-			ID:         "",
-			CameraType: domain.CameraType{ID: registerInfo.Camera.CameraTypeID},
-			Latitude:   registerInfo.Camera.Latitude,
-			Longitude:  registerInfo.Camera.Longitude,
-			ShortDesc:  registerInfo.Camera.ShortDesc,
-		},
-		Username: registerInfo.SignUp.Username,
-		Password: registerInfo.SignUp.Password,
-	})
+	cameraID, err := h.authService.RegisterCamera(
+		h.cameraConverter.MapRegisterCameraDomainToDto(registerInfo.Camera, registerInfo.SignUp),
+	)
 	if err != nil {
 		if errors.Is(err, errs.ErrAlreadyExists) {
 			response.Conflict(w, "Camera with this username already exists")
