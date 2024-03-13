@@ -2,7 +2,7 @@ package dto
 
 type Camera struct {
 	ID           string  `json:"camera_id,omitempty"`
-	CameraTypeID string  `json:"camera_type_id,omitempty" validate:"required"`
+	CameraTypeID string  `json:"camera_type_id,omitempty" validate:"required,uuid"`
 	Latitude     float64 `json:"latitude,omitempty" validate:"required"`
 	Longitude    float64 `json:"longitude,omitempty" validate:"required"`
 	ShortDesc    string  `json:"short_desc,omitempty" validate:"required"`

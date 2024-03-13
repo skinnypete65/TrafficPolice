@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -65,6 +67,9 @@ func (r *authRepoPostgres) SignIn(username string) (domain.UserInfo, error) {
 	var userID string
 	err := row.Scan(&userID, &user.Password, &user.UserRole)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.UserInfo{}, errs.ErrNoRows
+		}
 		return domain.UserInfo{}, err
 	}
 	user.ID = uuid.MustParse(userID)
@@ -75,7 +80,11 @@ func (r *authRepoPostgres) SignIn(username string) (domain.UserInfo, error) {
 const confirmExpertQuery = "UPDATE experts SET is_confirmed = $1 WHERE expert_id = $2"
 
 func (r *authRepoPostgres) ConfirmExpert(data domain.ConfirmExpert) error {
-	_, err := r.conn.Exec(context.Background(), confirmExpertQuery, data.IsConfirmed, data.ExpertID)
+	n, err := r.conn.Exec(context.Background(), confirmExpertQuery, data.IsConfirmed, data.ExpertID)
+
+	if n.RowsAffected() == 0 {
+		return errs.ErrNoRows
+	}
 	return err
 }
 

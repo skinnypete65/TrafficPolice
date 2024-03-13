@@ -1,6 +1,7 @@
 package services
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"TrafficPolice/internal/tokens"
@@ -38,7 +39,7 @@ func NewAuthService(repo repository.AuthRepo, tokenManager tokens.TokenManager, 
 func (s *authService) RegisterExpert(user domain.UserInfo) error {
 	alreadyExists := s.repo.CheckUserExists(user.Username)
 	if alreadyExists {
-		return fmt.Errorf("user with username '%s' already exists", user.Username)
+		return errs.ErrAlreadyExists
 	}
 
 	hashedPass, err := s.hasher.Hash(user.Password)
@@ -136,7 +137,7 @@ func (s *authService) SignIn(input domain.UserInfo) (string, error) {
 	}
 
 	if user.Password != inputHashPass {
-		return "", fmt.Errorf("invalid password")
+		return "", errs.ErrInvalidPass
 	}
 
 	return s.tokenManager.NewJWT(tokens.TokenInfo{

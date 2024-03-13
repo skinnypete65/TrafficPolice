@@ -15,6 +15,6 @@ type SignUp struct {
 }
 
 type ConfirmExpertInput struct {
-	ExpertID    string `json:"expert_id" validate:"required"`
+	ExpertID    string `json:"expert_id" validate:"required,uuid"`
 	IsConfirmed bool   `json:"is_confirmed"`
 }
