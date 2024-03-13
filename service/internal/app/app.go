@@ -78,7 +78,7 @@ func Run() {
 	cameraParser := camera.NewParser(cameraService)
 	caseHandler := rest.NewCaseHandler(caseService, imgService, cameraService, caseConverter, cameraParser)
 
-	contactInfoDB := repository.NewContactInfoDBPostgres(dbConn)
+	contactInfoDB := repository.NewContactInfoRepoPostgres(dbConn)
 	contactService := services.NewContactInfoService(contactInfoDB)
 	contactInfoHandler := rest.NewContactInfoHandler(contactService)
 

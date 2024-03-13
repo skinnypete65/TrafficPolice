@@ -3,14 +3,15 @@ package rest
 import (
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
-	"fmt"
+	"TrafficPolice/internal/transport/rest/response"
 	"github.com/xuri/excelize/v2"
 	"log"
 	"net/http"
 )
 
 const (
-	contactInfoSheet = "Лист1"
+	contactInfoSheet   = "Лист1"
+	contactInfoFileKey = "file"
 )
 
 type ContactInfoHandler struct {
@@ -26,29 +27,29 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 
 	err := r.ParseMultipartForm(maxMemory)
 	if err != nil {
-		log.Printf("Error while ParseMultipartForm: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	// retrieve file from posted form-data
-	formFile, _, err := r.FormFile("file")
+	formFile, _, err := r.FormFile(contactInfoFileKey)
 	if err != nil {
-		log.Printf("Error retrieving file from form-data: %v\n", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 	defer formFile.Close()
 
 	f, err := excelize.OpenReader(formFile)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
 	rows, err := f.GetRows(contactInfoSheet)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
@@ -77,12 +78,10 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 
 	err = h.service.InsertContactInfo(m)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
-	_, err = w.Write([]byte("Added successfully"))
-	if err != nil {
-		log.Println(err)
-	}
+	response.OKMessage(w, "Contact info added successfully")
 }

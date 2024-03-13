@@ -11,10 +11,10 @@ type ViolationService interface {
 }
 
 type violationService struct {
-	db repository.ViolationDB
+	db repository.ViolationRepo
 }
 
-func NewViolationService(db repository.ViolationDB) ViolationService {
+func NewViolationService(db repository.ViolationRepo) ViolationService {
 	return &violationService{db: db}
 }
 

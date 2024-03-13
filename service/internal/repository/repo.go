@@ -18,11 +18,11 @@ type CaseRepo interface {
 	UpdateCaseRequiredSkill(caseID string, requiredSkill int) error
 }
 
-type ContactInfoDB interface {
+type ContactInfoRepo interface {
 	InsertContactInfo(m map[string][]*domain.Transport) error
 }
 
-type ViolationDB interface {
+type ViolationRepo interface {
 	InsertViolations(violations []*domain.Violation) error
 }
 
