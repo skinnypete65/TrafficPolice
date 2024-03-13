@@ -3,7 +3,6 @@ package rest
 import (
 	"TrafficPolice/errs"
 	"TrafficPolice/internal/converter"
-	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
 	"TrafficPolice/internal/transport/rabbitmq"
@@ -27,10 +26,11 @@ const (
 )
 
 type ExpertHandler struct {
-	imgService    services.ImgService
-	expertService services.ExpertService
-	finePublisher *rabbitmq.FinePublisher
-	caseConverter *converter.CaseConverter
+	imgService            services.ImgService
+	expertService         services.ExpertService
+	finePublisher         *rabbitmq.FinePublisher
+	caseConverter         *converter.CaseConverter
+	caseDecisionConverter *converter.CaseDecisionConverter
 }
 
 func NewExpertHandler(
@@ -38,12 +38,14 @@ func NewExpertHandler(
 	expertService services.ExpertService,
 	finePublisher *rabbitmq.FinePublisher,
 	caseConverter *converter.CaseConverter,
+	caseDecisionConverter *converter.CaseDecisionConverter,
 ) *ExpertHandler {
 	return &ExpertHandler{
-		imgService:    imgService,
-		expertService: expertService,
-		finePublisher: finePublisher,
-		caseConverter: caseConverter,
+		imgService:            imgService,
+		expertService:         expertService,
+		finePublisher:         finePublisher,
+		caseConverter:         caseConverter,
+		caseDecisionConverter: caseDecisionConverter,
 	}
 }
 
@@ -155,11 +157,8 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 	}
 
 	shouldSendFine, err := h.expertService.SetCaseDecision(
-		domain.Decision{
-			CaseID:       decision.CaseID,
-			Expert:       expert,
-			FineDecision: decision.FineDecision,
-		})
+		h.caseDecisionConverter.MapDtoToDomain(decision, expert),
+	)
 
 	if err != nil {
 		log.Println(err)

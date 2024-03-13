@@ -4,6 +4,7 @@ import "github.com/rabbitmq/amqp091-go"
 
 const (
 	FineExchange = "fine"
+	FineQueue    = "fine_queue"
 )
 
 type QueueParams struct {

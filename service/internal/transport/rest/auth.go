@@ -2,7 +2,7 @@ package rest
 
 import (
 	"TrafficPolice/errs"
-	"TrafficPolice/internal/domain"
+	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/internal/transport/rest/response"
@@ -14,14 +14,22 @@ import (
 )
 
 type AuthHandler struct {
-	service  services.AuthService
-	validate *validator.Validate
+	service           services.AuthService
+	validate          *validator.Validate
+	userInfoConverter *converter.UserInfoConverter
+	authConverter     *converter.AuthConverter
 }
 
-func NewAuthHandler(service services.AuthService, validate *validator.Validate) *AuthHandler {
+func NewAuthHandler(service services.AuthService,
+	validate *validator.Validate,
+	userInfoConverter *converter.UserInfoConverter,
+	authConverter *converter.AuthConverter,
+) *AuthHandler {
 	return &AuthHandler{
-		service:  service,
-		validate: validate,
+		service:           service,
+		validate:          validate,
+		userInfoConverter: userInfoConverter,
+		authConverter:     authConverter,
 	}
 }
 
@@ -40,10 +48,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.RegisterExpert(domain.UserInfo{
-		Username: input.Username,
-		Password: input.Password,
-	})
+	err = h.service.RegisterExpert(h.userInfoConverter.MapSignUpToUserInfo(input))
 	if err != nil {
 		if errors.Is(err, errs.ErrAlreadyExists) {
 			response.Conflict(w, "User with this username already exists")
@@ -71,10 +76,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.service.SignIn(domain.UserInfo{
-		Username: input.Username,
-		Password: input.Password,
-	})
+	token, err := h.service.SignIn(h.userInfoConverter.MapSignInToUserInfo(input))
 
 	if err != nil {
 		if errors.Is(err, errs.ErrNoRows) {
@@ -117,10 +119,7 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.ConfirmExpert(domain.ConfirmExpert{
-		ExpertID:    input.ExpertID,
-		IsConfirmed: input.IsConfirmed,
-	})
+	err = h.service.ConfirmExpert(h.authConverter.MapConfirmExpertDtoToDomain(input))
 
 	if err != nil {
 		if errors.Is(err, errs.ErrNoRows) {

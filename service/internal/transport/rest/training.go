@@ -24,11 +24,12 @@ const (
 )
 
 type TrainingHandler struct {
-	trainingService     services.TrainingService
-	paginationService   services.PaginationService
-	validate            *validator.Validate
-	caseConverter       *converter.CaseConverter
-	paginationConverter *converter.PaginationConverter
+	trainingService      services.TrainingService
+	paginationService    services.PaginationService
+	validate             *validator.Validate
+	caseConverter        *converter.CaseConverter
+	paginationConverter  *converter.PaginationConverter
+	solvedCasesConverter *converter.SolvedCasesConverter
 }
 
 func NewTrainingHandler(
@@ -37,13 +38,15 @@ func NewTrainingHandler(
 	validate *validator.Validate,
 	caseConverter *converter.CaseConverter,
 	paginationConverter *converter.PaginationConverter,
+	solvedCasesConverter *converter.SolvedCasesConverter,
 ) *TrainingHandler {
 	return &TrainingHandler{
-		trainingService:     trainingService,
-		paginationService:   paginationService,
-		validate:            validate,
-		caseConverter:       caseConverter,
-		paginationConverter: paginationConverter,
+		trainingService:      trainingService,
+		paginationService:    paginationService,
+		validate:             validate,
+		caseConverter:        caseConverter,
+		paginationConverter:  paginationConverter,
+		solvedCasesConverter: solvedCasesConverter,
 	}
 }
 
@@ -80,13 +83,7 @@ func (h *TrainingHandler) GetSolvedCasesByParams(w http.ResponseWriter, r *http.
 	}
 
 	cases, err := h.trainingService.GetSolvedCasesByParams(
-		domain.SolvedCasesParams{
-			CameraID:      params.CameraID,
-			RequiredSkill: params.RequiredSkill,
-			ViolationID:   params.ViolationID,
-			StartTime:     params.StartTime,
-			EndTime:       params.EndTime,
-		},
+		h.solvedCasesConverter.MapParamsDtoToDomain(params),
 		paginationParams,
 	)
 	if err != nil {

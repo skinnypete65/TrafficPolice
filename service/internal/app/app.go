@@ -56,25 +56,33 @@ func Run() {
 
 	validate := newValidate()
 
+	// Init converters
+	authConverter := converter.NewAuthConverter()
+	cameraConverter := converter.NewCameraConverter()
+	caseConverter := converter.NewCaseConverter()
+	caseDecisionConverter := converter.NewCaseDecisionConverter()
+	paginationConverter := converter.NewPaginationConverter()
+	solvedCasesConverter := converter.NewSolvedCasesConverter()
+	userInfoConverter := converter.NewUserInfoConverter()
+
 	// Init handlers, services, repos (Clean architecture)
 	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
 
 	authRepo := repository.NewAuthRepoPostgres(dbConn)
 	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
-	authHandler := rest.NewAuthHandler(authService, validate)
+	authHandler := rest.NewAuthHandler(authService, validate, userInfoConverter, authConverter)
 
 	paginationRepo := repository.NewPaginationRepoPostgres(dbConn)
 	paginationService := services.NewPaginationService(paginationRepo)
 
 	cameraRepo := repository.NewCameraRepoPostgres(dbConn)
 	cameraService := services.NewCameraService(cameraRepo)
-	cameraHandler := rest.NewCameraHandler(cameraService, authService, validate)
+	cameraHandler := rest.NewCameraHandler(cameraService, authService, validate, cameraConverter)
 
 	transportRepo := repository.NewTransportRepoPostgres(dbConn)
 	caseRepo := repository.NewCaseRepoPostgres(dbConn)
 	caseService := services.NewCaseService(caseRepo, transportRepo)
-	caseConverter := converter.NewCaseConverter()
 	cameraParser := camera.NewParser(cameraService)
 	caseHandler := rest.NewCaseHandler(caseService, imgService, cameraService, caseConverter, cameraParser)
 
@@ -88,15 +96,17 @@ func Run() {
 
 	expertRepo := repository.NewExpertRepoPostgres(dbConn)
 	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
-	expertHandler := rest.NewExpertHandler(imgService, expertService, finePublisher, caseConverter)
+	expertHandler := rest.NewExpertHandler(
+		imgService, expertService, finePublisher, caseConverter, caseDecisionConverter,
+	)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
 
 	trainingRepo := repository.NewTrainingRepoPostgres(dbConn)
 	trainingService := services.NewTrainingService(trainingRepo)
-	paginationConverter := converter.NewPaginationConverter()
-	trainingHandler := rest.NewTrainingHandler(trainingService, paginationService, validate,
-		caseConverter, paginationConverter)
+	trainingHandler := rest.NewTrainingHandler(
+		trainingService, paginationService, validate, caseConverter, paginationConverter, solvedCasesConverter,
+	)
 
 	registerDirectors(cfg, authService)
 
