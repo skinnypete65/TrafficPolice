@@ -94,7 +94,9 @@ func Run() {
 
 	trainingRepo := repository.NewTrainingRepoPostgres(dbConn)
 	trainingService := services.NewTrainingService(trainingRepo)
-	trainingHandler := rest.NewTrainingHandler(trainingService, paginationService, validate)
+	paginationConverter := converter.NewPaginationConverter()
+	trainingHandler := rest.NewTrainingHandler(trainingService, paginationService, validate,
+		caseConverter, paginationConverter)
 
 	registerDirectors(cfg, authService)
 

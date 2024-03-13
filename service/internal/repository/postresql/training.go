@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"context"
@@ -44,6 +45,7 @@ func (r *trainingRepoPostgres) GetSolvedCasesByParams(
 		params.CameraID, params.RequiredSkill, params.ViolationID, params.StartTime, params.EndTime,
 		paginationParams.Limit, offset,
 	)
+
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +66,10 @@ func (r *trainingRepoPostgres) GetSolvedCasesByParams(
 		}
 
 		cases = append(cases, c)
+	}
+
+	if len(cases) == 0 {
+		return nil, errs.ErrNoRows
 	}
 
 	return cases, nil
