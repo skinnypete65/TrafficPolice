@@ -9,7 +9,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"path/filepath"
 )
 
 const (
@@ -45,9 +44,6 @@ func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	log.Println("BUF:")
-	log.Println(buf)
 
 	inputCase, err := h.cameraParser.ParseCameraInfo(buf)
 	if err != nil {
@@ -105,14 +101,14 @@ func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pattern := fmt.Sprintf("%s/%s.*", casesDir, caseID)
-	files, err := filepath.Glob(pattern)
+	file, err := h.imgService.GetImgFilePath(casesDir, caseID)
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Println(err.Error())
+		http.Error(w, "", http.StatusInternalServerError)
 		return
 	}
 
-	http.ServeFile(w, r, files[0])
+	http.ServeFile(w, r, file)
 }
 
 func mapCaseDTOtoDomain(c dto.Case) domain.Case {

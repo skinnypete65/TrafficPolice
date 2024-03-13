@@ -99,7 +99,7 @@ func (p *FineConsumer) StartConsume(params ConsumeParams, from string, subject s
 
 	go func() {
 		for d := range msgs {
-			var cDto dto.Case
+			var cDto dto.CaseWithImage
 			err = json.Unmarshal(d.Body, &cDto)
 			if err != nil {
 				log.Println(err)
@@ -108,11 +108,11 @@ func (p *FineConsumer) StartConsume(params ConsumeParams, from string, subject s
 
 			email := mailer.Email{
 				From:    from,
-				To:      cDto.Transport.Person.Email,
+				To:      cDto.Case.Transport.Person.Email,
 				Subject: subject,
 			}
-
-			err = p.mailer.SendFineMessage(email, cDto)
+			log.Println(cDto.ImageExtension)
+			err = p.mailer.SendFineNotification(email, cDto)
 			if err != nil {
 				log.Println(err)
 			}
