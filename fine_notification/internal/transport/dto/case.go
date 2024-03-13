@@ -13,3 +13,9 @@ type Case struct {
 	IsSolved       bool      `json:"is_solved,omitempty"`
 	FineDecision   bool      `json:"fine_decision,omitempty"`
 }
+
+type CaseWithImage struct {
+	Case           Case   `json:"case"`
+	Image          []byte `json:"image"`
+	ImageExtension string `json:"image_extension"`
+}

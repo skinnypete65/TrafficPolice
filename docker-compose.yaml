@@ -39,8 +39,8 @@ services:
       rabbitmq:
         condition: service_healthy
     volumes:
-      - cases_vol:/cases
-      - experts_vol:/experts
+      - cases_vol:/app/cases
+      - experts_vol:/app/experts
     networks:
       - service_network
 

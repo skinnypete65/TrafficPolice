@@ -99,7 +99,8 @@ func (p *FinePublisher) Publish(exchange string, contentType string, body []byte
 	return err
 }
 
-func (p *FinePublisher) PublishFine(c dto.Case) error {
+func (p *FinePublisher) PublishFineNotification(c dto.CaseWithImage) error {
+	log.Println(c.ImageExtension)
 	cBytes, err := json.Marshal(c)
 	if err != nil {
 		return err

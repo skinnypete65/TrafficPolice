@@ -14,7 +14,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
+	"strings"
 )
 
 const (
@@ -183,7 +185,17 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 			log.Println(err)
 			return
 		}
-		err = h.finePublisher.PublishFine(mapCaseWithPersonToDTO(caseInfo))
+		c := mapCaseWithPersonToDTO(caseInfo)
+		image, extension, err := h.getImage(caseInfo.ID)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		err = h.finePublisher.PublishFineNotification(dto.CaseWithImage{
+			Case:           c,
+			Image:          image,
+			ImageExtension: extension,
+		})
 		if err != nil {
 			log.Println(err)
 			return
@@ -224,4 +236,21 @@ func mapCaseWithPersonToDTO(c domain.Case) dto.Case {
 		IsSolved:       c.IsSolved,
 		FineDecision:   c.FineDecision,
 	}
+}
+
+func (h *ExpertHandler) getImage(caseID string) ([]byte, string, error) {
+	file, err := h.imgService.GetImgFilePath(casesDir, caseID)
+	if err != nil {
+		log.Println(err)
+		return nil, "", err
+	}
+
+	img, err := os.ReadFile(file)
+	if err != nil {
+		log.Println(err)
+		return nil, "", err
+	}
+
+	dotIdx := strings.LastIndex(file, ".")
+	return img, file[dotIdx+1:], nil
 }

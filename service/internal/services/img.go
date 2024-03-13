@@ -1,12 +1,15 @@
 package services
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 type ImgService interface {
 	SaveImg(img []byte, filepath string) error
+	GetImgFilePath(casesDir string, caseID string) (string, error)
 }
 
 type imgServiceLocal struct {
@@ -31,4 +34,13 @@ func (s *imgServiceLocal) SaveImg(img []byte, filepath string) error {
 	}
 
 	return nil
+}
+
+func (s *imgServiceLocal) GetImgFilePath(casesDir string, caseID string) (string, error) {
+	pattern := fmt.Sprintf("%s/%s.*", casesDir, caseID)
+	files, err := filepath.Glob(pattern)
+	if err != nil {
+		return "", err
+	}
+	return files[0], nil
 }
