@@ -10,6 +10,10 @@ type ResponseBody struct {
 	Message string `json:"message"`
 }
 
+type IDResponse struct {
+	ID string `json:"id"`
+}
+
 func writeResponse(w http.ResponseWriter, status int, body []byte) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -60,4 +64,16 @@ func internalServerError(w http.ResponseWriter) {
 func unauthorized(w http.ResponseWriter) {
 	w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
 	writeMessage(w, http.StatusUnauthorized, "Unauthorized")
+}
+
+func idResponse(w http.ResponseWriter, id string) {
+	respBody := IDResponse{ID: id}
+	body, err := json.Marshal(respBody)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("error occurred when marshalling response body: %v\n", respBody)
+		return
+	}
+
+	writeResponse(w, http.StatusOK, body)
 }

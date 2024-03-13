@@ -6,7 +6,7 @@ import (
 )
 
 type CameraRepo interface {
-	AddCameraType(cameraType domain.CameraType) error
+	AddCameraType(cameraType domain.CameraType) (string, error)
 	GetCameraTypeByCameraID(cameraID string) (string, error)
 }
 
@@ -30,7 +30,7 @@ type AuthRepo interface {
 	CheckUserExists(username string) bool
 	InsertUser(user domain.UserInfo) error
 	InsertExpert(expert domain.Expert) error
-	InsertCamera(camera domain.Camera, userID uuid.UUID) error
+	InsertCamera(camera domain.Camera, userID uuid.UUID) (string, error)
 	InsertDirector(director domain.Director) error
 	SignIn(username string) (domain.UserInfo, error)
 	ConfirmExpert(data domain.ConfirmExpert) error

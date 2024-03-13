@@ -1,10 +1,12 @@
 package rest
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
 	"encoding/json"
+	"errors"
 	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
@@ -33,29 +35,30 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&cameraType)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequest(w, err.Error())
 		return
 	}
 
 	err = h.validate.Struct(cameraType)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequest(w, err.Error())
 		return
 	}
 
-	err = h.cameraService.AddCameraType(domain.CameraType{
+	cameraTypeID, err := h.cameraService.AddCameraType(domain.CameraType{
 		Name: cameraType.Name,
 	})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		if errors.Is(err, errs.ErrAlreadyExists) {
+			conflict(w, "Camera with input name already exists")
+			return
+		}
+		internalServerError(w)
 		return
 	}
 
-	_, err = w.Write([]byte("camera type added successfully"))
-	if err != nil {
-		log.Println(err)
-	}
+	idResponse(w, cameraTypeID)
 }
 
 func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
@@ -63,17 +66,17 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&registerInfo)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequest(w, err.Error())
 		return
 	}
 
 	err = h.validate.Struct(registerInfo)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		badRequest(w, err.Error())
 		return
 	}
 
-	err = h.authService.RegisterCamera(domain.RegisterCamera{
+	cameraID, err := h.authService.RegisterCamera(domain.RegisterCamera{
 		Camera: domain.Camera{
 			ID:         "",
 			CameraType: domain.CameraType{ID: registerInfo.Camera.CameraTypeID},
@@ -85,12 +88,14 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
 		Password: registerInfo.SignUp.Password,
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		if errors.Is(err, errs.ErrAlreadyExists) {
+			conflict(w, "Camera with this username already exists")
+			return
+		}
+		log.Println(err)
+		internalServerError(w)
 		return
 	}
 
-	_, err = w.Write([]byte("camera added successfully"))
-	if err != nil {
-		log.Println(err)
-	}
+	idResponse(w, cameraID)
 }

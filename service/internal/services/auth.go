@@ -6,14 +6,13 @@ import (
 	"TrafficPolice/internal/repository"
 	"TrafficPolice/internal/tokens"
 	"TrafficPolice/pkg/hash"
-	"fmt"
 	"github.com/google/uuid"
 	"time"
 )
 
 type AuthService interface {
 	RegisterExpert(input domain.UserInfo) error
-	RegisterCamera(info domain.RegisterCamera) error
+	RegisterCamera(info domain.RegisterCamera) (string, error)
 	RegisterDirectors(users []domain.UserInfo) error
 	SignIn(input domain.UserInfo) (string, error)
 	ConfirmExpert(data domain.ConfirmExpert) error
@@ -63,15 +62,15 @@ func (s *authService) RegisterExpert(user domain.UserInfo) error {
 	return err
 }
 
-func (s *authService) RegisterCamera(info domain.RegisterCamera) error {
+func (s *authService) RegisterCamera(info domain.RegisterCamera) (string, error) {
 	alreadyExists := s.repo.CheckUserExists(info.Username)
 	if alreadyExists {
-		return fmt.Errorf("camera with username '%s' already exists", info.Username)
+		return "", errs.ErrAlreadyExists
 	}
 
 	hashedPass, err := s.hasher.Hash(info.Password)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	userID := uuid.New()
@@ -85,7 +84,7 @@ func (s *authService) RegisterCamera(info domain.RegisterCamera) error {
 	}
 	err = s.repo.InsertUser(userInfo)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	return s.repo.InsertCamera(info.Camera, userID)

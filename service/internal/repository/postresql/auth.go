@@ -90,16 +90,17 @@ func (r *authRepoPostgres) ConfirmExpert(data domain.ConfirmExpert) error {
 
 const insertCameraQuery = `INSERT INTO cameras (
                      camera_id, camera_type_id, camera_latitude, camera_longitude, short_desc, user_id) 
-		VALUES ($1, $2, $3, $4, $5, $6)`
+		VALUES ($1, $2, $3, $4, $5, $6) RETURNING camera_id`
 
-func (r *authRepoPostgres) InsertCamera(camera domain.Camera, userID uuid.UUID) error {
-
-	_, err := r.conn.Exec(context.Background(), insertCameraQuery,
-		camera.ID, camera.CameraType.ID, camera.Latitude, camera.Longitude, camera.ShortDesc, userID)
+func (r *authRepoPostgres) InsertCamera(camera domain.Camera, userID uuid.UUID) (string, error) {
+	var cameraID string
+	err := r.conn.QueryRow(context.Background(), insertCameraQuery,
+		camera.ID, camera.CameraType.ID, camera.Latitude, camera.Longitude, camera.ShortDesc, userID).
+		Scan(&cameraID)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return cameraID, nil
 }
