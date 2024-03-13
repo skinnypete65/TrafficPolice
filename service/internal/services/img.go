@@ -10,7 +10,7 @@ import (
 
 type ImgService interface {
 	SaveImg(img []byte, filepath string) error
-	GetImgFilePath(casesDir string, caseID string) (string, error)
+	GetImgFilePath(dir string, id string) (string, error)
 }
 
 type imgServiceLocal struct {
@@ -37,8 +37,8 @@ func (s *imgServiceLocal) SaveImg(img []byte, filepath string) error {
 	return nil
 }
 
-func (s *imgServiceLocal) GetImgFilePath(casesDir string, caseID string) (string, error) {
-	pattern := fmt.Sprintf("%s/%s.*", casesDir, caseID)
+func (s *imgServiceLocal) GetImgFilePath(dir string, id string) (string, error) {
+	pattern := fmt.Sprintf("%s/%s.*", dir, id)
 	files, err := filepath.Glob(pattern)
 	if len(files) == 0 {
 		return "", errs.ErrNoImage

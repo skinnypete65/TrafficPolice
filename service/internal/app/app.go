@@ -88,7 +88,7 @@ func Run() {
 
 	expertRepo := repository.NewExpertRepoPostgres(dbConn)
 	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
-	expertHandler := rest.NewExpertHandler(imgService, expertService, finePublisher)
+	expertHandler := rest.NewExpertHandler(imgService, expertService, finePublisher, caseConverter)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
 

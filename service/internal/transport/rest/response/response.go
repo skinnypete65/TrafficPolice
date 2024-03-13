@@ -49,8 +49,8 @@ func OKMessage(w http.ResponseWriter, text string) {
 	WriteMessage(w, http.StatusOK, text)
 }
 
-func NoContent(w http.ResponseWriter, text string) {
-	WriteMessage(w, http.StatusNoContent, text)
+func NoContent(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func Conflict(w http.ResponseWriter, text string) {

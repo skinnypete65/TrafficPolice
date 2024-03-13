@@ -65,3 +65,69 @@ func (c *CaseConverter) MapDomainsToDto(cases []domain.Case) []dto.Case {
 
 	return dtos
 }
+
+func (c *CaseConverter) MapDomainToDto(d domain.Case) dto.Case {
+	return dto.Case{
+		ID: d.ID,
+		Transport: dto.Transport{
+			ID:     d.Transport.ID,
+			Chars:  d.Transport.Chars,
+			Num:    d.Transport.Num,
+			Region: d.Transport.Region,
+			Person: &dto.Person{
+				ID: d.Transport.Person.ID,
+			},
+		},
+		Camera: dto.Camera{
+			ID:           d.Camera.ID,
+			CameraTypeID: d.Camera.CameraType.ID,
+			Latitude:     d.Camera.Latitude,
+			Longitude:    d.Camera.Longitude,
+			ShortDesc:    d.Camera.ShortDesc,
+		},
+		Violation: dto.Violation{
+			ID:         d.Violation.ID,
+			Name:       d.Violation.Name,
+			FineAmount: d.Violation.FineAmount,
+		},
+		ViolationValue: d.ViolationValue,
+		RequiredSkill:  d.RequiredSkill,
+		IsSolved:       d.IsSolved,
+		FineDecision:   d.FineDecision,
+	}
+}
+
+func (c *CaseConverter) MapCaseWithPersonToDTO(d domain.Case) dto.Case {
+	return dto.Case{
+		ID: d.ID,
+		Transport: dto.Transport{
+			ID:    d.Transport.ID,
+			Chars: d.Transport.Chars,
+			Num:   d.Transport.Num,
+			Person: &dto.Person{
+				ID:       d.Transport.Person.ID,
+				PhoneNum: d.Transport.Person.PhoneNum,
+				Email:    d.Transport.Person.Email,
+				VkID:     d.Transport.Person.VkID,
+				TgID:     d.Transport.Person.TgID,
+			},
+		},
+		Camera: dto.Camera{
+			ID:           d.Camera.ID,
+			CameraTypeID: d.Camera.CameraType.ID,
+			Latitude:     d.Camera.Latitude,
+			Longitude:    d.Camera.Longitude,
+			ShortDesc:    d.Camera.ShortDesc,
+		},
+		Violation: dto.Violation{
+			ID:         d.Violation.ID,
+			Name:       d.Violation.Name,
+			FineAmount: d.Violation.FineAmount,
+		},
+		ViolationValue: d.ViolationValue,
+		RequiredSkill:  d.RequiredSkill,
+		Date:           d.Date,
+		IsSolved:       d.IsSolved,
+		FineDecision:   d.FineDecision,
+	}
+}
