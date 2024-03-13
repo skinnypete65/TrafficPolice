@@ -12,6 +12,8 @@ import (
 const (
 	jsonContentType = "application/json"
 	FineExchange    = "fine"
+	FineQueue       = "fine_queue"
+	Fanout          = "fanout"
 )
 
 type FinePublisher struct {
@@ -100,7 +102,6 @@ func (p *FinePublisher) Publish(exchange string, contentType string, body []byte
 }
 
 func (p *FinePublisher) PublishFineNotification(c dto.CaseWithImage) error {
-	log.Println(c.ImageExtension)
 	cBytes, err := json.Marshal(c)
 	if err != nil {
 		return err

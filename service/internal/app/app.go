@@ -33,6 +33,7 @@ func Run() {
 		log.Fatal(err)
 	}
 
+	// Init database
 	dbConnString := setupDBConnString(cfg)
 	dbConn, err := pgx.Connect(context.Background(), dbConnString)
 	if err != nil {
@@ -42,6 +43,7 @@ func Run() {
 
 	runMigrations(dbConnString)
 
+	// Init RabbitMQ
 	mQConn, err := rabbitmq.NewRabbitMQConn(cfg)
 	if err != nil {
 		log.Fatal(err)
@@ -52,6 +54,7 @@ func Run() {
 
 	validate := newValidate()
 
+	// Init handlers, services, repos (Clean architecture)
 	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
 
@@ -89,9 +92,10 @@ func Run() {
 	trainingService := services.NewTrainingService(trainingRepo)
 	trainingHandler := rest.NewTrainingHandler(trainingService, paginationService, validate)
 
-	mux := http.NewServeMux()
-
 	registerDirectors(cfg, authService)
+
+	// Setup Routes
+	mux := http.NewServeMux()
 
 	mux.Handle("POST /camera/type",
 		authMiddleware.IdentifyRole(http.HandlerFunc(cameraHandler.AddCameraType), domain.DirectorRole),
@@ -166,12 +170,14 @@ func Run() {
 		),
 	)
 
+	// Run Server
 	port := fmt.Sprintf(":%d", cfg.ServerPort)
 	server := http.Server{
 		Addr:    port,
 		Handler: mux,
 	}
 
+	log.Printf("Run server on %s\n", port)
 	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)
@@ -180,6 +186,7 @@ func Run() {
 }
 
 func runMigrations(dbUrl string) {
+	log.Printf("Run migrations on %s\n", dbUrl)
 	m, err := migrate.New("file://migrations", dbUrl)
 	if err != nil {
 		log.Fatal(err)
@@ -190,6 +197,7 @@ func runMigrations(dbUrl string) {
 	} else if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Migrate ran successfully")
 }
 
 func registerDirectors(cfg *config.Config, authService services.AuthService) {
@@ -234,14 +242,14 @@ func setupFinePublisher(mqConn *amqp.Connection) *rabbitmq.FinePublisher {
 	err = finePublisher.SetupExchangeAndQueue(
 		rabbitmq.ExchangeParams{
 			Name:       rabbitmq.FineExchange,
-			Kind:       "fanout",
+			Kind:       rabbitmq.Fanout,
 			Durable:    true,
 			AutoDelete: false,
 			Internal:   false,
 			NoWait:     false,
 			Args:       nil,
 		}, rabbitmq.QueueParams{
-			Name:       "fine_queue",
+			Name:       rabbitmq.FineQueue,
 			Durable:    false,
 			AutoDelete: false,
 			Exclusive:  false,
@@ -249,7 +257,7 @@ func setupFinePublisher(mqConn *amqp.Connection) *rabbitmq.FinePublisher {
 			Args:       nil,
 		},
 		rabbitmq.BindingParams{
-			Queue:    "fine_queue",
+			Queue:    rabbitmq.FineQueue,
 			Key:      "",
 			Exchange: rabbitmq.FineExchange,
 			NoWait:   false,
