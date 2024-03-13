@@ -36,10 +36,6 @@ func parseMultipartForm(r *http.Request, key string) (multipart.File, *multipart
 		return nil, nil, fmt.Errorf("Error retrieving file from form-data: %v\n", err)
 	}
 
-	log.Printf("Uploaded file: %+v\n", header.Filename)
-	log.Printf("File size: %+v\n", header.Size)
-	log.Printf("MIME header: %+v\n", header.Header)
-
 	return file, header, nil
 }
 

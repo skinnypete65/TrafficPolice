@@ -4,6 +4,7 @@ import (
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
+	"TrafficPolice/internal/transport/rest/response"
 	"context"
 	"errors"
 	"log"
@@ -36,7 +37,7 @@ func (h *AuthMiddleware) IdentifyRole(next http.Handler, roles ...domain.Role) h
 		tokenInfo, err := h.parseAuthHeader(authHeader)
 
 		if err != nil {
-			authError(w)
+			response.Unauthorized(w)
 			return
 		}
 
@@ -49,7 +50,7 @@ func (h *AuthMiddleware) IdentifyRole(next http.Handler, roles ...domain.Role) h
 		}
 
 		if !hasPermission {
-			authError(w)
+			response.Unauthorized(w)
 			return
 		}
 
@@ -64,7 +65,7 @@ func (h *AuthMiddleware) IsExpertConfirmed(next http.Handler) http.Handler {
 		tokenInfo, err := h.parseAuthHeader(authHeader)
 
 		if err != nil {
-			authError(w)
+			response.Unauthorized(w)
 			return
 		}
 
@@ -75,11 +76,11 @@ func (h *AuthMiddleware) IsExpertConfirmed(next http.Handler) http.Handler {
 		expert, err := h.expertService.GetExpertByUserID(tokenInfo.UserID)
 		if err != nil {
 			log.Println(err)
-			authError(w)
+			response.Unauthorized(w)
 			return
 		}
 		if !expert.IsConfirmed {
-			notConfirmedError(w)
+			response.NotConfirmedError(w)
 			return
 		}
 

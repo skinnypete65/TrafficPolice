@@ -1,6 +1,7 @@
 package services
 
 import (
+	"TrafficPolice/errs"
 	"fmt"
 	"log"
 	"os"
@@ -39,6 +40,9 @@ func (s *imgServiceLocal) SaveImg(img []byte, filepath string) error {
 func (s *imgServiceLocal) GetImgFilePath(casesDir string, caseID string) (string, error) {
 	pattern := fmt.Sprintf("%s/%s.*", casesDir, caseID)
 	files, err := filepath.Glob(pattern)
+	if len(files) == 0 {
+		return "", errs.ErrNoImage
+	}
 	if err != nil {
 		return "", err
 	}

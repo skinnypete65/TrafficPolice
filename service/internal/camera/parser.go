@@ -1,11 +1,11 @@
 package camera
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
 	"bytes"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"github.com/jcalabro/leb128"
 	"log"
@@ -33,7 +33,7 @@ func NewParser(cameraService services.CameraService) *Parser {
 
 func (p *Parser) ParseCameraInfo(payload []byte) (dto.Case, error) {
 	if len(payload) == 0 {
-		return dto.Case{}, fmt.Errorf("payload is empty")
+		return dto.Case{}, errs.ErrEmptyPayload
 	}
 
 	payload = payload[2:]
@@ -48,7 +48,7 @@ func (p *Parser) ParseCameraInfo(payload []byte) (dto.Case, error) {
 		cameraID := camera["id"].(string)
 		cameraType, err = p.cameraService.GetCameraTypeByCameraID(cameraID)
 	} else {
-		err = errors.New("not known cameraID")
+		err = errs.ErrUnknownCameraID
 	}
 
 	if err != nil {
@@ -63,7 +63,7 @@ func (p *Parser) ParseCameraInfo(payload []byte) (dto.Case, error) {
 	case typeCamerus3:
 		return p.parseCamerus3(info)
 	default:
-		return dto.Case{}, errors.New("unknown camera type")
+		return dto.Case{}, errs.ErrUnknownCameraType
 	}
 }
 

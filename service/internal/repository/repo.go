@@ -11,7 +11,7 @@ type CameraRepo interface {
 }
 
 type CaseRepo interface {
-	InsertCase(c domain.Case) error
+	InsertCase(c domain.Case) (string, error)
 	GetCaseByID(caseID string) (domain.Case, error)
 	GetCaseWithPersonInfo(caseID string) (domain.Case, error)
 	SetCaseFineDecision(caseID string, fineDecision bool) error

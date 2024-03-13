@@ -5,6 +5,7 @@ import (
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
+	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
 	"errors"
 	"github.com/go-playground/validator/v10"
@@ -29,13 +30,13 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		badRequest(w, err.Error())
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	err = h.validate.Struct(input)
 	if err != nil {
-		badRequest(w, err.Error())
+		response.BadRequest(w, err.Error())
 		return
 	}
 
@@ -45,14 +46,14 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		if errors.Is(err, errs.ErrAlreadyExists) {
-			conflict(w, "User with this username already exists")
+			response.Conflict(w, "User with this username already exists")
 			return
 		}
 		log.Println(err)
-		internalServerError(w)
+		response.InternalServerError(w)
 		return
 	}
-	oKMessage(w, "You signed up successfully")
+	response.OKMessage(w, "You signed up successfully")
 }
 
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -60,13 +61,13 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		badRequest(w, err.Error())
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	err = h.validate.Struct(input)
 	if err != nil {
-		badRequest(w, err.Error())
+		response.BadRequest(w, err.Error())
 		return
 	}
 
@@ -77,11 +78,11 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		if errors.Is(err, errs.ErrNoRows) {
-			notFound(w, "User with this username not exists")
+			response.NotFound(w, "User with this username not exists")
 			return
 		}
 		if errors.Is(err, errs.ErrInvalidPass) {
-			unauthorized(w)
+			response.Unauthorized(w)
 			return
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -90,12 +91,12 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	ansBytes, err := json.Marshal(dto.SignInOutput{AccessToken: token})
 	if err != nil {
-		internalServerError(w)
+		response.InternalServerError(w)
 		log.Println(err)
 		return
 	}
 
-	writeResponse(w, http.StatusOK, ansBytes)
+	response.WriteResponse(w, http.StatusOK, ansBytes)
 	if err != nil {
 		log.Println(err)
 	}
@@ -106,13 +107,13 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		badRequest(w, err.Error())
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	err = h.validate.Struct(input)
 	if err != nil {
-		badRequest(w, err.Error())
+		response.BadRequest(w, err.Error())
 		return
 	}
 
@@ -123,16 +124,16 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		if errors.Is(err, errs.ErrNoRows) {
-			notFound(w, "Expert with input id not found")
+			response.NotFound(w, "Expert with input id not found")
 			return
 		}
-		internalServerError(w)
+		response.InternalServerError(w)
 		return
 	}
 
 	if input.IsConfirmed {
-		oKMessage(w, "Expert confirmed successfully")
+		response.OKMessage(w, "Expert confirmed successfully")
 	} else {
-		oKMessage(w, "Expert unconfirmed successfully")
+		response.OKMessage(w, "Expert unconfirmed successfully")
 	}
 }

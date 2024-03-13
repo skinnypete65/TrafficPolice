@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/repository"
 	"context"
+	"errors"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -26,7 +28,9 @@ func (r *transportRepoPostgres) GetTransportID(chars string, num string, region 
 	err := row.Scan(&transportID)
 
 	if err != nil {
-		return "", err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", errs.ErrNoTransport
+		}
 	}
 	return transportID, nil
 }

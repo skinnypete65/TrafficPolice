@@ -1,7 +1,9 @@
 package app
 
 import (
+	"TrafficPolice/internal/camera"
 	"TrafficPolice/internal/config"
+	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository/postresql"
 	"TrafficPolice/internal/services"
@@ -72,7 +74,9 @@ func Run() {
 	transportRepo := repository.NewTransportRepoPostgres(dbConn)
 	caseRepo := repository.NewCaseRepoPostgres(dbConn)
 	caseService := services.NewCaseService(caseRepo, transportRepo)
-	caseHandler := rest.NewCaseHandler(caseService, imgService, cameraService)
+	caseConverter := converter.NewCaseConverter()
+	cameraParser := camera.NewParser(cameraService)
+	caseHandler := rest.NewCaseHandler(caseService, imgService, cameraService, caseConverter, cameraParser)
 
 	contactInfoDB := repository.NewContactInfoDBPostgres(dbConn)
 	contactService := services.NewContactInfoService(contactInfoDB)
