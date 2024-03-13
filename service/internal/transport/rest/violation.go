@@ -3,6 +3,7 @@ package rest
 import (
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/transport/rest/response"
 	"fmt"
 	"github.com/xuri/excelize/v2"
 	"log"
@@ -11,7 +12,8 @@ import (
 )
 
 const (
-	violationSheet = "Лист1"
+	violationSheet   = "Лист1"
+	violationFileKey = "file"
 )
 
 type ViolationHandler struct {
@@ -27,32 +29,43 @@ func (h *ViolationHandler) InsertViolations(w http.ResponseWriter, r *http.Reque
 
 	err := r.ParseMultipartForm(maxMemory)
 	if err != nil {
-		log.Printf("Error while ParseMultipartForm: %v", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		text := fmt.Sprintf("Error while ParseMultipartForm: %v", err)
+		response.BadRequest(w, text)
 		return
 	}
 
 	// retrieve file from posted form-data
-	formFile, _, err := r.FormFile("file")
+	formFile, _, err := r.FormFile(violationFileKey)
 	if err != nil {
-		log.Printf("Error retrieving file from form-data: %v\n", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		text := fmt.Sprintf("Error retrieving file from form-data: %v\n", err)
+		response.BadRequest(w, text)
 		return
 	}
 	defer formFile.Close()
 
 	f, err := excelize.OpenReader(formFile)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		response.InternalServerError(w)
 		return
 	}
 
 	rows, err := f.GetRows(violationSheet)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
+	violations := h.parseViolations(rows)
+
+	err = h.service.InsertViolations(violations)
+	if err != nil {
+		response.InternalServerError(w)
+		return
+	}
+}
+
+func (h *ViolationHandler) parseViolations(rows [][]string) []*domain.Violation {
 	violations := make([]*domain.Violation, 0)
 
 	for _, row := range rows {
@@ -79,9 +92,5 @@ func (h *ViolationHandler) InsertViolations(w http.ResponseWriter, r *http.Reque
 		violations = append(violations, v)
 	}
 
-	err = h.service.InsertViolations(violations)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	return violations
 }
