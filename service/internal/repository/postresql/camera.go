@@ -17,15 +17,19 @@ func NewCameraRepoPostgres(conn *pgx.Conn) repository.CameraRepo {
 	return &cameraRepoPostgres{conn: conn}
 }
 
-func (r *cameraRepoPostgres) AddCameraType(cameraType domain.CameraType) error {
-	query := "INSERT INTO camera_types (camera_type_id, camera_type_name) VALUES ($1, $2)"
+const addCameraTypeQuery = `INSERT INTO camera_types (camera_type_id, camera_type_name) 
+VALUES ($1, $2) RETURNING camera_type_id`
 
-	_, err := r.conn.Exec(context.Background(), query, cameraType.ID, cameraType.Name)
+func (r *cameraRepoPostgres) AddCameraType(cameraType domain.CameraType) (string, error) {
+	var cameraTypeID string
+
+	err := r.conn.QueryRow(context.Background(), addCameraTypeQuery, cameraType.ID, cameraType.Name).
+		Scan(&cameraTypeID)
 	if err != nil {
-		return err
+		return "", errs.ErrAlreadyExists
 	}
 
-	return nil
+	return cameraTypeID, nil
 }
 
 const getCameraTypeByCameraIDQuery = `SELECT camera_type_name 

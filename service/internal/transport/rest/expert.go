@@ -2,12 +2,14 @@ package rest
 
 import (
 	"TrafficPolice/errs"
+	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/tokens"
 	"TrafficPolice/internal/transport/rabbitmq"
 	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/internal/transport/rest/middlewares"
+	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,7 +17,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 )
 
@@ -29,37 +30,40 @@ type ExpertHandler struct {
 	imgService    services.ImgService
 	expertService services.ExpertService
 	finePublisher *rabbitmq.FinePublisher
+	caseConverter *converter.CaseConverter
 }
 
 func NewExpertHandler(
 	imgService services.ImgService,
 	expertService services.ExpertService,
 	finePublisher *rabbitmq.FinePublisher,
+	caseConverter *converter.CaseConverter,
 ) *ExpertHandler {
 	return &ExpertHandler{
 		imgService:    imgService,
 		expertService: expertService,
 		finePublisher: finePublisher,
+		caseConverter: caseConverter,
 	}
 }
 
 func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) {
 	expertID := r.PathValue(expertIDPathValue)
 	if expertID == "" {
-		http.Error(w, "id is empty", http.StatusBadRequest)
+		response.BadRequest(w, "Bad expert id")
 		return
 	}
 
 	file, header, err := parseMultipartForm(r, expertContentImageKey)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	contentType := header.Header.Get(contentTypeKey)
 	extension, err := getImgExtension(contentType)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
@@ -67,88 +71,66 @@ func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		log.Printf("Error while reading fileBytes: %v\n", fileBytes)
+		response.InternalServerError(w)
 		return
 	}
 
 	err = h.imgService.SaveImg(fileBytes, imgFilePath)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Succesfully uploaded image")
+	response.OKMessage(w, "Successfully uploaded image")
 }
 
 func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) {
 	expertID := r.PathValue(expertIDPathValue)
 	if expertID == "" {
-		http.Error(w, "bad expert id", http.StatusBadRequest)
+		response.BadRequest(w, "Bad expert id")
 		return
 	}
 
-	pattern := fmt.Sprintf("%s/%s.*", expertsDir, expertID)
-	files, err := filepath.Glob(pattern)
+	file, err := h.imgService.GetImgFilePath(expertsDir, expertID)
 	if err != nil {
-		fmt.Println("Error:", err)
+		if errors.Is(err, errs.ErrNoImage) {
+			response.NotFound(w, "Image with input expert id not found")
+			return
+		}
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
-	http.ServeFile(w, r, files[0])
+	http.ServeFile(w, r, file)
 }
 
 func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) {
 	tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
 
 	c, err := h.expertService.GetCase(tokenInfo.UserID)
-	if errors.Is(err, errs.ErrNoNotSolvedCase) {
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if errors.Is(err, errs.ErrUserNotExists) {
+			response.NotFound(w, "Expert not found")
+		}
+		if errors.Is(err, errs.ErrNoNotSolvedCase) || errors.Is(err, errs.ErrNoCase) {
+			response.NoContent(w)
+			return
+		}
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
-	cDto := dto.Case{
-		ID: c.ID,
-		Transport: dto.Transport{
-			ID:     c.Transport.ID,
-			Chars:  c.Transport.Chars,
-			Num:    c.Transport.Num,
-			Region: c.Transport.Region,
-			Person: &dto.Person{
-				ID: c.Transport.Person.ID,
-			},
-		},
-		Camera: dto.Camera{
-			ID:           c.Camera.ID,
-			CameraTypeID: c.Camera.CameraType.ID,
-			Latitude:     c.Camera.Latitude,
-			Longitude:    c.Camera.Longitude,
-			ShortDesc:    c.Camera.ShortDesc,
-		},
-		Violation: dto.Violation{
-			ID:         c.Violation.ID,
-			Name:       c.Violation.Name,
-			FineAmount: c.Violation.FineAmount,
-		},
-		ViolationValue: c.ViolationValue,
-		RequiredSkill:  c.RequiredSkill,
-		IsSolved:       c.IsSolved,
-		FineDecision:   c.FineDecision,
-	}
-
-	cBytes, err := json.Marshal(cDto)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	_, err = w.Write(cBytes)
+	cBytes, err := json.Marshal(h.caseConverter.MapDomainToDto(c))
 	if err != nil {
 		log.Println(err)
+		response.InternalServerError(w)
+		return
 	}
+
+	response.WriteResponse(w, http.StatusOK, cBytes)
 }
 
 func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) {
@@ -157,13 +139,18 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 	var decision dto.Decision
 	err := json.NewDecoder(r.Body).Decode(&decision)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	expert, err := h.expertService.GetExpertByUserID(tokenInfo.UserID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		if errors.Is(err, errs.ErrUserNotExists) {
+			response.NotFound(w, "Input expert not found")
+			return
+		}
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
@@ -175,7 +162,8 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 		})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
@@ -185,8 +173,8 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 			log.Println(err)
 			return
 		}
-		c := mapCaseWithPersonToDTO(caseInfo)
-		image, extension, err := h.getImage(caseInfo.ID)
+		c := h.caseConverter.MapCaseWithPersonToDTO(caseInfo)
+		image, extension, err := h.getCaseImage(caseInfo.ID)
 		if err != nil {
 			log.Println(err)
 			return
@@ -201,53 +189,18 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 	}
+
+	response.OKMessage(w, "Decision accepted")
 }
 
-func mapCaseWithPersonToDTO(c domain.Case) dto.Case {
-	return dto.Case{
-		ID: c.ID,
-		Transport: dto.Transport{
-			ID:    c.Transport.ID,
-			Chars: c.Transport.Chars,
-			Num:   c.Transport.Num,
-			Person: &dto.Person{
-				ID:       c.Transport.Person.ID,
-				PhoneNum: c.Transport.Person.PhoneNum,
-				Email:    c.Transport.Person.Email,
-				VkID:     c.Transport.Person.VkID,
-				TgID:     c.Transport.Person.TgID,
-			},
-		},
-		Camera: dto.Camera{
-			ID:           c.Camera.ID,
-			CameraTypeID: c.Camera.CameraType.ID,
-			Latitude:     c.Camera.Latitude,
-			Longitude:    c.Camera.Longitude,
-			ShortDesc:    c.Camera.ShortDesc,
-		},
-		Violation: dto.Violation{
-			ID:         c.Violation.ID,
-			Name:       c.Violation.Name,
-			FineAmount: c.Violation.FineAmount,
-		},
-		ViolationValue: c.ViolationValue,
-		RequiredSkill:  c.RequiredSkill,
-		Date:           c.Date,
-		IsSolved:       c.IsSolved,
-		FineDecision:   c.FineDecision,
-	}
-}
-
-func (h *ExpertHandler) getImage(caseID string) ([]byte, string, error) {
+func (h *ExpertHandler) getCaseImage(caseID string) ([]byte, string, error) {
 	file, err := h.imgService.GetImgFilePath(casesDir, caseID)
 	if err != nil {
-		log.Println(err)
 		return nil, "", err
 	}
 
 	img, err := os.ReadFile(file)
 	if err != nil {
-		log.Println(err)
 		return nil, "", err
 	}
 

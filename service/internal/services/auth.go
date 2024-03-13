@@ -1,18 +1,18 @@
 package services
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"TrafficPolice/internal/tokens"
 	"TrafficPolice/pkg/hash"
-	"fmt"
 	"github.com/google/uuid"
 	"time"
 )
 
 type AuthService interface {
 	RegisterExpert(input domain.UserInfo) error
-	RegisterCamera(info domain.RegisterCamera) error
+	RegisterCamera(info domain.RegisterCamera) (string, error)
 	RegisterDirectors(users []domain.UserInfo) error
 	SignIn(input domain.UserInfo) (string, error)
 	ConfirmExpert(data domain.ConfirmExpert) error
@@ -38,7 +38,7 @@ func NewAuthService(repo repository.AuthRepo, tokenManager tokens.TokenManager, 
 func (s *authService) RegisterExpert(user domain.UserInfo) error {
 	alreadyExists := s.repo.CheckUserExists(user.Username)
 	if alreadyExists {
-		return fmt.Errorf("user with username '%s' already exists", user.Username)
+		return errs.ErrAlreadyExists
 	}
 
 	hashedPass, err := s.hasher.Hash(user.Password)
@@ -62,15 +62,15 @@ func (s *authService) RegisterExpert(user domain.UserInfo) error {
 	return err
 }
 
-func (s *authService) RegisterCamera(info domain.RegisterCamera) error {
+func (s *authService) RegisterCamera(info domain.RegisterCamera) (string, error) {
 	alreadyExists := s.repo.CheckUserExists(info.Username)
 	if alreadyExists {
-		return fmt.Errorf("camera with username '%s' already exists", info.Username)
+		return "", errs.ErrAlreadyExists
 	}
 
 	hashedPass, err := s.hasher.Hash(info.Password)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	userID := uuid.New()
@@ -84,7 +84,7 @@ func (s *authService) RegisterCamera(info domain.RegisterCamera) error {
 	}
 	err = s.repo.InsertUser(userInfo)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	return s.repo.InsertCamera(info.Camera, userID)
@@ -136,7 +136,7 @@ func (s *authService) SignIn(input domain.UserInfo) (string, error) {
 	}
 
 	if user.Password != inputHashPass {
-		return "", fmt.Errorf("invalid password")
+		return "", errs.ErrInvalidPass
 	}
 
 	return s.tokenManager.NewJWT(tokens.TokenInfo{

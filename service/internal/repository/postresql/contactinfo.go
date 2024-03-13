@@ -7,15 +7,15 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type contactInfoDBPostgres struct {
+type contactInfoRepoPostgres struct {
 	conn *pgx.Conn
 }
 
-func NewContactInfoDBPostgres(conn *pgx.Conn) repository.ContactInfoDB {
-	return &contactInfoDBPostgres{conn: conn}
+func NewContactInfoRepoPostgres(conn *pgx.Conn) repository.ContactInfoRepo {
+	return &contactInfoRepoPostgres{conn: conn}
 }
 
-func (db *contactInfoDBPostgres) InsertContactInfo(m map[string][]*domain.Transport) error {
+func (r *contactInfoRepoPostgres) InsertContactInfo(m map[string][]*domain.Transport) error {
 	batch := &pgx.Batch{}
 
 	personQuery := `INSERT INTO persons (id, phone_num, email, vk_id, tg_id) VALUES ($1, $2, $3, $4, $5)`
@@ -31,5 +31,5 @@ func (db *contactInfoDBPostgres) InsertContactInfo(m map[string][]*domain.Transp
 		}
 	}
 
-	return db.conn.SendBatch(context.Background(), batch).Close()
+	return r.conn.SendBatch(context.Background(), batch).Close()
 }

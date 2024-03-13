@@ -7,7 +7,7 @@ import (
 )
 
 type CaseService interface {
-	AddCase(c domain.Case) error
+	AddCase(c domain.Case) (string, error)
 }
 
 type caseService struct {
@@ -25,13 +25,13 @@ func NewCaseService(
 	}
 }
 
-func (s *caseService) AddCase(c domain.Case) error {
+func (s *caseService) AddCase(c domain.Case) (string, error) {
 	id := uuid.New()
 	c.ID = id.String()
 	transportID, err := s.transportRepo.GetTransportID(c.Transport.Chars, c.Transport.Num, c.Transport.Region)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 	c.Transport.ID = transportID
 

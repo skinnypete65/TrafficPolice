@@ -6,23 +6,23 @@ import (
 )
 
 type CameraRepo interface {
-	AddCameraType(cameraType domain.CameraType) error
+	AddCameraType(cameraType domain.CameraType) (string, error)
 	GetCameraTypeByCameraID(cameraID string) (string, error)
 }
 
 type CaseRepo interface {
-	InsertCase(c domain.Case) error
+	InsertCase(c domain.Case) (string, error)
 	GetCaseByID(caseID string) (domain.Case, error)
 	GetCaseWithPersonInfo(caseID string) (domain.Case, error)
 	SetCaseFineDecision(caseID string, fineDecision bool) error
 	UpdateCaseRequiredSkill(caseID string, requiredSkill int) error
 }
 
-type ContactInfoDB interface {
+type ContactInfoRepo interface {
 	InsertContactInfo(m map[string][]*domain.Transport) error
 }
 
-type ViolationDB interface {
+type ViolationRepo interface {
 	InsertViolations(violations []*domain.Violation) error
 }
 
@@ -30,7 +30,7 @@ type AuthRepo interface {
 	CheckUserExists(username string) bool
 	InsertUser(user domain.UserInfo) error
 	InsertExpert(expert domain.Expert) error
-	InsertCamera(camera domain.Camera, userID uuid.UUID) error
+	InsertCamera(camera domain.Camera, userID uuid.UUID) (string, error)
 	InsertDirector(director domain.Director) error
 	SignIn(username string) (domain.UserInfo, error)
 	ConfirmExpert(data domain.ConfirmExpert) error

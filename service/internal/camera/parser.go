@@ -1,11 +1,11 @@
 package camera
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
 	"bytes"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"github.com/jcalabro/leb128"
 	"log"
@@ -33,13 +33,11 @@ func NewParser(cameraService services.CameraService) *Parser {
 
 func (p *Parser) ParseCameraInfo(payload []byte) (dto.Case, error) {
 	if len(payload) == 0 {
-		return dto.Case{}, fmt.Errorf("payload is empty")
+		return dto.Case{}, errs.ErrEmptyPayload
 	}
 
 	payload = payload[2:]
 	info := p.parsePayload(payload)
-	log.Println("INFO:")
-	log.Println(info)
 
 	var cameraType string
 	var err error
@@ -50,7 +48,7 @@ func (p *Parser) ParseCameraInfo(payload []byte) (dto.Case, error) {
 		cameraID := camera["id"].(string)
 		cameraType, err = p.cameraService.GetCameraTypeByCameraID(cameraID)
 	} else {
-		err = errors.New("not known cameraID")
+		err = errs.ErrUnknownCameraID
 	}
 
 	if err != nil {
@@ -65,7 +63,7 @@ func (p *Parser) ParseCameraInfo(payload []byte) (dto.Case, error) {
 	case typeCamerus3:
 		return p.parseCamerus3(info)
 	default:
-		return dto.Case{}, errors.New("unknown camera type")
+		return dto.Case{}, errs.ErrUnknownCameraType
 	}
 }
 
@@ -169,10 +167,12 @@ func (p *Parser) parseCamerus2(info map[string]any) (dto.Case, error) {
 }
 
 func (p *Parser) parseCamerus3(info map[string]any) (dto.Case, error) {
-	transport := info["transport"].(string)
-	chars := transport[1:4]
-	num := string(transport[0]) + transport[4:6]
-	region := transport[6:]
+	transportStr := info["transport"].(string)
+	transport := []rune(transportStr)
+
+	chars := string(transport[1:4])
+	num := string(transport[0]) + string(transport[4:6])
+	region := string(transport[6:])
 
 	camera := info["camera"].(map[string]any)
 	violation := info["violation"].(map[string]any)

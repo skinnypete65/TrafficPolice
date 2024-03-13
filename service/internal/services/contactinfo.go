@@ -11,15 +11,14 @@ type ContactInfoService interface {
 }
 
 type contactInfoService struct {
-	db repository.ContactInfoDB
+	repo repository.ContactInfoRepo
 }
 
-func NewContactInfoService(db repository.ContactInfoDB) ContactInfoService {
-	return &contactInfoService{db: db}
+func NewContactInfoService(repo repository.ContactInfoRepo) ContactInfoService {
+	return &contactInfoService{repo: repo}
 }
 
 func (s *contactInfoService) InsertContactInfo(m map[string][]*domain.Transport) error {
-
 	for _, transports := range m {
 		personID := uuid.New().String()
 
@@ -28,5 +27,5 @@ func (s *contactInfoService) InsertContactInfo(m map[string][]*domain.Transport)
 			transports[i].ID = uuid.New().String()
 		}
 	}
-	return s.db.InsertContactInfo(m)
+	return s.repo.InsertContactInfo(m)
 }

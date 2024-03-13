@@ -82,7 +82,11 @@ func (s *expertService) SetCaseDecision(decision domain.Decision) (bool, error) 
 	}
 
 	if caseDecisions.PositiveDecisions >= s.consensus {
-		return true, s.caseRepo.SetCaseFineDecision(decision.CaseID, true)
+		err = s.caseRepo.SetCaseFineDecision(decision.CaseID, true)
+		if err != nil {
+			return false, err
+		}
+		return true, err
 	}
 	if caseDecisions.NegativeDecisions >= s.consensus {
 		return false, s.caseRepo.SetCaseFineDecision(decision.CaseID, false)

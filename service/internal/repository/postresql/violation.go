@@ -11,7 +11,7 @@ type violationDBPostgres struct {
 	conn *pgx.Conn
 }
 
-func NewViolationDBPostgres(conn *pgx.Conn) repository.ViolationDB {
+func NewViolationDBPostgres(conn *pgx.Conn) repository.ViolationRepo {
 	return &violationDBPostgres{conn: conn}
 }
 

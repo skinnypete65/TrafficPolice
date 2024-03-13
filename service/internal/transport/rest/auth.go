@@ -1,10 +1,13 @@
 package rest
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
+	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
+	"errors"
 	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
@@ -27,13 +30,13 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	err = h.validate.Struct(input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
@@ -42,9 +45,15 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 		Password: input.Password,
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if errors.Is(err, errs.ErrAlreadyExists) {
+			response.Conflict(w, "User with this username already exists")
+			return
+		}
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
+	response.OKMessage(w, "You signed up successfully")
 }
 
 func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
@@ -52,13 +61,13 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	err = h.validate.Struct(input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
@@ -68,17 +77,26 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
+		if errors.Is(err, errs.ErrNoRows) {
+			response.NotFound(w, "User with this username not exists")
+			return
+		}
+		if errors.Is(err, errs.ErrInvalidPass) {
+			response.Unauthorized(w)
+			return
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	ansBytes, err := json.Marshal(dto.SignInOutput{AccessToken: token})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		response.InternalServerError(w)
+		log.Println(err)
 		return
 	}
 
-	_, err = w.Write(ansBytes)
+	response.WriteResponse(w, http.StatusOK, ansBytes)
 	if err != nil {
 		log.Println(err)
 	}
@@ -89,13 +107,13 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	err = h.validate.Struct(input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
@@ -105,7 +123,17 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if errors.Is(err, errs.ErrNoRows) {
+			response.NotFound(w, "Expert with input id not found")
+			return
+		}
+		response.InternalServerError(w)
 		return
+	}
+
+	if input.IsConfirmed {
+		response.OKMessage(w, "Expert confirmed successfully")
+	} else {
+		response.OKMessage(w, "Expert unconfirmed successfully")
 	}
 }

@@ -1,11 +1,13 @@
 package rest
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/camera"
-	"TrafficPolice/internal/domain"
+	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/services"
-	"TrafficPolice/internal/transport/rest/dto"
+	"TrafficPolice/internal/transport/rest/response"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
 	"log"
 	"net/http"
@@ -21,6 +23,7 @@ type CaseHandler struct {
 	caseService   services.CaseService
 	imgService    services.ImgService
 	cameraService services.CameraService
+	caseConverter *converter.CaseConverter
 	cameraParser  *camera.Parser
 }
 
@@ -28,52 +31,76 @@ func NewCaseHandler(
 	service services.CaseService,
 	imgService services.ImgService,
 	cameraService services.CameraService,
+	caseConverter *converter.CaseConverter,
+	cameraParser *camera.Parser,
 ) *CaseHandler {
 
 	return &CaseHandler{
 		caseService:   service,
 		imgService:    imgService,
 		cameraService: cameraService,
-		cameraParser:  camera.NewParser(cameraService),
+		caseConverter: caseConverter,
+		cameraParser:  cameraParser,
 	}
 }
 
 func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 	buf, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	inputCase, err := h.cameraParser.ParseCameraInfo(buf)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		if errors.Is(err, errs.ErrEmptyPayload) {
+			response.BadRequest(w, "Binary string is empty")
+			return
+		}
+		if errors.Is(err, errs.ErrUnknownCameraID) {
+			response.BadRequest(w, "Cannot parse camera id")
+			return
+		}
+		if errors.Is(err, errs.ErrUnknownCameraType) {
+			response.BadRequest(w, "Unknown camera type")
+			return
+		}
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
-	err = h.caseService.AddCase(mapCaseDTOtoDomain(inputCase))
+	caseID, err := h.caseService.AddCase(h.caseConverter.MapDtoToDomain(inputCase))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		if errors.Is(err, errs.ErrNoTransport) {
+			response.BadRequest(w, "No transport by input credentials")
+			return
+		}
+		log.Println(err)
+		response.InternalServerError(w)
+		return
 	}
+
+	response.IdResponse(w, caseID)
 }
 
 func (h *CaseHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 	caseID := r.PathValue(caseIDPathValue)
 	if caseID == "" {
-		http.Error(w, "id is empty", http.StatusBadRequest)
+		response.BadRequest(w, "id is empty")
 		return
 	}
 
 	file, header, err := parseMultipartForm(r, caseContentImageKey)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	contentType := header.Header.Get(contentTypeKey)
 	extension, err := getImgExtension(contentType)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
@@ -81,51 +108,36 @@ func (h *CaseHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 		log.Printf("Error while reading fileBytes: %v\n", fileBytes)
+		response.InternalServerError(w)
 		return
 	}
 
 	err = h.imgService.SaveImg(fileBytes, imgFilePath)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.InternalServerError(w)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Succesfully uploaded image")
+	response.OKMessage(w, "Successfully uploaded image")
 }
 
 func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) {
 	caseID := r.PathValue(caseIDPathValue)
 	if caseID == "" {
-		http.Error(w, "bad case id", http.StatusBadRequest)
+		response.BadRequest(w, "bad case id")
 		return
 	}
 
 	file, err := h.imgService.GetImgFilePath(casesDir, caseID)
 	if err != nil {
-		log.Println(err.Error())
-		http.Error(w, "", http.StatusInternalServerError)
+		if errors.Is(err, errs.ErrNoImage) {
+			response.NotFound(w, "Image with input case id not found")
+			return
+		}
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
 	http.ServeFile(w, r, file)
-}
-
-func mapCaseDTOtoDomain(c dto.Case) domain.Case {
-	return domain.Case{
-		Transport: domain.Transport{
-			Chars:  c.Transport.Chars,
-			Num:    c.Transport.Num,
-			Region: c.Transport.Region,
-		},
-		Camera: domain.Camera{
-			ID: c.Camera.ID,
-		},
-		Violation: domain.Violation{
-			ID: c.Violation.ID,
-		},
-		ViolationValue: c.ViolationValue,
-		RequiredSkill:  c.RequiredSkill,
-		Date:           c.Date,
-	}
 }

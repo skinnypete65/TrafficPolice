@@ -1,10 +1,14 @@
 package rest
 
 import (
+	"TrafficPolice/errs"
+	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
+	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
+	"errors"
 	"github.com/go-playground/validator/v10"
 	"log"
 	"net/http"
@@ -20,55 +24,53 @@ const (
 )
 
 type TrainingHandler struct {
-	trainingService   services.TrainingService
-	paginationService services.PaginationService
-	validate          *validator.Validate
+	trainingService     services.TrainingService
+	paginationService   services.PaginationService
+	validate            *validator.Validate
+	caseConverter       *converter.CaseConverter
+	paginationConverter *converter.PaginationConverter
 }
 
 func NewTrainingHandler(
 	trainingService services.TrainingService,
 	paginationService services.PaginationService,
 	validate *validator.Validate,
+	caseConverter *converter.CaseConverter,
+	paginationConverter *converter.PaginationConverter,
 ) *TrainingHandler {
 	return &TrainingHandler{
-		trainingService:   trainingService,
-		paginationService: paginationService,
-		validate:          validate,
+		trainingService:     trainingService,
+		paginationService:   paginationService,
+		validate:            validate,
+		caseConverter:       caseConverter,
+		paginationConverter: paginationConverter,
 	}
 }
 
 func (h *TrainingHandler) GetSolvedCasesByParams(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
-	page, err := strconv.Atoi(r.URL.Query().Get(pageKey))
+	page, err := h.parseQueryParam(r, pageKey, defaultPage)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
-	if page == 0 {
-		page = defaultPage
-	}
 
-	limit, err := strconv.Atoi(r.URL.Query().Get(limitKey))
+	limit, err := h.parseQueryParam(r, limitKey, defaultLimit)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
-	}
-	if limit == 0 {
-		limit = defaultLimit
 	}
 
 	var params dto.SolvedCasesParams
 
 	err = json.NewDecoder(r.Body).Decode(&params)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
 	err = h.validate.Struct(params)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.BadRequest(w, err.Error())
 		return
 	}
 
@@ -88,76 +90,51 @@ func (h *TrainingHandler) GetSolvedCasesByParams(w http.ResponseWriter, r *http.
 		paginationParams,
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		if errors.Is(err, errs.ErrNoRows) {
+			response.NotFound(w, "Cases with input params are not found")
+			return
+		}
+		log.Println(err)
+		response.InternalServerError(w)
 		return
 	}
 
 	pagination, err := h.paginationService.GetPaginationInfo(casesTableName, paginationParams)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.InternalServerError(w)
 		return
 	}
 
 	trainingInfo := dto.TrainingInfo{
-		Cases:      mapCasesToDTO(cases),
-		Pagination: mapPaginationToDTO(pagination),
+		Cases:      h.caseConverter.MapDomainsToDto(cases),
+		Pagination: h.paginationConverter.MapDomainToDto(pagination),
 	}
 
-	infoJson, err := json.Marshal(trainingInfo)
+	infoBody, err := json.Marshal(trainingInfo)
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		response.InternalServerError(w)
 		return
 	}
 
-	_, err = w.Write(infoJson)
+	response.WriteResponse(w, http.StatusOK, infoBody)
+}
+
+func (h *TrainingHandler) parseQueryParam(r *http.Request, key string, defaultValue int) (int, error) {
+	queryParam := r.URL.Query().Get(key)
+
+	if queryParam == "" {
+		return defaultValue, nil
+	}
+
+	page, err := strconv.Atoi(queryParam)
 	if err != nil {
-		log.Println(err)
-	}
-}
-
-func mapCasesToDTO(cases []domain.Case) []dto.Case {
-	dtos := make([]dto.Case, 0, len(cases))
-	for _, c := range cases {
-		cDto := dto.Case{
-			ID: c.ID,
-			Transport: dto.Transport{
-				ID:     c.Transport.ID,
-				Chars:  c.Transport.Chars,
-				Num:    c.Transport.Num,
-				Region: c.Transport.Region,
-			},
-			Camera: dto.Camera{
-				ID:           c.Camera.ID,
-				CameraTypeID: c.Camera.CameraType.ID,
-				Latitude:     c.Camera.Latitude,
-				Longitude:    c.Camera.Longitude,
-				ShortDesc:    c.Camera.ShortDesc,
-			},
-			Violation: dto.Violation{
-				ID:         c.Violation.ID,
-				Name:       c.Violation.Name,
-				FineAmount: c.Violation.FineAmount,
-			},
-			ViolationValue: c.ViolationValue,
-			RequiredSkill:  c.RequiredSkill,
-			IsSolved:       c.IsSolved,
-			FineDecision:   c.FineDecision,
-			Date:           c.Date,
-		}
-
-		dtos = append(dtos, cDto)
+		return 0, err
 	}
 
-	return dtos
-}
-
-func mapPaginationToDTO(pagination domain.Pagination) dto.Pagination {
-	return dto.Pagination{
-		Next:          pagination.Next,
-		Previous:      pagination.Next,
-		RecordPerPage: pagination.RecordPerPage,
-		CurrentPage:   pagination.CurrentPage,
-		TotalPage:     pagination.TotalPage,
+	if page == 0 {
+		return defaultValue, nil
 	}
+	return page, nil
+
 }

@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 	"context"
+	"errors"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -65,6 +67,9 @@ func (r *authRepoPostgres) SignIn(username string) (domain.UserInfo, error) {
 	var userID string
 	err := row.Scan(&userID, &user.Password, &user.UserRole)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.UserInfo{}, errs.ErrNoRows
+		}
 		return domain.UserInfo{}, err
 	}
 	user.ID = uuid.MustParse(userID)
@@ -75,22 +80,27 @@ func (r *authRepoPostgres) SignIn(username string) (domain.UserInfo, error) {
 const confirmExpertQuery = "UPDATE experts SET is_confirmed = $1 WHERE expert_id = $2"
 
 func (r *authRepoPostgres) ConfirmExpert(data domain.ConfirmExpert) error {
-	_, err := r.conn.Exec(context.Background(), confirmExpertQuery, data.IsConfirmed, data.ExpertID)
+	n, err := r.conn.Exec(context.Background(), confirmExpertQuery, data.IsConfirmed, data.ExpertID)
+
+	if n.RowsAffected() == 0 {
+		return errs.ErrNoRows
+	}
 	return err
 }
 
 const insertCameraQuery = `INSERT INTO cameras (
                      camera_id, camera_type_id, camera_latitude, camera_longitude, short_desc, user_id) 
-		VALUES ($1, $2, $3, $4, $5, $6)`
+		VALUES ($1, $2, $3, $4, $5, $6) RETURNING camera_id`
 
-func (r *authRepoPostgres) InsertCamera(camera domain.Camera, userID uuid.UUID) error {
-
-	_, err := r.conn.Exec(context.Background(), insertCameraQuery,
-		camera.ID, camera.CameraType.ID, camera.Latitude, camera.Longitude, camera.ShortDesc, userID)
+func (r *authRepoPostgres) InsertCamera(camera domain.Camera, userID uuid.UUID) (string, error) {
+	var cameraID string
+	err := r.conn.QueryRow(context.Background(), insertCameraQuery,
+		camera.ID, camera.CameraType.ID, camera.Latitude, camera.Longitude, camera.ShortDesc, userID).
+		Scan(&cameraID)
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return cameraID, nil
 }

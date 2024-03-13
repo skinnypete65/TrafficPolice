@@ -7,7 +7,7 @@ import (
 )
 
 type CameraService interface {
-	AddCameraType(cameraType domain.CameraType) error
+	AddCameraType(cameraType domain.CameraType) (string, error)
 	GetCameraTypeByCameraID(cameraID string) (string, error)
 }
 
@@ -19,7 +19,7 @@ func NewCameraService(db repository.CameraRepo) CameraService {
 	return &cameraService{cameraRepo: db}
 }
 
-func (s *cameraService) AddCameraType(cameraType domain.CameraType) error {
+func (s *cameraService) AddCameraType(cameraType domain.CameraType) (string, error) {
 	id := uuid.New()
 	cameraType.ID = id.String()
 	return s.cameraRepo.AddCameraType(cameraType)
