@@ -3,6 +3,7 @@ package config
 import (
 	"gopkg.in/yaml.v3"
 	"os"
+	"time"
 )
 
 type Config struct {
@@ -10,9 +11,15 @@ type Config struct {
 	Consensus  int            `yaml:"consensus"`
 	PassSalt   string         `yaml:"passSalt"`
 	SigningKey string         `yaml:"signingKey"`
+	Rating     RatingConfig   `yaml:"rating"`
 	Postgres   PostgresConfig `yaml:"postgres"`
 	RabbitMQ   RabbitMQConfig `yaml:"rabbitmq"`
 	Directors  []DirectorInfo `yaml:"directors"`
+}
+
+type RatingConfig struct {
+	ReportPeriod   time.Duration `yaml:"reportPeriod"`
+	MinSolvedCases int           `yaml:"minSolvedCases"`
 }
 
 type PostgresConfig struct {
