@@ -593,6 +593,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/director/cases": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получение состояния случаев. Воспользоваться может только директор",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "director"
+                ],
+                "summary": "Получение состояния случаев",
+                "operationId": "director-cases-get",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.CaseStatus"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/expert/decision": {
             "post": {
                 "security": [
@@ -1103,6 +1147,49 @@ const docTemplate = `{
                 },
                 "violation": {
                     "$ref": "#/definitions/dto.Violation"
+                },
+                "violation_value": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CaseAssessment": {
+            "type": "object",
+            "properties": {
+                "expert_id": {
+                    "type": "string"
+                },
+                "fine_decision": {
+                    "type": "boolean"
+                },
+                "is_expert_solve": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.CaseStatus": {
+            "type": "object",
+            "properties": {
+                "case_assessments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CaseAssessment"
+                    }
+                },
+                "case_date": {
+                    "type": "string"
+                },
+                "case_id": {
+                    "type": "string"
+                },
+                "fine_decision": {
+                    "type": "boolean"
+                },
+                "is_solved": {
+                    "type": "boolean"
+                },
+                "required_skill": {
+                    "type": "integer"
                 },
                 "violation_value": {
                     "type": "string"

@@ -19,3 +19,19 @@ type CaseWithImage struct {
 	Image          []byte `json:"image"`
 	ImageExtension string `json:"image_extension"`
 }
+
+type CaseAssessment struct {
+	ExpertID      string `json:"expert_id"`
+	IsExpertSolve bool   `json:"is_expert_solve"`
+	FineDecision  bool   `json:"fine_decision"`
+}
+
+type CaseStatus struct {
+	CaseID          string           `json:"case_id"`
+	ViolationValue  string           `json:"violation_value"`
+	RequiredSkill   int              `json:"required_skill"`
+	CaseDate        time.Time        `json:"case_date"`
+	IsSolved        bool             `json:"is_solved"`
+	FineDecision    bool             `json:"fine_decision"`
+	CaseAssessments []CaseAssessment `json:"case_assessments"`
+}

@@ -19,3 +19,19 @@ type Case struct {
 	IsSolved       bool
 	FineDecision   bool
 }
+
+type CaseAssessment struct {
+	ExpertID      string
+	IsExpertSolve bool
+	FineDecision  bool
+}
+
+type CaseStatus struct {
+	CaseID          string
+	ViolationValue  string
+	RequiredSkill   int
+	CaseDate        time.Time
+	IsSolved        bool
+	FineDecision    bool
+	CaseAssessments []CaseAssessment
+}

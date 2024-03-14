@@ -48,6 +48,34 @@ definitions:
       violation_value:
         type: string
     type: object
+  dto.CaseAssessment:
+    properties:
+      expert_id:
+        type: string
+      fine_decision:
+        type: boolean
+      is_expert_solve:
+        type: boolean
+    type: object
+  dto.CaseStatus:
+    properties:
+      case_assessments:
+        items:
+          $ref: '#/definitions/dto.CaseAssessment'
+        type: array
+      case_date:
+        type: string
+      case_id:
+        type: string
+      fine_decision:
+        type: boolean
+      is_solved:
+        type: boolean
+      required_skill:
+        type: integer
+      violation_value:
+        type: string
+    type: object
   dto.ConfirmExpertInput:
     properties:
       expert_id:
@@ -588,6 +616,34 @@ paths:
       summary: Ввод информации о транспорте и его владельце
       tags:
       - contact_info
+  /director/cases:
+    get:
+      description: Получение состояния случаев. Воспользоваться может только директор
+      operationId: director-cases-get
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CaseStatus'
+            type: array
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение состояния случаев
+      tags:
+      - director
   /expert/{id}/img:
     get:
       consumes:
