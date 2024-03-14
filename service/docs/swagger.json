@@ -437,6 +437,12 @@
                             "$ref": "#/definitions/response.Body"
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -581,6 +587,342 @@
                 }
             }
         },
+        "/expert/decision": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Установка оценки случая экспертом. Воспользоваться может только эксперт",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "expert"
+                ],
+                "summary": "Оценка случая экспертом",
+                "operationId": "expert-set-decision",
+                "parameters": [
+                    {
+                        "description": "id случая и решение эксперта",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.Decision"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/expert/get_case": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получение случая для оценки экспертом. Воспользоваться могут эксперт или директор",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "expert"
+                ],
+                "summary": "Получение случая для оценки экспертом",
+                "operationId": "expert-get-case",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "204": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/expert/training": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получение прошествий для тренировки. Может воспользоваться только эксперт",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "expert"
+                ],
+                "summary": "Получение проишествий для тренировки",
+                "operationId": "expert-training",
+                "parameters": [
+                    {
+                        "description": "Информация для фильтров по проишествиям",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SolvedCasesParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "номер страницы",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Лимит кейсов на странице",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TrainingInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/expert/{id}/img": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получение фотографии эксперта по его id. Воспользоваться могут эксперт или директор",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "expert"
+                ],
+                "summary": "Получение фотографии эксперта",
+                "operationId": "expert-image-get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id эксперта",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Добавление фотографии к профилю эксперта. Может воспользоваться директор или эксперт",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "expert"
+                ],
+                "summary": "Добавление фотографии к профилю эксперта",
+                "operationId": "expert-image-upload",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id эксперта",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Фотография эксперта",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/violations": {
             "post": {
                 "security": [
@@ -596,7 +938,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "contact_info"
+                    "violation"
                 ],
                 "summary": "Ввод информации о правонарушениях",
                 "operationId": "insert-violations",
@@ -685,6 +1027,38 @@
                 }
             }
         },
+        "dto.Case": {
+            "type": "object",
+            "properties": {
+                "camera": {
+                    "$ref": "#/definitions/dto.Camera"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "fine_decision": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_solved": {
+                    "type": "boolean"
+                },
+                "required_skill": {
+                    "type": "integer"
+                },
+                "transport": {
+                    "$ref": "#/definitions/dto.Transport"
+                },
+                "violation": {
+                    "$ref": "#/definitions/dto.Violation"
+                },
+                "violation_value": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.ConfirmExpertInput": {
             "type": "object",
             "required": [
@@ -696,6 +1070,57 @@
                 },
                 "is_confirmed": {
                     "type": "boolean"
+                }
+            }
+        },
+        "dto.Decision": {
+            "type": "object",
+            "properties": {
+                "case_id": {
+                    "type": "string"
+                },
+                "fine_decision": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.Pagination": {
+            "type": "object",
+            "properties": {
+                "current_page": {
+                    "type": "integer"
+                },
+                "next": {
+                    "type": "integer"
+                },
+                "previous": {
+                    "type": "integer"
+                },
+                "record_per_page": {
+                    "type": "integer"
+                },
+                "total_page": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.Person": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "phone_num": {
+                    "type": "string"
+                },
+                "tg_id": {
+                    "type": "string"
+                },
+                "vk_id": {
+                    "type": "string"
                 }
             }
         },
@@ -751,6 +1176,81 @@
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SolvedCasesParams": {
+            "type": "object",
+            "required": [
+                "camera_id",
+                "end_time",
+                "required_skill",
+                "start_time",
+                "violation_id"
+            ],
+            "properties": {
+                "camera_id": {
+                    "type": "string"
+                },
+                "end_time": {
+                    "type": "string"
+                },
+                "required_skill": {
+                    "type": "integer"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "violation_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TrainingInfo": {
+            "type": "object",
+            "properties": {
+                "cases": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Case"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/dto.Pagination"
+                }
+            }
+        },
+        "dto.Transport": {
+            "type": "object",
+            "properties": {
+                "chars": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "num": {
+                    "type": "string"
+                },
+                "person": {
+                    "$ref": "#/definitions/dto.Person"
+                },
+                "region": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Violation": {
+            "type": "object",
+            "properties": {
+                "fine_amount": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 }
             }

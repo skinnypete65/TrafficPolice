@@ -27,6 +27,27 @@ definitions:
     required:
     - camera_name
     type: object
+  dto.Case:
+    properties:
+      camera:
+        $ref: '#/definitions/dto.Camera'
+      date:
+        type: string
+      fine_decision:
+        type: boolean
+      id:
+        type: string
+      is_solved:
+        type: boolean
+      required_skill:
+        type: integer
+      transport:
+        $ref: '#/definitions/dto.Transport'
+      violation:
+        $ref: '#/definitions/dto.Violation'
+      violation_value:
+        type: string
+    type: object
   dto.ConfirmExpertInput:
     properties:
       expert_id:
@@ -35,6 +56,39 @@ definitions:
         type: boolean
     required:
     - expert_id
+    type: object
+  dto.Decision:
+    properties:
+      case_id:
+        type: string
+      fine_decision:
+        type: boolean
+    type: object
+  dto.Pagination:
+    properties:
+      current_page:
+        type: integer
+      next:
+        type: integer
+      previous:
+        type: integer
+      record_per_page:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  dto.Person:
+    properties:
+      ID:
+        type: string
+      email:
+        type: string
+      phone_num:
+        type: string
+      tg_id:
+        type: string
+      vk_id:
+        type: string
     type: object
   dto.RegisterCamera:
     properties:
@@ -72,6 +126,56 @@ definitions:
     required:
     - password
     - username
+    type: object
+  dto.SolvedCasesParams:
+    properties:
+      camera_id:
+        type: string
+      end_time:
+        type: string
+      required_skill:
+        type: integer
+      start_time:
+        type: string
+      violation_id:
+        type: string
+    required:
+    - camera_id
+    - end_time
+    - required_skill
+    - start_time
+    - violation_id
+    type: object
+  dto.TrainingInfo:
+    properties:
+      cases:
+        items:
+          $ref: '#/definitions/dto.Case'
+        type: array
+      pagination:
+        $ref: '#/definitions/dto.Pagination'
+    type: object
+  dto.Transport:
+    properties:
+      chars:
+        type: string
+      id:
+        type: string
+      num:
+        type: string
+      person:
+        $ref: '#/definitions/dto.Person'
+      region:
+        type: string
+    type: object
+  dto.Violation:
+    properties:
+      fine_amount:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
     type: object
   response.Body:
     properties:
@@ -367,6 +471,10 @@ paths:
           description: Unauthorized
           schema:
             $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
         "500":
           description: Internal Server Error
           schema:
@@ -467,6 +575,229 @@ paths:
       summary: Ввод информации о транспорте и его владельце
       tags:
       - contact_info
+  /expert/{id}/img:
+    get:
+      consumes:
+      - multipart/form-data
+      description: Получение фотографии эксперта по его id. Воспользоваться могут
+        эксперт или директор
+      operationId: expert-image-get
+      parameters:
+      - description: id эксперта
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение фотографии эксперта
+      tags:
+      - expert
+    post:
+      consumes:
+      - multipart/form-data
+      description: Добавление фотографии к профилю эксперта. Может воспользоваться
+        директор или эксперт
+      operationId: expert-image-upload
+      parameters:
+      - description: id эксперта
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Фотография эксперта
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление фотографии к профилю эксперта
+      tags:
+      - expert
+  /expert/decision:
+    post:
+      consumes:
+      - application/json
+      description: Установка оценки случая экспертом. Воспользоваться может только
+        эксперт
+      operationId: expert-set-decision
+      parameters:
+      - description: id случая и решение эксперта
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Decision'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Оценка случая экспертом
+      tags:
+      - expert
+  /expert/get_case:
+    get:
+      description: Получение случая для оценки экспертом. Воспользоваться могут эксперт
+        или директор
+      operationId: expert-get-case
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение случая для оценки экспертом
+      tags:
+      - expert
+  /expert/training:
+    post:
+      consumes:
+      - application/json
+      description: Получение прошествий для тренировки. Может воспользоваться только
+        эксперт
+      operationId: expert-training
+      parameters:
+      - description: Информация для фильтров по проишествиям
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SolvedCasesParams'
+      - description: номер страницы
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Лимит кейсов на странице
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TrainingInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение проишествий для тренировки
+      tags:
+      - expert
   /violations:
     post:
       consumes:
@@ -507,7 +838,7 @@ paths:
       - ApiKeyAuth: []
       summary: Ввод информации о правонарушениях
       tags:
-      - contact_info
+      - violation
 securityDefinitions:
   ApiKeyAuth:
     in: header

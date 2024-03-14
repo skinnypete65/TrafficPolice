@@ -170,6 +170,7 @@ func Run() {
 		),
 	)
 
+	// Expert Handlers
 	mux.Handle("GET /expert/get_case",
 		authMiddleware.IdentifyRole(
 			authMiddleware.IsExpertConfirmed(

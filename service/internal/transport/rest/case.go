@@ -159,7 +159,7 @@ func (h *CaseHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Param id query string true "id камеры"
 // @Success 200 {file} formData
-// @Failure 400,401 {object} response.Body
+// @Failure 400,401,404 {object} response.Body
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /case/{id}/img [get]

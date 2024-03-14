@@ -50,6 +50,22 @@ func NewTrainingHandler(
 	}
 }
 
+// GetSolvedCasesByParams docs
+// @Summary Получение проишествий для тренировки
+// @Security ApiKeyAuth
+// @Tags expert
+// @Description Получение прошествий для тренировки. Может воспользоваться только эксперт
+// @ID expert-training
+// @Accept  json
+// @Produce  json
+// @Param input body dto.SolvedCasesParams true "Информация для фильтров по проишествиям"
+// @Param page query int true "номер страницы"
+// @Param limit query int true "Лимит кейсов на странице"
+// @Success 200 {object} dto.TrainingInfo
+// @Failure 400,404 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /expert/training [post]
 func (h *TrainingHandler) GetSolvedCasesByParams(w http.ResponseWriter, r *http.Request) {
 	page, err := h.parseQueryParam(r, pageKey, defaultPage)
 	if err != nil {
