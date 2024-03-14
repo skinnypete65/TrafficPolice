@@ -44,6 +44,19 @@ func NewCaseHandler(
 	}
 }
 
+// AddCase docs
+// @Summary Добавление информации о проишествии
+// @Security ApiKeyAuth
+// @Tags case
+// @Description Принимает бинарную строку в описанном формате. Добавить проишествие может только камера
+// @ID case-add
+// @Accept   application/octet-stream
+// @Produce  json
+// @Success 200 {object} response.IDResponse
+// @Failure 400,401 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /case [post]
 func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 	buf, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -84,6 +97,21 @@ func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 	response.IdResponse(w, caseID)
 }
 
+// UploadCaseImg docs
+// @Summary Добавление фотографии к проишествию
+// @Security ApiKeyAuth
+// @Tags case
+// @Description Принимает фотографию и сохраняет ее по переданному id. Добавить фотографию может только камера
+// @ID case-image-upload
+// @Accept   multipart/form-data
+// @Produce  json
+// @Param id query string true "id камеры"
+// @Param file formData file true "Фотография проишествия"
+// @Success 200 {object} response.Body
+// @Failure 400,401 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /case/{id}/img [post]
 func (h *CaseHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 	caseID := r.PathValue(caseIDPathValue)
 	if caseID == "" {
@@ -121,6 +149,20 @@ func (h *CaseHandler) UploadCaseImg(w http.ResponseWriter, r *http.Request) {
 	response.OKMessage(w, "Successfully uploaded image")
 }
 
+// GetCaseImg docs
+// @Summary Получение фотографии проишествия
+// @Security ApiKeyAuth
+// @Tags case
+// @Description Получение фотографии проишествия по id прошествия. Воспользоваться могут эксперт или директор
+// @ID case-image-get
+// @Accept   multipart/form-data
+// @Produce  json
+// @Param id query string true "id камеры"
+// @Success 200 {file} formData
+// @Failure 400,401 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /case/{id}/img [get]
 func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) {
 	caseID := r.PathValue(caseIDPathValue)
 	if caseID == "" {

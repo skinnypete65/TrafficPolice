@@ -25,9 +25,9 @@ services:
       - service_network
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-      interval: 15s
-      timeout: 15s
-      retries: 5
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   service:
     build: ./service

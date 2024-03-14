@@ -24,6 +24,20 @@ func NewViolationHandler(service services.ViolationService) *ViolationHandler {
 	return &ViolationHandler{service: service}
 }
 
+// InsertViolations docs
+// @Summary Ввод информации о правонарушениях
+// @Security ApiKeyAuth
+// @Tags violation
+// @Description Принимает excel файл в формате по столбикам: Название правонарушения:Размер штрафа. Только директор может загрузить файл
+// @ID insert-violations
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param file formData file true "Excel файл с информацией о правонарушениях"
+// @Success 200 {object} response.Body
+// @Failure 400,401 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /violations [post]
 func (h *ViolationHandler) InsertViolations(w http.ResponseWriter, r *http.Request) {
 	maxMemory := int64(10 << 30)
 

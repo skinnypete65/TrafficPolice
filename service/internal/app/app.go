@@ -1,6 +1,7 @@
 package app
 
 import (
+	_ "TrafficPolice/docs"
 	"TrafficPolice/internal/camera"
 	"TrafficPolice/internal/config"
 	"TrafficPolice/internal/converter"
@@ -21,6 +22,7 @@ import (
 	_ "github.com/golang-migrate/migrate/source/file"
 	"github.com/jackc/pgx/v5"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/swaggo/http-swagger" // http-swagger middleware
 	"log"
 	"net/http"
 )
@@ -113,6 +115,9 @@ func Run() {
 	// Setup Routes
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/docs/", httpSwagger.WrapHandler)
+
+	// Camera handlers
 	mux.Handle("POST /camera/type",
 		authMiddleware.IdentifyRole(http.HandlerFunc(cameraHandler.AddCameraType), domain.DirectorRole),
 	)
@@ -120,6 +125,7 @@ func Run() {
 		authMiddleware.IdentifyRole(http.HandlerFunc(cameraHandler.RegisterCamera), domain.DirectorRole),
 	)
 
+	// Case handlers
 	mux.Handle("POST /case",
 		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.AddCase), domain.CameraRole),
 	)
@@ -133,20 +139,24 @@ func Run() {
 		),
 	)
 
+	// ContactInfo handlers
 	mux.Handle("POST /contact_info",
 		authMiddleware.IdentifyRole(http.HandlerFunc(contactInfoHandler.InsertContactInfo), domain.DirectorRole),
 	)
 
+	// Violations handlers
 	mux.Handle("POST /violations",
 		authMiddleware.IdentifyRole(http.HandlerFunc(violationHandler.InsertViolations), domain.DirectorRole),
 	)
 
+	// Auth handlers
 	mux.HandleFunc("POST /auth/sign_up", authHandler.SignUp)
 	mux.HandleFunc("POST /auth/sign_in", authHandler.SignIn)
 	mux.Handle("POST /auth/confirm/expert",
 		authMiddleware.IdentifyRole(http.HandlerFunc(authHandler.ConfirmExpert), domain.DirectorRole),
 	)
 
+	// Expert handlers
 	mux.Handle("POST /expert/{id}/img", authMiddleware.IdentifyRole(
 		authMiddleware.IsExpertConfirmed(http.HandlerFunc(expertHandler.UploadExpertImg)),
 		domain.DirectorRole, domain.ExpertRole),
