@@ -46,10 +46,6 @@ type ExpertRepo interface {
 	GetExpertsCountBySkill(competenceSkill int) (int, error)
 }
 
-type DirectorRepo interface {
-	InsertDirectors(directors []domain.Director) error
-}
-
 type TrainingRepo interface {
 	GetSolvedCasesByParams(params domain.SolvedCasesParams, paginationParams domain.PaginationParams) ([]domain.Case, error)
 }
@@ -70,4 +66,8 @@ type RatingRepo interface {
 	GetExpertsRating(minSolvedCases int) ([]domain.ExpertRating, error)
 	UpdateCompetenceSkills(infos []domain.UpdateCompetenceSkill) error
 	ClearRating() error
+}
+
+type DirectorRepo interface {
+	GetCases() ([]domain.CaseStatus, error)
 }

@@ -113,13 +113,17 @@ func Run() {
 		imgService, expertService, ratingService, finePublisher, caseConverter, caseDecisionConverter,
 	)
 
-	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
-
 	trainingRepo := repository.NewTrainingRepoPostgres(dbConn)
 	trainingService := services.NewTrainingService(trainingRepo)
 	trainingHandler := rest.NewTrainingHandler(
 		trainingService, paginationService, validate, caseConverter, paginationConverter, solvedCasesConverter,
 	)
+
+	directorRepo := repository.NewDirectorRepoPostgres(dbConn)
+	directorService := services.NewDirectorService(directorRepo)
+	directorHandler := rest.NewDirectorHandler(directorService, caseConverter)
+
+	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
 
 	// Setup Routes
 	mux := http.NewServeMux()
@@ -210,6 +214,14 @@ func Run() {
 		authMiddleware.IdentifyRole(
 			http.HandlerFunc(ratingHandler.GetRating),
 			domain.ExpertRole, domain.DirectorRole,
+		),
+	)
+
+	// Director Handlers
+	mux.Handle("GET /director/cases",
+		authMiddleware.IdentifyRole(
+			http.HandlerFunc(directorHandler.GetCases),
+			domain.DirectorRole,
 		),
 	)
 

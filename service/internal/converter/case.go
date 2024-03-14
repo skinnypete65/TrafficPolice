@@ -131,3 +131,31 @@ func (c *CaseConverter) MapCaseWithPersonToDTO(d domain.Case) dto.Case {
 		FineDecision:   d.FineDecision,
 	}
 }
+
+func (c *CaseConverter) MapCaseStatusToDto(d domain.CaseStatus) dto.CaseStatus {
+	assessments := make([]dto.CaseAssessment, 0)
+	for _, assessment := range d.CaseAssessments {
+		assessments = append(assessments, dto.CaseAssessment{
+			ExpertID: assessment.ExpertID, IsExpertSolve: assessment.IsExpertSolve, FineDecision: assessment.FineDecision},
+		)
+	}
+
+	return dto.CaseStatus{
+		CaseID:          d.CaseID,
+		ViolationValue:  d.ViolationValue,
+		RequiredSkill:   d.RequiredSkill,
+		CaseDate:        d.CaseDate,
+		IsSolved:        d.IsSolved,
+		FineDecision:    d.FineDecision,
+		CaseAssessments: assessments,
+	}
+}
+
+func (c *CaseConverter) MapCaseStatusesToDto(d []domain.CaseStatus) []dto.CaseStatus {
+	statusesDto := make([]dto.CaseStatus, len(d))
+	for i := range d {
+		statusesDto[i] = c.MapCaseStatusToDto(d[i])
+	}
+
+	return statusesDto
+}
