@@ -67,4 +67,7 @@ type RatingRepo interface {
 	SetRating(decisions []domain.SolvedCaseDecision) error
 	InsertExpertId(expertID string) error
 	GetRating() ([]domain.RatingInfo, error)
+	GetExpertsRating(minSolvedCases int) ([]domain.ExpertRating, error)
+	UpdateCompetenceSkills(infos []domain.UpdateCompetenceSkill) error
+	ClearRating() error
 }

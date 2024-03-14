@@ -5,6 +5,7 @@ import (
 	"TrafficPolice/internal/repository"
 	"context"
 	"github.com/jackc/pgx/v5"
+	"log"
 )
 
 type ratingRepoPostgres struct {
@@ -98,4 +99,62 @@ func (r *ratingRepoPostgres) GetRating() ([]domain.RatingInfo, error) {
 	}
 
 	return infos, nil
+}
+
+const getExpertsRatingQuery = `SELECT expert_id, correct_cnt, incorrect_cnt
+FROM rating
+WHERE correct_cnt + incorrect_cnt >= $1`
+
+func (r *ratingRepoPostgres) GetExpertsRating(minSolvedCases int) ([]domain.ExpertRating, error) {
+	rows, err := r.conn.Query(context.Background(), getExpertsRatingQuery, minSolvedCases)
+	if err != nil {
+		return nil, err
+	}
+
+	ratings := make([]domain.ExpertRating, 0)
+	for rows.Next() {
+		rating := domain.ExpertRating{}
+		err = rows.Scan(&rating.ExpertID, &rating.CorrectCnt, &rating.IncorrectCnt)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		ratings = append(ratings, rating)
+	}
+
+	return ratings, nil
+}
+
+const increaseCompetenceSkill = `UPDATE experts
+SET competence_skill = competence_skill+1 
+WHERE expert_id = $1`
+
+const decreaseCompetenceSkill = `UPDATE experts
+SET competence_skill = CASE
+	WHEN competence_skill > 1 THEN competence_skill - 1
+	ELSE 1
+END
+WHERE expert_id = $1`
+
+func (r *ratingRepoPostgres) UpdateCompetenceSkills(infos []domain.UpdateCompetenceSkill) error {
+	batch := &pgx.Batch{}
+
+	for _, info := range infos {
+		if info.ShouldIncrease {
+			batch.Queue(increaseCompetenceSkill, info.ExpertID)
+		} else {
+			batch.Queue(decreaseCompetenceSkill, info.ExpertID)
+		}
+	}
+
+	return r.conn.SendBatch(context.Background(), batch).Close()
+}
+
+const clearRatingQuery = `UPDATE rating
+SET correct_cnt = 0, incorrect_cnt = 0`
+
+func (r *ratingRepoPostgres) ClearRating() error {
+	_, err := r.conn.Exec(context.Background(), clearRatingQuery)
+	return err
 }

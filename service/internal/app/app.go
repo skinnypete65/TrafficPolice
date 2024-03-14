@@ -29,12 +29,18 @@ import (
 
 const (
 	serviceConfigPath = "service_config.yaml"
+	defaultMinExperts = 3
 )
 
 func Run() {
 	cfg, err := config.ParseConfig(serviceConfigPath)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if cfg.Rating.MinExperts < defaultMinExperts {
+		log.Fatalf("config min experts must be greater or equal %d, but got: %d",
+			defaultMinExperts, cfg.Rating.MinExperts,
+		)
 	}
 
 	// Init database
@@ -72,7 +78,7 @@ func Run() {
 	imgService := services.NewImgService()
 
 	ratingRepo := repository.NewRatingRepoPostgres(dbConn)
-	ratingService := services.NewRatingService(ratingRepo)
+	ratingService := services.NewRatingService(ratingRepo, cfg.Rating)
 	ratingConverter := converter.NewRatingConverter()
 	ratingHandler := rest.NewRatingHandler(ratingService, ratingConverter)
 
@@ -114,8 +120,6 @@ func Run() {
 	trainingHandler := rest.NewTrainingHandler(
 		trainingService, paginationService, validate, caseConverter, paginationConverter, solvedCasesConverter,
 	)
-
-	registerDirectors(cfg, authService)
 
 	// Setup Routes
 	mux := http.NewServeMux()
@@ -209,6 +213,12 @@ func Run() {
 		),
 	)
 
+	// Run logic
+	registerDirectors(cfg, authService)
+
+	done := make(chan struct{})
+	go ratingService.RunReportPeriod(done)
+
 	// Run Server
 	port := fmt.Sprintf(":%d", cfg.ServerPort)
 	server := http.Server{
@@ -219,8 +229,10 @@ func Run() {
 	log.Printf("Run server on %s\n", port)
 	err = server.ListenAndServe()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
+
+	done <- struct{}{}
 
 }
 
