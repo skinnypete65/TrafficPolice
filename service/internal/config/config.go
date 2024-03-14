@@ -20,6 +20,7 @@ type Config struct {
 type RatingConfig struct {
 	ReportPeriod   time.Duration `yaml:"reportPeriod"`
 	MinSolvedCases int           `yaml:"minSolvedCases"`
+	MinExperts     int           `yaml:"minExperts"`
 }
 
 type PostgresConfig struct {
@@ -35,6 +36,11 @@ type RabbitMQConfig struct {
 	Password string `yaml:"password"`
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
+}
+
+type DirectorInfo struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
 }
 
 func ParseConfig(path string) (*Config, error) {

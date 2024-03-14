@@ -929,6 +929,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/rating": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получение рейтинга экспертов. Воспользоваться могут эксперт или директор",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rating"
+                ],
+                "summary": "Получение рейтинга экспертов",
+                "operationId": "rating-get",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.RatingInfo"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": ""
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/violations": {
             "post": {
                 "security": [
@@ -1126,6 +1170,26 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "vk_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RatingInfo": {
+            "type": "object",
+            "properties": {
+                "competence_skill": {
+                    "type": "integer"
+                },
+                "correct_cnt": {
+                    "type": "integer"
+                },
+                "expert_id": {
+                    "type": "string"
+                },
+                "incorrect_cnt": {
+                    "type": "integer"
+                },
+                "username": {
                     "type": "string"
                 }
             }

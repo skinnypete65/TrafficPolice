@@ -90,6 +90,19 @@ definitions:
       vk_id:
         type: string
     type: object
+  dto.RatingInfo:
+    properties:
+      competence_skill:
+        type: integer
+      correct_cnt:
+        type: integer
+      expert_id:
+        type: string
+      incorrect_cnt:
+        type: integer
+      username:
+        type: string
+    type: object
   dto.RegisterCamera:
     properties:
       camera:
@@ -798,6 +811,35 @@ paths:
       summary: Получение проишествий для тренировки
       tags:
       - expert
+  /rating:
+    get:
+      description: Получение рейтинга экспертов. Воспользоваться могут эксперт или
+        директор
+      operationId: rating-get
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.RatingInfo'
+            type: array
+        "204":
+          description: ""
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение рейтинга экспертов
+      tags:
+      - rating
   /violations:
     post:
       consumes:

@@ -20,15 +20,22 @@ type AuthService interface {
 }
 
 type authService struct {
-	repo           repository.AuthRepo
+	authRepo       repository.AuthRepo
+	ratingRepo     repository.RatingRepo
 	hasher         hash.PasswordHasher
 	tokenManager   tokens.TokenManager
 	accessTokenTTL time.Duration
 }
 
-func NewAuthService(repo repository.AuthRepo, tokenManager tokens.TokenManager, passSalt string) AuthService {
+func NewAuthService(
+	repo repository.AuthRepo,
+	ratingRepo repository.RatingRepo,
+	tokenManager tokens.TokenManager,
+	passSalt string,
+) AuthService {
 	return &authService{
-		repo:           repo,
+		authRepo:       repo,
+		ratingRepo:     ratingRepo,
 		hasher:         hash.NewSHA1Hasher(passSalt),
 		tokenManager:   tokenManager,
 		accessTokenTTL: 30 * 24 * time.Hour,
@@ -36,7 +43,7 @@ func NewAuthService(repo repository.AuthRepo, tokenManager tokens.TokenManager, 
 }
 
 func (s *authService) RegisterExpert(user domain.UserInfo) error {
-	alreadyExists := s.repo.CheckUserExists(user.Username)
+	alreadyExists := s.authRepo.CheckUserExists(user.Username)
 	if alreadyExists {
 		return errs.ErrAlreadyExists
 	}
@@ -49,12 +56,12 @@ func (s *authService) RegisterExpert(user domain.UserInfo) error {
 	user.ID = uuid.New()
 	user.Password = hashedPass
 	user.UserRole = "expert"
-	err = s.repo.InsertUser(user)
+	err = s.authRepo.InsertUser(user)
 	if err != nil {
 		return err
 	}
 
-	err = s.repo.InsertExpert(domain.Expert{
+	err = s.authRepo.InsertExpert(domain.Expert{
 		ID:       uuid.New().String(),
 		UserInfo: user,
 	})
@@ -63,7 +70,7 @@ func (s *authService) RegisterExpert(user domain.UserInfo) error {
 }
 
 func (s *authService) RegisterCamera(info domain.RegisterCamera) (string, error) {
-	alreadyExists := s.repo.CheckUserExists(info.Username)
+	alreadyExists := s.authRepo.CheckUserExists(info.Username)
 	if alreadyExists {
 		return "", errs.ErrAlreadyExists
 	}
@@ -82,17 +89,17 @@ func (s *authService) RegisterCamera(info domain.RegisterCamera) (string, error)
 		Password: hashedPass,
 		UserRole: string(domain.CameraRole),
 	}
-	err = s.repo.InsertUser(userInfo)
+	err = s.authRepo.InsertUser(userInfo)
 	if err != nil {
 		return "", err
 	}
 
-	return s.repo.InsertCamera(info.Camera, userID)
+	return s.authRepo.InsertCamera(info.Camera, userID)
 }
 
 func (s *authService) RegisterDirectors(users []domain.UserInfo) error {
 	for i := range users {
-		alreadyExists := s.repo.CheckUserExists(users[i].Username)
+		alreadyExists := s.authRepo.CheckUserExists(users[i].Username)
 		if alreadyExists {
 			continue
 		}
@@ -106,12 +113,12 @@ func (s *authService) RegisterDirectors(users []domain.UserInfo) error {
 		users[i].Password = hashedPass
 		users[i].UserRole = "director"
 
-		err = s.repo.InsertUser(users[i])
+		err = s.authRepo.InsertUser(users[i])
 		if err != nil {
 			return err
 		}
 
-		err = s.repo.InsertDirector(domain.Director{
+		err = s.authRepo.InsertDirector(domain.Director{
 			ID:   uuid.New(),
 			User: users[i],
 		})
@@ -125,7 +132,7 @@ func (s *authService) RegisterDirectors(users []domain.UserInfo) error {
 }
 
 func (s *authService) SignIn(input domain.UserInfo) (domain.Tokens, error) {
-	user, err := s.repo.SignIn(input.Username)
+	user, err := s.authRepo.SignIn(input.Username)
 	if err != nil {
 		return domain.Tokens{}, err
 	}
@@ -156,7 +163,11 @@ func (s *authService) SignIn(input domain.UserInfo) (domain.Tokens, error) {
 }
 
 func (s *authService) ConfirmExpert(data domain.ConfirmExpert) error {
-	return s.repo.ConfirmExpert(data)
+	err := s.authRepo.ConfirmExpert(data)
+	if err != nil {
+		return err
+	}
+	return s.ratingRepo.InsertExpertId(data.ExpertID)
 }
 
 func (s *authService) ParseAccessToken(accessToken string) (tokens.TokenInfo, error) {

@@ -29,12 +29,18 @@ import (
 
 const (
 	serviceConfigPath = "service_config.yaml"
+	defaultMinExperts = 3
 )
 
 func Run() {
 	cfg, err := config.ParseConfig(serviceConfigPath)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if cfg.Rating.MinExperts < defaultMinExperts {
+		log.Fatalf("config min experts must be greater or equal %d, but got: %d",
+			defaultMinExperts, cfg.Rating.MinExperts,
+		)
 	}
 
 	// Init database
@@ -71,8 +77,13 @@ func Run() {
 	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
 
+	ratingRepo := repository.NewRatingRepoPostgres(dbConn)
+	ratingService := services.NewRatingService(ratingRepo, cfg.Rating)
+	ratingConverter := converter.NewRatingConverter()
+	ratingHandler := rest.NewRatingHandler(ratingService, ratingConverter)
+
 	authRepo := repository.NewAuthRepoPostgres(dbConn)
-	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
+	authService := services.NewAuthService(authRepo, ratingRepo, tokenManager, cfg.PassSalt)
 	authHandler := rest.NewAuthHandler(authService, validate, userInfoConverter, authConverter)
 
 	paginationRepo := repository.NewPaginationRepoPostgres(dbConn)
@@ -99,7 +110,7 @@ func Run() {
 	expertRepo := repository.NewExpertRepoPostgres(dbConn)
 	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
 	expertHandler := rest.NewExpertHandler(
-		imgService, expertService, finePublisher, caseConverter, caseDecisionConverter,
+		imgService, expertService, ratingService, finePublisher, caseConverter, caseDecisionConverter,
 	)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
@@ -109,8 +120,6 @@ func Run() {
 	trainingHandler := rest.NewTrainingHandler(
 		trainingService, paginationService, validate, caseConverter, paginationConverter, solvedCasesConverter,
 	)
-
-	registerDirectors(cfg, authService)
 
 	// Setup Routes
 	mux := http.NewServeMux()
@@ -187,7 +196,6 @@ func Run() {
 			domain.ExpertRole,
 		),
 	)
-
 	mux.Handle("POST /expert/training",
 		authMiddleware.IdentifyRole(
 			authMiddleware.IsExpertConfirmed(
@@ -196,6 +204,20 @@ func Run() {
 			domain.ExpertRole,
 		),
 	)
+
+	// Rating Handlers
+	mux.Handle("GET /rating",
+		authMiddleware.IdentifyRole(
+			http.HandlerFunc(ratingHandler.GetRating),
+			domain.ExpertRole, domain.DirectorRole,
+		),
+	)
+
+	// Run logic
+	registerDirectors(cfg, authService)
+
+	done := make(chan struct{})
+	go ratingService.RunReportPeriod(done)
 
 	// Run Server
 	port := fmt.Sprintf(":%d", cfg.ServerPort)
@@ -207,8 +229,10 @@ func Run() {
 	log.Printf("Run server on %s\n", port)
 	err = server.ListenAndServe()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
+
+	done <- struct{}{}
 
 }
 
