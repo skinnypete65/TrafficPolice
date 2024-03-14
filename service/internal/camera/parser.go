@@ -1,7 +1,7 @@
 package camera
 
 import (
-	"TrafficPolice/errs"
+	"TrafficPolice/internal/errs"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
 	"bytes"

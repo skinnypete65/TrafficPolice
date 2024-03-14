@@ -1,8 +1,8 @@
 package services
 
 import (
-	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
+	"TrafficPolice/internal/errs"
 	"TrafficPolice/internal/repository"
 )
 

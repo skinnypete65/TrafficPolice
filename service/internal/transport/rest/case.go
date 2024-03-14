@@ -1,9 +1,9 @@
 package rest
 
 import (
-	"TrafficPolice/errs"
 	"TrafficPolice/internal/camera"
 	"TrafficPolice/internal/converter"
+	"TrafficPolice/internal/errs"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/response"
 	"fmt"
