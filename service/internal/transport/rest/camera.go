@@ -35,6 +35,20 @@ func NewCameraHandler(
 	}
 }
 
+// AddCameraType docs
+// @Summary Регистрация вида камеры
+// @Security ApiKeyAuth
+// @Tags camera
+// @Description Регистрировать новый вид камеры может только директор. Возвращает id вида камеры
+// @ID create-camera-type
+// @Accept  json
+// @Produce  json
+// @Param input body dto.CameraType true "Информация о виде камеры"
+// @Success 200 {object} response.IDResponse
+// @Failure 400,409 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /camera/type [post]
 func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 	var cameraType dto.CameraType
 	err := json.NewDecoder(r.Body).Decode(&cameraType)
@@ -66,6 +80,20 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 	response.IdResponse(w, cameraTypeID)
 }
 
+// RegisterCamera docs
+// @Summary Регистрация камеры
+// @Security ApiKeyAuth
+// @Tags camera
+// @Description Регистрировать камеру может только директор. Возвращает id камеры
+// @ID create-camera
+// @Accept  json
+// @Produce  json
+// @Param input body dto.RegisterCamera true "Информация о камере"
+// @Success 200 {object} response.IDResponse
+// @Failure 400,409 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /camera [post]
 func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
 	var registerInfo dto.RegisterCamera
 	err := json.NewDecoder(r.Body).Decode(&registerInfo)

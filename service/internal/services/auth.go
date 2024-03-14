@@ -14,7 +14,7 @@ type AuthService interface {
 	RegisterExpert(input domain.UserInfo) error
 	RegisterCamera(info domain.RegisterCamera) (string, error)
 	RegisterDirectors(users []domain.UserInfo) error
-	SignIn(input domain.UserInfo) (string, error)
+	SignIn(input domain.UserInfo) (domain.Tokens, error)
 	ConfirmExpert(data domain.ConfirmExpert) error
 	ParseAccessToken(accessToken string) (tokens.TokenInfo, error)
 }
@@ -124,25 +124,35 @@ func (s *authService) RegisterDirectors(users []domain.UserInfo) error {
 	return nil
 }
 
-func (s *authService) SignIn(input domain.UserInfo) (string, error) {
+func (s *authService) SignIn(input domain.UserInfo) (domain.Tokens, error) {
 	user, err := s.repo.SignIn(input.Username)
 	if err != nil {
-		return "", err
+		return domain.Tokens{}, err
 	}
 
 	inputHashPass, err := s.hasher.Hash(input.Password)
 	if err != nil {
-		return "", err
+		return domain.Tokens{}, err
 	}
 
 	if user.Password != inputHashPass {
-		return "", errs.ErrInvalidPass
+		return domain.Tokens{}, errs.ErrInvalidPass
 	}
 
-	return s.tokenManager.NewJWT(tokens.TokenInfo{
+	accessToken, err := s.tokenManager.NewJWT(tokens.TokenInfo{
 		UserID:   user.ID.String(),
 		UserRole: domain.Role(user.UserRole),
 	}, s.accessTokenTTL)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	refreshToken, err := s.tokenManager.NewRefreshToken()
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	return domain.Tokens{AccessToken: accessToken, RefreshToken: refreshToken}, nil
 }
 
 func (s *authService) ConfirmExpert(data domain.ConfirmExpert) error {

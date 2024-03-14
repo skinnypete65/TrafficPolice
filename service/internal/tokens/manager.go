@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	"math/rand"
 	"time"
 )
 
@@ -16,6 +17,7 @@ type TokenInfo struct {
 type TokenManager interface {
 	NewJWT(tokenInfo TokenInfo, ttl time.Duration) (string, error)
 	Parse(accessToken string) (TokenInfo, error)
+	NewRefreshToken() (string, error)
 }
 
 type manager struct {
@@ -65,4 +67,17 @@ func (m *manager) Parse(accessToken string) (TokenInfo, error) {
 		UserID:   claims["sub"].(string),
 		UserRole: domain.Role(claims["role"].(string)),
 	}, nil
+}
+
+func (m *manager) NewRefreshToken() (string, error) {
+	b := make([]byte, 32)
+
+	s := rand.NewSource(time.Now().Unix())
+	r := rand.New(s)
+
+	if _, err := r.Read(b); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", b), nil
 }

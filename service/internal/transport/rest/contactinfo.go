@@ -22,6 +22,20 @@ func NewContactInfoHandler(service services.ContactInfoService) *ContactInfoHand
 	return &ContactInfoHandler{service: service}
 }
 
+// InsertContactInfo docs
+// @Summary Ввод информации о транспорте и его владельце
+// @Security ApiKeyAuth
+// @Tags contact_info
+// @Description Принимает excel файл в формате по столбикам: Буквы авто:Номера авто:Регион:Номер телефона:email:VK ID: Tg ID. Только директор может загрузить файл
+// @ID insert-contact-info
+// @Accept  multipart/form-data
+// @Produce  json
+// @Param file formData file true "Excel файл с контактной информацией"
+// @Success 200 {object} response.Body
+// @Failure 400,401 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /contact_info [post]
 func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Request) {
 	maxMemory := int64(10 << 30)
 

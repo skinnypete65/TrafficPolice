@@ -6,7 +6,8 @@ type SignInInput struct {
 }
 
 type SignInOutput struct {
-	AccessToken string `json:"accessToken"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 type SignUp struct {

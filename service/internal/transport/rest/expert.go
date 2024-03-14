@@ -49,6 +49,21 @@ func NewExpertHandler(
 	}
 }
 
+// UploadExpertImg docs
+// @Summary Добавление фотографии к профилю эксперта
+// @Security ApiKeyAuth
+// @Tags expert
+// @Description Добавление фотографии к профилю эксперта. Может воспользоваться директор или эксперт
+// @ID expert-image-upload
+// @Accept   multipart/form-data
+// @Produce  json
+// @Param id query string true "id эксперта"
+// @Param file formData file true "Фотография эксперта"
+// @Success 200 {object} response.Body
+// @Failure 400,401 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /expert/{id}/img [post]
 func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) {
 	expertID := r.PathValue(expertIDPathValue)
 	if expertID == "" {
@@ -87,6 +102,20 @@ func (h *ExpertHandler) UploadExpertImg(w http.ResponseWriter, r *http.Request) 
 	response.OKMessage(w, "Successfully uploaded image")
 }
 
+// GetExpertImg docs
+// @Summary Получение фотографии эксперта
+// @Security ApiKeyAuth
+// @Tags expert
+// @Description Получение фотографии эксперта по его id. Воспользоваться могут эксперт или директор
+// @ID expert-image-get
+// @Accept   multipart/form-data
+// @Produce  json
+// @Param id query string true "id эксперта"
+// @Success 200 {file} formData
+// @Failure 400,401,404 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /expert/{id}/img [get]
 func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) {
 	expertID := r.PathValue(expertIDPathValue)
 	if expertID == "" {
@@ -108,6 +137,19 @@ func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, file)
 }
 
+// GetCaseForExpert docs
+// @Summary Получение случая для оценки экспертом
+// @Security ApiKeyAuth
+// @Tags expert
+// @Description Получение случая для оценки экспертом. Воспользоваться могут эксперт или директор
+// @ID expert-get-case
+// @Produce  json
+// @Success 200 {file} dto.Case
+// @Success 204 ""
+// @Failure 401,404 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /expert/get_case [get]
 func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) {
 	tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
 
@@ -135,6 +177,20 @@ func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request)
 	response.WriteResponse(w, http.StatusOK, cBytes)
 }
 
+// SetCaseDecision docs
+// @Summary Оценка случая экспертом
+// @Security ApiKeyAuth
+// @Tags expert
+// @Description Установка оценки случая экспертом. Воспользоваться может только эксперт
+// @ID expert-set-decision
+// @Accept   json
+// @Produce  json
+// @Param input body dto.Decision true "id случая и решение эксперта"
+// @Success 200 {file} response.Body
+// @Failure 400,401,404 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /expert/decision [post]
 func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) {
 	tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
 

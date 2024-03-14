@@ -1,0 +1,847 @@
+basePath: /
+definitions:
+  dto.Camera:
+    properties:
+      camera_id:
+        type: string
+      camera_type_id:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      short_desc:
+        type: string
+    required:
+    - camera_type_id
+    - latitude
+    - longitude
+    - short_desc
+    type: object
+  dto.CameraType:
+    properties:
+      camera_id:
+        type: string
+      camera_name:
+        type: string
+    required:
+    - camera_name
+    type: object
+  dto.Case:
+    properties:
+      camera:
+        $ref: '#/definitions/dto.Camera'
+      date:
+        type: string
+      fine_decision:
+        type: boolean
+      id:
+        type: string
+      is_solved:
+        type: boolean
+      required_skill:
+        type: integer
+      transport:
+        $ref: '#/definitions/dto.Transport'
+      violation:
+        $ref: '#/definitions/dto.Violation'
+      violation_value:
+        type: string
+    type: object
+  dto.ConfirmExpertInput:
+    properties:
+      expert_id:
+        type: string
+      is_confirmed:
+        type: boolean
+    required:
+    - expert_id
+    type: object
+  dto.Decision:
+    properties:
+      case_id:
+        type: string
+      fine_decision:
+        type: boolean
+    type: object
+  dto.Pagination:
+    properties:
+      current_page:
+        type: integer
+      next:
+        type: integer
+      previous:
+        type: integer
+      record_per_page:
+        type: integer
+      total_page:
+        type: integer
+    type: object
+  dto.Person:
+    properties:
+      ID:
+        type: string
+      email:
+        type: string
+      phone_num:
+        type: string
+      tg_id:
+        type: string
+      vk_id:
+        type: string
+    type: object
+  dto.RegisterCamera:
+    properties:
+      camera:
+        $ref: '#/definitions/dto.Camera'
+      sign_up:
+        $ref: '#/definitions/dto.SignUp'
+    required:
+    - camera
+    - sign_up
+    type: object
+  dto.SignInInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.SignInOutput:
+    properties:
+      accessToken:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  dto.SignUp:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.SolvedCasesParams:
+    properties:
+      camera_id:
+        type: string
+      end_time:
+        type: string
+      required_skill:
+        type: integer
+      start_time:
+        type: string
+      violation_id:
+        type: string
+    required:
+    - camera_id
+    - end_time
+    - required_skill
+    - start_time
+    - violation_id
+    type: object
+  dto.TrainingInfo:
+    properties:
+      cases:
+        items:
+          $ref: '#/definitions/dto.Case'
+        type: array
+      pagination:
+        $ref: '#/definitions/dto.Pagination'
+    type: object
+  dto.Transport:
+    properties:
+      chars:
+        type: string
+      id:
+        type: string
+      num:
+        type: string
+      person:
+        $ref: '#/definitions/dto.Person'
+      region:
+        type: string
+    type: object
+  dto.Violation:
+    properties:
+      fine_amount:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  response.Body:
+    properties:
+      message:
+        type: string
+    type: object
+  response.IDResponse:
+    properties:
+      id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Server for Traffic Police Application
+  title: Traffic Police API
+  version: "1.0"
+paths:
+  /auth/confirm/expert:
+    post:
+      consumes:
+      - application/json
+      description: Подтверждение эксперта по id. Может делать только директор
+      operationId: auth-confirm-expert
+      parameters:
+      - description: id эксперта и информация о подтверждении
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ConfirmExpertInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SignInOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Подтверждение эксперта
+      tags:
+      - auth
+  /auth/sign_in:
+    post:
+      consumes:
+      - application/json
+      description: Вход для всех пользователей по логину и паролю
+      operationId: auth-sign-in
+      parameters:
+      - description: Логин и пароль
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SignInOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Вход пользователей
+      tags:
+      - auth
+  /auth/sign_up:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация эксперта по логину и паролю
+      operationId: auth-sign-up
+      parameters:
+      - description: Логин и пароль
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      summary: Регистрация эксперта
+      tags:
+      - auth
+  /camera:
+    post:
+      consumes:
+      - application/json
+      description: Регистрировать камеру может только директор. Возвращает id камеры
+      operationId: create-camera
+      parameters:
+      - description: Информация о камере
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterCamera'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.IDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Регистрация камеры
+      tags:
+      - camera
+  /camera/type:
+    post:
+      consumes:
+      - application/json
+      description: Регистрировать новый вид камеры может только директор. Возвращает
+        id вида камеры
+      operationId: create-camera-type
+      parameters:
+      - description: Информация о виде камеры
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CameraType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.IDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Регистрация вида камеры
+      tags:
+      - camera
+  /case:
+    post:
+      consumes:
+      - application/octet-stream
+      description: Принимает бинарную строку в описанном формате. Добавить проишествие
+        может только камера
+      operationId: case-add
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.IDResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление информации о проишествии
+      tags:
+      - case
+  /case/{id}/img:
+    get:
+      consumes:
+      - multipart/form-data
+      description: Получение фотографии проишествия по id прошествия. Воспользоваться
+        могут эксперт или директор
+      operationId: case-image-get
+      parameters:
+      - description: id камеры
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение фотографии проишествия
+      tags:
+      - case
+    post:
+      consumes:
+      - multipart/form-data
+      description: Принимает фотографию и сохраняет ее по переданному id. Добавить
+        фотографию может только камера
+      operationId: case-image-upload
+      parameters:
+      - description: id камеры
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Фотография проишествия
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление фотографии к проишествию
+      tags:
+      - case
+  /contact_info:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 'Принимает excel файл в формате по столбикам: Буквы авто:Номера
+        авто:Регион:Номер телефона:email:VK ID: Tg ID. Только директор может загрузить
+        файл'
+      operationId: insert-contact-info
+      parameters:
+      - description: Excel файл с контактной информацией
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Ввод информации о транспорте и его владельце
+      tags:
+      - contact_info
+  /expert/{id}/img:
+    get:
+      consumes:
+      - multipart/form-data
+      description: Получение фотографии эксперта по его id. Воспользоваться могут
+        эксперт или директор
+      operationId: expert-image-get
+      parameters:
+      - description: id эксперта
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение фотографии эксперта
+      tags:
+      - expert
+    post:
+      consumes:
+      - multipart/form-data
+      description: Добавление фотографии к профилю эксперта. Может воспользоваться
+        директор или эксперт
+      operationId: expert-image-upload
+      parameters:
+      - description: id эксперта
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Фотография эксперта
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Добавление фотографии к профилю эксперта
+      tags:
+      - expert
+  /expert/decision:
+    post:
+      consumes:
+      - application/json
+      description: Установка оценки случая экспертом. Воспользоваться может только
+        эксперт
+      operationId: expert-set-decision
+      parameters:
+      - description: id случая и решение эксперта
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Decision'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Оценка случая экспертом
+      tags:
+      - expert
+  /expert/get_case:
+    get:
+      description: Получение случая для оценки экспертом. Воспользоваться могут эксперт
+        или директор
+      operationId: expert-get-case
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение случая для оценки экспертом
+      tags:
+      - expert
+  /expert/training:
+    post:
+      consumes:
+      - application/json
+      description: Получение прошествий для тренировки. Может воспользоваться только
+        эксперт
+      operationId: expert-training
+      parameters:
+      - description: Информация для фильтров по проишествиям
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SolvedCasesParams'
+      - description: номер страницы
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Лимит кейсов на странице
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TrainingInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение проишествий для тренировки
+      tags:
+      - expert
+  /violations:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 'Принимает excel файл в формате по столбикам: Название правонарушения:Размер
+        штрафа. Только директор может загрузить файл'
+      operationId: insert-violations
+      parameters:
+      - description: Excel файл с информацией о правонарушениях
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Ввод информации о правонарушениях
+      tags:
+      - violation
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
