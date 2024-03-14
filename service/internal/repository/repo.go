@@ -61,3 +61,9 @@ type PaginationRepo interface {
 type TransportRepo interface {
 	GetTransportID(chars string, num string, region string) (string, error)
 }
+
+type RatingRepo interface {
+	GetSolvedCaseDecisions(caseDecision domain.CaseDecisionInfo) ([]domain.SolvedCaseDecision, error)
+	SetRating(decisions []domain.SolvedCaseDecision) error
+	InsertExpertId(expertID string) error
+}

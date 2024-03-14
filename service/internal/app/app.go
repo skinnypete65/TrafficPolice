@@ -71,8 +71,11 @@ func Run() {
 	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
 	imgService := services.NewImgService()
 
+	ratingRepo := repository.NewRatingRepoPostgres(dbConn)
+	ratingService := services.NewRatingService(ratingRepo)
+
 	authRepo := repository.NewAuthRepoPostgres(dbConn)
-	authService := services.NewAuthService(authRepo, tokenManager, cfg.PassSalt)
+	authService := services.NewAuthService(authRepo, ratingRepo, tokenManager, cfg.PassSalt)
 	authHandler := rest.NewAuthHandler(authService, validate, userInfoConverter, authConverter)
 
 	paginationRepo := repository.NewPaginationRepoPostgres(dbConn)
@@ -99,7 +102,7 @@ func Run() {
 	expertRepo := repository.NewExpertRepoPostgres(dbConn)
 	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
 	expertHandler := rest.NewExpertHandler(
-		imgService, expertService, finePublisher, caseConverter, caseDecisionConverter,
+		imgService, expertService, ratingService, finePublisher, caseConverter, caseDecisionConverter,
 	)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)

@@ -28,6 +28,7 @@ const (
 type ExpertHandler struct {
 	imgService            services.ImgService
 	expertService         services.ExpertService
+	ratingService         services.RatingService
 	finePublisher         *rabbitmq.FinePublisher
 	caseConverter         *converter.CaseConverter
 	caseDecisionConverter *converter.CaseDecisionConverter
@@ -36,6 +37,7 @@ type ExpertHandler struct {
 func NewExpertHandler(
 	imgService services.ImgService,
 	expertService services.ExpertService,
+	ratingService services.RatingService,
 	finePublisher *rabbitmq.FinePublisher,
 	caseConverter *converter.CaseConverter,
 	caseDecisionConverter *converter.CaseDecisionConverter,
@@ -43,6 +45,7 @@ func NewExpertHandler(
 	return &ExpertHandler{
 		imgService:            imgService,
 		expertService:         expertService,
+		ratingService:         ratingService,
 		finePublisher:         finePublisher,
 		caseConverter:         caseConverter,
 		caseDecisionConverter: caseDecisionConverter,
@@ -212,7 +215,7 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	shouldSendFine, err := h.expertService.SetCaseDecision(
+	caseDecision, err := h.expertService.SetCaseDecision(
 		h.caseDecisionConverter.MapDtoToDomain(decision, expert),
 	)
 
@@ -222,7 +225,15 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if shouldSendFine {
+	if caseDecision.IsSolved {
+		err = h.ratingService.SetRating(caseDecision)
+		if err != nil {
+			log.Println(err)
+			response.InternalServerError(w)
+		}
+	}
+
+	if caseDecision.ShouldSendFine {
 		caseInfo, err := h.expertService.GetCaseWithPersonInfo(decision.CaseID)
 		if err != nil {
 			log.Println(err)
