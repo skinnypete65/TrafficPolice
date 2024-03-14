@@ -1,9 +1,9 @@
 package rest
 
 import (
-	"TrafficPolice/errs"
 	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/domain"
+	"TrafficPolice/internal/errs"
 	"TrafficPolice/internal/services"
 	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/internal/transport/rest/response"

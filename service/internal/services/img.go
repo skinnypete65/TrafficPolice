@@ -1,7 +1,7 @@
 package services
 
 import (
-	"TrafficPolice/errs"
+	"TrafficPolice/internal/errs"
 	"fmt"
 	"log"
 	"os"
