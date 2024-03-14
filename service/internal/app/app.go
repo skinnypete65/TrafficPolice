@@ -73,6 +73,8 @@ func Run() {
 
 	ratingRepo := repository.NewRatingRepoPostgres(dbConn)
 	ratingService := services.NewRatingService(ratingRepo)
+	ratingConverter := converter.NewRatingConverter()
+	ratingHandler := rest.NewRatingHandler(ratingService, ratingConverter)
 
 	authRepo := repository.NewAuthRepoPostgres(dbConn)
 	authService := services.NewAuthService(authRepo, ratingRepo, tokenManager, cfg.PassSalt)
@@ -190,13 +192,20 @@ func Run() {
 			domain.ExpertRole,
 		),
 	)
-
 	mux.Handle("POST /expert/training",
 		authMiddleware.IdentifyRole(
 			authMiddleware.IsExpertConfirmed(
 				http.HandlerFunc(trainingHandler.GetSolvedCasesByParams),
 			),
 			domain.ExpertRole,
+		),
+	)
+
+	// Rating Handlers
+	mux.Handle("GET /rating",
+		authMiddleware.IdentifyRole(
+			http.HandlerFunc(ratingHandler.GetRating),
+			domain.ExpertRole, domain.DirectorRole,
 		),
 	)
 

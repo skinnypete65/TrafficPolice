@@ -72,3 +72,30 @@ func (r *ratingRepoPostgres) InsertExpertId(expertID string) error {
 	_, err := r.conn.Exec(context.Background(), insertExpertIdQuery, expertID)
 	return err
 }
+
+const getRatingQuery = `SELECT r.expert_id, u.username, e.competence_skill,
+       r.correct_cnt, r.incorrect_cnt
+FROM rating AS r 
+JOIN experts as e ON r.expert_id = e.expert_id
+JOIN users AS u ON e.user_id = u.user_id`
+
+func (r *ratingRepoPostgres) GetRating() ([]domain.RatingInfo, error) {
+	rows, err := r.conn.Query(context.Background(), getRatingQuery)
+	if err != nil {
+		return nil, err
+	}
+
+	infos := make([]domain.RatingInfo, 0)
+	for rows.Next() {
+		info := domain.RatingInfo{}
+		err = rows.Scan(&info.ExpertID, &info.Username, &info.CompetenceSkill, &info.CorrectCnt, &info.IncorrectCnt)
+
+		if err != nil {
+			continue
+		}
+
+		infos = append(infos, info)
+	}
+
+	return infos, nil
+}

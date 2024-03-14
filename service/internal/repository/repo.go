@@ -66,4 +66,5 @@ type RatingRepo interface {
 	GetSolvedCaseDecisions(caseDecision domain.CaseDecisionInfo) ([]domain.SolvedCaseDecision, error)
 	SetRating(decisions []domain.SolvedCaseDecision) error
 	InsertExpertId(expertID string) error
+	GetRating() ([]domain.RatingInfo, error)
 }

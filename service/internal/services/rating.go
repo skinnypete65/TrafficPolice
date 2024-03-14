@@ -1,12 +1,14 @@
 package services
 
 import (
+	"TrafficPolice/errs"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/repository"
 )
 
 type RatingService interface {
 	SetRating(caseDecision domain.CaseDecisionInfo) error
+	GetRating() ([]domain.RatingInfo, error)
 }
 
 type ratingService struct {
@@ -26,4 +28,16 @@ func (s *ratingService) SetRating(caseDecision domain.CaseDecisionInfo) error {
 	}
 
 	return s.ratingRepo.SetRating(solvedDecisions)
+}
+
+func (s *ratingService) GetRating() ([]domain.RatingInfo, error) {
+	rating, err := s.ratingRepo.GetRating()
+	if err != nil {
+		return nil, err
+	}
+	if len(rating) == 0 {
+		return nil, errs.ErrNoRows
+	}
+
+	return rating, nil
 }
