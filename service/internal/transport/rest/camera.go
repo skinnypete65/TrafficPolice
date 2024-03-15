@@ -39,18 +39,18 @@ func NewCameraHandler(
 // @Summary Регистрация вида камеры
 // @Security ApiKeyAuth
 // @Tags camera
-// @Description Регистрировать новый вид камеры может только директор. Возвращает id вида камеры
+// @Description Зарегистрировать новый вид камеры может только директор. Возвращает id вида камеры
 // @ID create-camera-type
 // @Accept  json
 // @Produce  json
-// @Param input body dto.CameraType true "Информация о виде камеры"
+// @Param input body dto.CameraTypeIn true "Информация о виде камеры"
 // @Success 200 {object} response.IDResponse
 // @Failure 400,409 {object} response.Body
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /camera/type [post]
 func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
-	var cameraType dto.CameraType
+	var cameraType dto.CameraTypeIn
 	err := json.NewDecoder(r.Body).Decode(&cameraType)
 
 	if err != nil {
@@ -84,7 +84,7 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) {
 // @Summary Регистрация камеры
 // @Security ApiKeyAuth
 // @Tags camera
-// @Description Регистрировать камеру может только директор. Возвращает id камеры
+// @Description Зарегистрировать камеру может только директор. Возвращает id камеры
 // @ID create-camera
 // @Accept  json
 // @Produce  json
@@ -110,7 +110,7 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cameraID, err := h.authService.RegisterCamera(
-		h.cameraConverter.MapRegisterCameraDomainToDto(registerInfo.Camera, registerInfo.SignUp),
+		h.cameraConverter.MapRegisterCameraDtoToDomain(registerInfo.CameraIn, registerInfo.SignUp),
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrAlreadyExists) {

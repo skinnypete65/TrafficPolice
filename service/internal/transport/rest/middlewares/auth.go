@@ -71,6 +71,7 @@ func (h *AuthMiddleware) IsExpertConfirmed(next http.Handler) http.Handler {
 
 		if tokenInfo.UserRole != domain.ExpertRole {
 			next.ServeHTTP(w, r)
+			return
 		}
 
 		expert, err := h.expertService.GetExpertByUserID(tokenInfo.UserID)

@@ -3,6 +3,7 @@ package repository
 import (
 	"TrafficPolice/internal/domain"
 	"github.com/google/uuid"
+	"time"
 )
 
 type CameraRepo interface {
@@ -14,7 +15,7 @@ type CaseRepo interface {
 	InsertCase(c domain.Case) (string, error)
 	GetCaseByID(caseID string) (domain.Case, error)
 	GetCaseWithPersonInfo(caseID string) (domain.Case, error)
-	SetCaseFineDecision(caseID string, fineDecision bool) error
+	SetCaseFineDecision(caseID string, fineDecision bool, solvedAt time.Time) error
 	UpdateCaseRequiredSkill(caseID string, requiredSkill int) error
 }
 
@@ -40,7 +41,7 @@ type ExpertRepo interface {
 	GetLastNotSolvedCaseID(expertID string) (string, error)
 	GetExpertByUserID(userID string) (domain.Expert, error)
 	GetNotSolvedCase(expert domain.Expert) (domain.Case, error)
-	InsertNotSolvedCase(solvedCase domain.SolvedCase) error
+	InsertNotSolvedCase(solvedCase domain.ExpertCase) error
 	SetCaseDecision(decision domain.Decision) error
 	GetCaseFineDecisions(caseID string) (domain.FineDecisions, error)
 	GetExpertsCountBySkill(competenceSkill int) (int, error)
@@ -59,8 +60,8 @@ type TransportRepo interface {
 }
 
 type RatingRepo interface {
-	GetSolvedCaseDecisions(caseDecision domain.CaseDecisionInfo) ([]domain.SolvedCaseDecision, error)
-	SetRating(decisions []domain.SolvedCaseDecision) error
+	GetSolvedCaseDecisions(caseDecision domain.CaseDecisionInfo) ([]domain.ExpertCaseDecision, error)
+	SetRating(decisions []domain.ExpertCaseDecision) error
 	InsertExpertId(expertID string) error
 	GetRating() ([]domain.RatingInfo, error)
 	GetExpertsRating(minSolvedCases int) ([]domain.ExpertRating, error)
@@ -70,4 +71,12 @@ type RatingRepo interface {
 
 type DirectorRepo interface {
 	GetCases() ([]domain.CaseStatus, error)
+	GetExpertIntervalCases(
+		expertID string,
+		startDate time.Time,
+		endDate time.Time) (map[domain.Date][]domain.IntervalCase, error)
+}
+
+type CheckerRepo interface {
+	CheckExpertExists(expertID string) (bool, error)
 }

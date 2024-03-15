@@ -58,7 +58,7 @@ func Conflict(w http.ResponseWriter, text string) {
 }
 
 func InternalServerError(w http.ResponseWriter) {
-	WriteMessage(w, http.StatusNoContent, "Internal server error")
+	WriteMessage(w, http.StatusInternalServerError, "Internal server error")
 }
 
 func Unauthorized(w http.ResponseWriter) {

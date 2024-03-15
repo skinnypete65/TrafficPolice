@@ -222,7 +222,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Регистрировать камеру может только директор. Возвращает id камеры",
+                "description": "Зарегистрировать камеру может только директор. Возвращает id камеры",
                 "consumes": [
                     "application/json"
                 ],
@@ -286,7 +286,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Регистрировать новый вид камеры может только директор. Возвращает id вида камеры",
+                "description": "Зарегистрировать новый вид камеры может только директор. Возвращает id вида камеры",
                 "consumes": [
                     "application/json"
                 ],
@@ -305,7 +305,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CameraType"
+                            "$ref": "#/definitions/dto.CameraTypeIn"
                         }
                     }
                 ],
@@ -574,6 +574,91 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
+        "/director/analytics/expert": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получить количество всех случаев, правильно решенных случае, неправильно решенных случаев,",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "director"
+                ],
+                "summary": "Получение аналитики проверяющих специалистов по промежуткам времени",
+                "operationId": "director-analytics-expert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id эксперта",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Начало промежутка времени в формате yyyy-mm-dd",
+                        "name": "start_time",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Конец промежутка времени в формате yyyy-mm-dd",
+                        "name": "end_time",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.AnalyticsInterval"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/response.Body"
                         }
@@ -1081,6 +1166,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.AnalyticsInterval": {
+            "type": "object",
+            "properties": {
+                "all_cases_cnt": {
+                    "type": "integer"
+                },
+                "correct_cnt": {
+                    "type": "integer"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "incorrect_cnt": {
+                    "type": "integer"
+                },
+                "max_consecutive_solved": {
+                    "type": "integer"
+                },
+                "unknown_cnt": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.Camera": {
             "type": "object",
             "required": [
@@ -1107,15 +1215,35 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.CameraType": {
+        "dto.CameraIn": {
+            "type": "object",
+            "required": [
+                "camera_type_id",
+                "latitude",
+                "longitude",
+                "short_desc"
+            ],
+            "properties": {
+                "camera_type_id": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "short_desc": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CameraTypeIn": {
             "type": "object",
             "required": [
                 "camera_name"
             ],
             "properties": {
-                "camera_id": {
-                    "type": "string"
-                },
                 "camera_name": {
                     "type": "string"
                 }
@@ -1289,7 +1417,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "camera": {
-                    "$ref": "#/definitions/dto.Camera"
+                    "$ref": "#/definitions/dto.CameraIn"
                 },
                 "sign_up": {
                     "$ref": "#/definitions/dto.SignUp"

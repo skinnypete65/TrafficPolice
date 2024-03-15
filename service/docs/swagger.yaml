@@ -1,5 +1,20 @@
 basePath: /
 definitions:
+  dto.AnalyticsInterval:
+    properties:
+      all_cases_cnt:
+        type: integer
+      correct_cnt:
+        type: integer
+      date:
+        type: string
+      incorrect_cnt:
+        type: integer
+      max_consecutive_solved:
+        type: integer
+      unknown_cnt:
+        type: integer
+    type: object
   dto.Camera:
     properties:
       camera_id:
@@ -18,10 +33,24 @@ definitions:
     - longitude
     - short_desc
     type: object
-  dto.CameraType:
+  dto.CameraIn:
     properties:
-      camera_id:
+      camera_type_id:
         type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      short_desc:
+        type: string
+    required:
+    - camera_type_id
+    - latitude
+    - longitude
+    - short_desc
+    type: object
+  dto.CameraTypeIn:
+    properties:
       camera_name:
         type: string
     required:
@@ -134,7 +163,7 @@ definitions:
   dto.RegisterCamera:
     properties:
       camera:
-        $ref: '#/definitions/dto.Camera'
+        $ref: '#/definitions/dto.CameraIn'
       sign_up:
         $ref: '#/definitions/dto.SignUp'
     required:
@@ -370,7 +399,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Регистрировать камеру может только директор. Возвращает id камеры
+      description: Зарегистрировать камеру может только директор. Возвращает id камеры
       operationId: create-camera
       parameters:
       - description: Информация о камере
@@ -411,7 +440,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Регистрировать новый вид камеры может только директор. Возвращает
+      description: Зарегистрировать новый вид камеры может только директор. Возвращает
         id вида камеры
       operationId: create-camera-type
       parameters:
@@ -420,7 +449,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/dto.CameraType'
+          $ref: '#/definitions/dto.CameraTypeIn'
       produces:
       - application/json
       responses:
@@ -616,6 +645,63 @@ paths:
       summary: Ввод информации о транспорте и его владельце
       tags:
       - contact_info
+  /director/analytics/expert:
+    get:
+      description: Получить количество всех случаев, правильно решенных случае, неправильно
+        решенных случаев,
+      operationId: director-analytics-expert
+      parameters:
+      - description: id эксперта
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Начало промежутка времени в формате yyyy-mm-dd
+        in: query
+        name: start_time
+        required: true
+        type: string
+      - description: Конец промежутка времени в формате yyyy-mm-dd
+        in: query
+        name: end_time
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.AnalyticsInterval'
+            type: array
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение аналитики проверяющих специалистов по промежуткам времени
+      tags:
+      - director
   /director/cases:
     get:
       description: Получение состояния случаев. Воспользоваться может только директор

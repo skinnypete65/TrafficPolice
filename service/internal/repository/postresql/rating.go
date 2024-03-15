@@ -18,22 +18,22 @@ func NewRatingRepoPostgres(conn *pgx.Conn) repository.RatingRepo {
 	}
 }
 
-const getSolvedCaseDecisionsQuery = `SELECT sc.expert_id, sc.fine_decision = c.fine_decision AS is_right
+const getSolvedCaseDecisionsQuery = `SELECT ec.expert_id, ec.fine_decision = c.fine_decision AS is_right
 FROM cases AS c
-JOIN solved_cases AS sc ON c.case_id = sc.case_id
-WHERE sc.case_id = $1`
+JOIN expert_cases AS ec ON c.case_id = ec.case_id
+WHERE ec.case_id = $1`
 
 func (r *ratingRepoPostgres) GetSolvedCaseDecisions(
 	caseDecision domain.CaseDecisionInfo,
-) ([]domain.SolvedCaseDecision, error) {
+) ([]domain.ExpertCaseDecision, error) {
 	rows, err := r.conn.Query(context.Background(), getSolvedCaseDecisionsQuery, caseDecision.CaseID)
 	if err != nil {
 		return nil, err
 	}
 
-	solvedDecisions := make([]domain.SolvedCaseDecision, 0)
+	solvedDecisions := make([]domain.ExpertCaseDecision, 0)
 	for rows.Next() {
-		d := domain.SolvedCaseDecision{}
+		d := domain.ExpertCaseDecision{}
 		err = rows.Scan(&d.ExpertID, &d.IsRight)
 		if err != nil {
 			continue
@@ -52,7 +52,7 @@ const updateInCorrectCntQuery = `UPDATE rating
 SET incorrect_cnt = incorrect_cnt+1
 WHERE expert_id = $1`
 
-func (r *ratingRepoPostgres) SetRating(decisions []domain.SolvedCaseDecision) error {
+func (r *ratingRepoPostgres) SetRating(decisions []domain.ExpertCaseDecision) error {
 	batch := &pgx.Batch{}
 
 	for _, d := range decisions {

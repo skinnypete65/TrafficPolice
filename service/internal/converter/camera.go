@@ -12,7 +12,7 @@ func NewCameraConverter() *CameraConverter {
 	return &CameraConverter{}
 }
 
-func (c *CameraConverter) MapRegisterCameraDomainToDto(camera dto.Camera,
+func (c *CameraConverter) MapRegisterCameraDtoToDomain(camera dto.CameraIn,
 	signUp dto.SignUp,
 ) domain.RegisterCamera {
 	return domain.RegisterCamera{

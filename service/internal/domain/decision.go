@@ -1,9 +1,12 @@
 package domain
 
+import "time"
+
 type Decision struct {
 	CaseID       string
 	Expert       Expert
 	FineDecision bool
+	SolvedAt     time.Time
 }
 
 type FineDecisions struct {
@@ -16,7 +19,7 @@ type CaseDecisionInfo struct {
 	ShouldSendFine bool
 	IsSolved       bool
 }
-type SolvedCaseDecision struct {
+type ExpertCaseDecision struct {
 	ExpertID string
 	IsRight  bool
 }

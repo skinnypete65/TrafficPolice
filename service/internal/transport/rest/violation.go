@@ -77,6 +77,8 @@ func (h *ViolationHandler) InsertViolations(w http.ResponseWriter, r *http.Reque
 		response.InternalServerError(w)
 		return
 	}
+
+	response.OKMessage(w, "Violations added successfully")
 }
 
 func (h *ViolationHandler) parseViolations(rows [][]string) []*domain.Violation {
