@@ -18,10 +18,24 @@ definitions:
     - longitude
     - short_desc
     type: object
-  dto.CameraType:
+  dto.CameraIn:
     properties:
-      camera_id:
+      camera_type_id:
         type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      short_desc:
+        type: string
+    required:
+    - camera_type_id
+    - latitude
+    - longitude
+    - short_desc
+    type: object
+  dto.CameraTypeIn:
+    properties:
       camera_name:
         type: string
     required:
@@ -134,7 +148,7 @@ definitions:
   dto.RegisterCamera:
     properties:
       camera:
-        $ref: '#/definitions/dto.Camera'
+        $ref: '#/definitions/dto.CameraIn'
       sign_up:
         $ref: '#/definitions/dto.SignUp'
     required:
@@ -370,7 +384,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Регистрировать камеру может только директор. Возвращает id камеры
+      description: Зарегистрировать камеру может только директор. Возвращает id камеры
       operationId: create-camera
       parameters:
       - description: Информация о камере
@@ -411,7 +425,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Регистрировать новый вид камеры может только директор. Возвращает
+      description: Зарегистрировать новый вид камеры может только директор. Возвращает
         id вида камеры
       operationId: create-camera-type
       parameters:
@@ -420,7 +434,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/dto.CameraType'
+          $ref: '#/definitions/dto.CameraTypeIn'
       produces:
       - application/json
       responses:

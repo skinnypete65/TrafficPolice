@@ -1,12 +1,28 @@
-DROP TABLE cases;
+ALTER TABLE
+    "cameras"
+    DROP CONSTRAINT "cameras_camera_type_id_foreign";
+ALTER TABLE
+    "cases"
+    DROP CONSTRAINT "cases_camera_id_foreign";
+ALTER TABLE
+    "cases"
+    DROP CONSTRAINT "cases_violation_id_foreign";
+ALTER TABLE
+    "cases"
+    DROP CONSTRAINT "cases_transport_id_foreign";
+ALTER TABLE
+    "transports"
+    DROP CONSTRAINT "transports_person_id_foreign";
 
-DROP TABLE cameras;
+DROP TABLE cases CASCADE;
 
-DROP TABLE camera_types;
+DROP TABLE camera_types CASCADE;
 
-DROP TABLE violations;
+DROP TABLE cameras CASCADE;
 
-DROP TABLE transports;
+DROP TABLE violations CASCADE;
 
-DROP TABLE persons
+DROP TABLE transports CASCADE;
+
+DROP TABLE persons CASCADE;
 

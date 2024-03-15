@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
+	"time"
 )
 
 type caseRepoPostgres struct {
@@ -18,8 +19,8 @@ func NewCaseRepoPostgres(conn *pgx.Conn) repository.CaseRepo {
 }
 
 const insertCaseQuery = `INSERT INTO cases (case_id, transport_id, camera_id, 
-                   violation_id, violation_value, required_skill, case_date, is_solved, fine_decision) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7, false, false) RETURNING case_id`
+                   violation_id, violation_value, required_skill, case_date, is_solved, fine_decision, solved_at) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, false, false, NULL) RETURNING case_id`
 
 func (r *caseRepoPostgres) InsertCase(c domain.Case) (string, error) {
 	var caseID string
@@ -64,11 +65,11 @@ func (r *caseRepoPostgres) GetCaseByID(caseID string) (domain.Case, error) {
 }
 
 const setCaseFineDecisionQuery = `UPDATE cases
-SET fine_decision = $1, is_solved = true
-WHERE case_id = $2`
+SET fine_decision = $1, is_solved = true, solved_at = $2
+WHERE case_id = $3`
 
-func (r *caseRepoPostgres) SetCaseFineDecision(caseID string, fineDecision bool) error {
-	_, err := r.conn.Exec(context.Background(), setCaseFineDecisionQuery, fineDecision, caseID)
+func (r *caseRepoPostgres) SetCaseFineDecision(caseID string, fineDecision bool, solvedAt time.Time) error {
+	_, err := r.conn.Exec(context.Background(), setCaseFineDecisionQuery, fineDecision, solvedAt, caseID)
 	return err
 }
 

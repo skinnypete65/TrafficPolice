@@ -20,7 +20,7 @@ const getCasesQuery = `SELECT case_id, violation_value, required_skill, case_dat
 FROM cases`
 
 const getCaseAssessments = `SELECT expert_id, is_expert_solve, fine_decision 
-FROM solved_cases WHERE case_id = $1`
+FROM expert_cases WHERE case_id = $1`
 
 func (r *directorRepoPostgres) GetCases() ([]domain.CaseStatus, error) {
 	rows, err := r.conn.Query(context.Background(), getCasesQuery)

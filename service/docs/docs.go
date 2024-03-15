@@ -222,7 +222,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Регистрировать камеру может только директор. Возвращает id камеры",
+                "description": "Зарегистрировать камеру может только директор. Возвращает id камеры",
                 "consumes": [
                     "application/json"
                 ],
@@ -286,7 +286,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Регистрировать новый вид камеры может только директор. Возвращает id вида камеры",
+                "description": "Зарегистрировать новый вид камеры может только директор. Возвращает id вида камеры",
                 "consumes": [
                     "application/json"
                 ],
@@ -305,7 +305,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CameraType"
+                            "$ref": "#/definitions/dto.CameraTypeIn"
                         }
                     }
                 ],
@@ -1107,15 +1107,35 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.CameraType": {
+        "dto.CameraIn": {
+            "type": "object",
+            "required": [
+                "camera_type_id",
+                "latitude",
+                "longitude",
+                "short_desc"
+            ],
+            "properties": {
+                "camera_type_id": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "short_desc": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CameraTypeIn": {
             "type": "object",
             "required": [
                 "camera_name"
             ],
             "properties": {
-                "camera_id": {
-                    "type": "string"
-                },
                 "camera_name": {
                     "type": "string"
                 }
@@ -1289,7 +1309,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "camera": {
-                    "$ref": "#/definitions/dto.Camera"
+                    "$ref": "#/definitions/dto.CameraIn"
                 },
                 "sign_up": {
                     "$ref": "#/definitions/dto.SignUp"

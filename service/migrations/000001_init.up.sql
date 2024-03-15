@@ -17,7 +17,8 @@ CREATE TABLE "cases"
     "required_skill"  INTEGER      NOT NULL,
     "case_date"       DATE         NOT NULL,
     "is_solved"       BOOLEAN      NOT NULL,
-    "fine_decision"   BOOLEAN      NOT NULL
+    "fine_decision"   BOOLEAN      NOT NULL,
+    "solved_at"       DATE
 );
 ALTER TABLE
     "cases"

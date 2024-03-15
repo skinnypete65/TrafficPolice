@@ -6,6 +6,7 @@ import (
 	"TrafficPolice/internal/repository"
 	"errors"
 	"github.com/google/uuid"
+	"time"
 )
 
 type ExpertService interface {
@@ -52,12 +53,13 @@ func (s *expertService) GetCase(userID string) (domain.Case, error) {
 		return domain.Case{}, err
 	}
 
-	err = s.expertRepo.InsertNotSolvedCase(domain.SolvedCase{
-		SolvedCaseID:  uuid.New().String(),
+	err = s.expertRepo.InsertNotSolvedCase(domain.ExpertCase{
+		ExpertCaseID:  uuid.New().String(),
 		ExpertID:      expert.ID,
 		CaseID:        notSolvedCase.ID,
 		IsExpertSolve: false,
 		FineDecision:  false,
+		GotAt:         time.Now(),
 	})
 	if err != nil {
 		return domain.Case{}, err
@@ -71,6 +73,7 @@ func (s *expertService) GetExpertByUserID(userID string) (domain.Expert, error) 
 }
 
 func (s *expertService) SetCaseDecision(decision domain.Decision) (domain.CaseDecisionInfo, error) {
+	decision.SolvedAt = time.Now()
 	err := s.expertRepo.SetCaseDecision(decision)
 	if err != nil {
 		return domain.CaseDecisionInfo{}, err
@@ -82,7 +85,7 @@ func (s *expertService) SetCaseDecision(decision domain.Decision) (domain.CaseDe
 	}
 
 	if caseDecisions.PositiveDecisions >= s.consensus {
-		err = s.caseRepo.SetCaseFineDecision(decision.CaseID, true)
+		err = s.caseRepo.SetCaseFineDecision(decision.CaseID, true, time.Now())
 		if err != nil {
 			return domain.CaseDecisionInfo{}, err
 		}
@@ -93,7 +96,7 @@ func (s *expertService) SetCaseDecision(decision domain.Decision) (domain.CaseDe
 		}, err
 	}
 	if caseDecisions.NegativeDecisions >= s.consensus {
-		err = s.caseRepo.SetCaseFineDecision(decision.CaseID, false)
+		err = s.caseRepo.SetCaseFineDecision(decision.CaseID, false, time.Now())
 		if err != nil {
 			return domain.CaseDecisionInfo{}, err
 		}
