@@ -105,7 +105,8 @@ func (p *FineConsumer) StartConsume(params ConsumeParams, from string, subject s
 				log.Println(err)
 				continue
 			}
-
+			log.Println(cDto.Case)
+			log.Println(cDto.ImageExtension)
 			email := mailer.Email{
 				From:    from,
 				To:      cDto.Case.Transport.Person.Email,

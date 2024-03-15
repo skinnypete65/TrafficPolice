@@ -4,7 +4,7 @@ import "time"
 
 type Case struct {
 	ID             string    `json:"id,omitempty"`
-	Transport      Transport `json:"middlewares,omitempty"`
+	Transport      Transport `json:"transport,omitempty"`
 	Camera         Camera    `json:"camera,omitempty"`
 	Violation      Violation `json:"violation,omitempty"`
 	ViolationValue string    `json:"violation_value,omitempty"`
