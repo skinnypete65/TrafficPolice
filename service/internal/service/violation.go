@@ -11,11 +11,11 @@ type ViolationService interface {
 }
 
 type violationService struct {
-	db repository.ViolationRepo
+	repo repository.ViolationRepo
 }
 
 func NewViolationService(db repository.ViolationRepo) ViolationService {
-	return &violationService{db: db}
+	return &violationService{repo: db}
 }
 
 func (s *violationService) InsertViolations(violations []*domain.Violation) error {
@@ -23,5 +23,5 @@ func (s *violationService) InsertViolations(violations []*domain.Violation) erro
 		violations[i].ID = uuid.New().String()
 	}
 
-	return s.db.InsertViolations(violations)
+	return s.repo.InsertViolations(violations)
 }
