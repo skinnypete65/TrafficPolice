@@ -18,7 +18,7 @@ CREATE TABLE "cases"
     "case_date"       DATE         NOT NULL,
     "is_solved"       BOOLEAN      NOT NULL,
     "fine_decision"   BOOLEAN      NOT NULL,
-    "solved_at"       DATE
+    "solved_at"       TIMESTAMP
 );
 ALTER TABLE
     "cases"

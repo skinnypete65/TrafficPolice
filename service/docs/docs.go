@@ -593,6 +593,68 @@ const docTemplate = `{
                 }
             }
         },
+        "/director/analytics/expert": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получить количество всех случаев, правильно решенных случае, неправильно решенных случаев,",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "director"
+                ],
+                "summary": "Получение аналитики проверяющих специалистов по промежуткам времени",
+                "operationId": "director-analytics-expert",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.AnalyticsInterval"
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/director/cases": {
             "get": {
                 "security": [
@@ -1081,6 +1143,29 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.AnalyticsInterval": {
+            "type": "object",
+            "properties": {
+                "all_cases_cnt": {
+                    "type": "integer"
+                },
+                "correct_cnt": {
+                    "type": "integer"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "incorrect_cnt": {
+                    "type": "integer"
+                },
+                "max_consecutive_solved": {
+                    "type": "integer"
+                },
+                "unknown_cnt": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.Camera": {
             "type": "object",
             "required": [

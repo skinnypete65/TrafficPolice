@@ -71,4 +71,12 @@ type RatingRepo interface {
 
 type DirectorRepo interface {
 	GetCases() ([]domain.CaseStatus, error)
+	GetExpertIntervalCases(
+		expertID string,
+		startDate time.Time,
+		endDate time.Time) (map[domain.Date][]domain.IntervalCase, error)
+}
+
+type CheckerRepo interface {
+	CheckExpertExists(expertID string) (bool, error)
 }

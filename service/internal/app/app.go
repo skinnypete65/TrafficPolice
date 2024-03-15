@@ -72,6 +72,7 @@ func Run() {
 	paginationConverter := converter.NewPaginationConverter()
 	solvedCasesConverter := converter.NewSolvedCasesConverter()
 	userInfoConverter := converter.NewUserInfoConverter()
+	analyticsConverter := converter.NewAnalyticsConverter()
 
 	// Init handlers, services, repos (Clean architecture)
 	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
@@ -119,9 +120,10 @@ func Run() {
 		trainingService, paginationService, validate, caseConverter, paginationConverter, solvedCasesConverter,
 	)
 
+	checkerRepo := repository.NewCheckerRepoPostgres(dbConn)
 	directorRepo := repository.NewDirectorRepoPostgres(dbConn)
-	directorService := services.NewDirectorService(directorRepo)
-	directorHandler := rest.NewDirectorHandler(directorService, caseConverter)
+	directorService := services.NewDirectorService(directorRepo, checkerRepo)
+	directorHandler := rest.NewDirectorHandler(directorService, caseConverter, analyticsConverter)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
 
@@ -221,6 +223,12 @@ func Run() {
 	mux.Handle("GET /director/cases",
 		authMiddleware.IdentifyRole(
 			http.HandlerFunc(directorHandler.GetCases),
+			domain.DirectorRole,
+		),
+	)
+	mux.Handle("GET /director/analytics/expert",
+		authMiddleware.IdentifyRole(
+			http.HandlerFunc(directorHandler.ExpertAnalytics),
 			domain.DirectorRole,
 		),
 	)

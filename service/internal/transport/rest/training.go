@@ -140,14 +140,14 @@ func (h *TrainingHandler) parseQueryParam(r *http.Request, key string, defaultVa
 		return defaultValue, nil
 	}
 
-	page, err := strconv.Atoi(queryParam)
+	param, err := strconv.Atoi(queryParam)
 	if err != nil {
 		return 0, err
 	}
 
-	if page == 0 {
+	if param == 0 {
 		return defaultValue, nil
 	}
-	return page, nil
+	return param, nil
 
 }

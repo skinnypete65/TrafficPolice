@@ -2,10 +2,13 @@ package repository
 
 import (
 	"TrafficPolice/internal/domain"
+	"TrafficPolice/internal/errs"
 	"TrafficPolice/internal/repository"
 	"context"
+	"errors"
 	"github.com/jackc/pgx/v5"
 	"log"
+	"time"
 )
 
 type directorRepoPostgres struct {
@@ -66,4 +69,45 @@ func (r *directorRepoPostgres) GetCases() ([]domain.CaseStatus, error) {
 	}
 
 	return statuses, nil
+}
+
+const getExpertIntervalCasesQuery = `SELECT ec.is_expert_solve , ec.fine_decision AS expert_fine_decision,
+c.fine_decision AS case_fine_decision, ec.got_at
+FROM expert_cases AS ec
+JOIN cases AS c ON ec.case_id = c.case_id
+WHERE expert_id = $1
+AND (ec.got_at BETWEEN $2 AND $3)
+ORDER BY ec.got_at`
+
+func (r *directorRepoPostgres) GetExpertIntervalCases(
+	expertID string,
+	startDate time.Time,
+	endDate time.Time,
+) (map[domain.Date][]domain.IntervalCase, error) {
+	rows, err := r.conn.Query(context.Background(), getExpertIntervalCasesQuery, expertID, startDate, endDate)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, errs.ErrNoRows
+		}
+	}
+
+	intervals := make(map[domain.Date][]domain.IntervalCase)
+	for rows.Next() {
+		interval := domain.IntervalCase{}
+
+		err = rows.Scan(&interval.IsExpertSolve, &interval.ExpertFineDecision, &interval.CaseFineDecision, &interval.GotAt)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		date := domain.NewDate(interval.GotAt.Date())
+
+		if _, ok := intervals[date]; !ok {
+			intervals[date] = make([]domain.IntervalCase, 0)
+		}
+		intervals[date] = append(intervals[date], interval)
+	}
+
+	return intervals, nil
 }

@@ -5,8 +5,8 @@ CREATE TABLE "expert_cases"
     "case_id"         UUID    NOT NULL,
     "is_expert_solve" BOOLEAN NOT NULL,
     "fine_decision"   BOOLEAN NOT NULL,
-    "got_at"          DATE    NOT NULL,
-    "solved_at"       DATE
+    "got_at"          TIMESTAMP    NOT NULL,
+    "solved_at"       TIMESTAMP
 );
 ALTER TABLE
     "expert_cases"

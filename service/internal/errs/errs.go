@@ -11,7 +11,6 @@ var (
 	ErrUnknownCameraID   = errors.New("unknown camera id")
 	ErrUnknownCameraType = errors.New("unknown camera type")
 
-	ErrUserExists    = errors.New("user already exists")
 	ErrUserNotExists = errors.New("user not exists")
 
 	ErrNoLastNotSolvedCase = errors.New("no last not solved case")
@@ -20,4 +19,6 @@ var (
 	ErrNoCase      = errors.New("no case")
 	ErrNoTransport = errors.New("no transport")
 	ErrNoImage     = errors.New("no image")
+
+	ErrExpertNotExists = errors.New("expert not exissts")
 )

@@ -54,7 +54,7 @@ func (s *ratingService) GetRating() ([]domain.RatingInfo, error) {
 }
 
 func (s *ratingService) RunReportPeriod(done <-chan struct{}) {
-	log.Println("RunReportPeriod:", s.ratingCfg)
+	log.Printf("RunReportPeriod with duration: %s\n", s.ratingCfg.ReportPeriod)
 	ticker := time.NewTicker(s.ratingCfg.ReportPeriod)
 	defer ticker.Stop()
 
