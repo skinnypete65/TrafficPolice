@@ -4,7 +4,7 @@ import (
 	"TrafficPolice/internal/camera"
 	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/errs"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/transport/rest/response"
 	"fmt"
 	"github.com/pkg/errors"
@@ -20,17 +20,17 @@ const (
 )
 
 type CaseHandler struct {
-	caseService   services.CaseService
-	imgService    services.ImgService
-	cameraService services.CameraService
+	caseService   service.CaseService
+	imgService    service.ImgService
+	cameraService service.CameraService
 	caseConverter *converter.CaseConverter
 	cameraParser  *camera.Parser
 }
 
 func NewCaseHandler(
-	service services.CaseService,
-	imgService services.ImgService,
-	cameraService services.CameraService,
+	service service.CaseService,
+	imgService service.ImgService,
+	cameraService service.CameraService,
 	caseConverter *converter.CaseConverter,
 	cameraParser *camera.Parser,
 ) *CaseHandler {

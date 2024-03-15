@@ -2,15 +2,11 @@ package app
 
 import (
 	_ "TrafficPolice/docs"
-	"TrafficPolice/internal/camera"
 	"TrafficPolice/internal/config"
-	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/domain"
-	"TrafficPolice/internal/repository/postresql"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/tokens"
 	"TrafficPolice/internal/transport/rabbitmq"
-	"TrafficPolice/internal/transport/rest"
 	"TrafficPolice/internal/transport/rest/middlewares"
 	"TrafficPolice/internal/validation"
 	"context"
@@ -22,7 +18,6 @@ import (
 	_ "github.com/golang-migrate/migrate/source/file"
 	"github.com/jackc/pgx/v5"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/swaggo/http-swagger" // http-swagger middleware
 	"log"
 	"net/http"
 )
@@ -60,184 +55,28 @@ func Run() {
 	}
 	defer mQConn.Close()
 
+	// Init handlers, service, repos (Clean architecture)
+	tokenManager, err := tokens.NewTokenManager(cfg.SigningKey)
+	if err != nil {
+		log.Fatal(err)
+	}
 	finePublisher := setupFinePublisher(mQConn)
-
 	validate := newValidate()
 
-	// Init converters
-	authConverter := converter.NewAuthConverter()
-	cameraConverter := converter.NewCameraConverter()
-	caseConverter := converter.NewCaseConverter()
-	caseDecisionConverter := converter.NewCaseDecisionConverter()
-	paginationConverter := converter.NewPaginationConverter()
-	solvedCasesConverter := converter.NewSolvedCasesConverter()
-	userInfoConverter := converter.NewUserInfoConverter()
-	analyticsConverter := converter.NewAnalyticsConverter()
+	converters := newConverters()
+	repos := newRepos(dbConn)
+	services := newServices(repos, tokenManager, cfg)
+	handlers := newHandlers(services, converters, validate, finePublisher)
 
-	// Init handlers, services, repos (Clean architecture)
-	tokenManager, _ := tokens.NewTokenManager(cfg.SigningKey)
-	imgService := services.NewImgService()
-
-	ratingRepo := repository.NewRatingRepoPostgres(dbConn)
-	ratingService := services.NewRatingService(ratingRepo, cfg.Rating)
-	ratingConverter := converter.NewRatingConverter()
-	ratingHandler := rest.NewRatingHandler(ratingService, ratingConverter)
-
-	authRepo := repository.NewAuthRepoPostgres(dbConn)
-	authService := services.NewAuthService(authRepo, ratingRepo, tokenManager, cfg.PassSalt)
-	authHandler := rest.NewAuthHandler(authService, validate, userInfoConverter, authConverter)
-
-	paginationRepo := repository.NewPaginationRepoPostgres(dbConn)
-	paginationService := services.NewPaginationService(paginationRepo)
-
-	cameraRepo := repository.NewCameraRepoPostgres(dbConn)
-	cameraService := services.NewCameraService(cameraRepo)
-	cameraHandler := rest.NewCameraHandler(cameraService, authService, validate, cameraConverter)
-
-	transportRepo := repository.NewTransportRepoPostgres(dbConn)
-	caseRepo := repository.NewCaseRepoPostgres(dbConn)
-	caseService := services.NewCaseService(caseRepo, transportRepo)
-	cameraParser := camera.NewParser(cameraService)
-	caseHandler := rest.NewCaseHandler(caseService, imgService, cameraService, caseConverter, cameraParser)
-
-	contactInfoDB := repository.NewContactInfoRepoPostgres(dbConn)
-	contactService := services.NewContactInfoService(contactInfoDB)
-	contactInfoHandler := rest.NewContactInfoHandler(contactService)
-
-	violationDB := repository.NewViolationDBPostgres(dbConn)
-	violationService := services.NewViolationService(violationDB)
-	violationHandler := rest.NewViolationHandler(violationService)
-
-	expertRepo := repository.NewExpertRepoPostgres(dbConn)
-	expertService := services.NewExpertService(expertRepo, caseRepo, cfg.Consensus)
-	expertHandler := rest.NewExpertHandler(
-		imgService, expertService, ratingService, finePublisher, caseConverter, caseDecisionConverter,
-	)
-
-	trainingRepo := repository.NewTrainingRepoPostgres(dbConn)
-	trainingService := services.NewTrainingService(trainingRepo)
-	trainingHandler := rest.NewTrainingHandler(
-		trainingService, paginationService, validate, caseConverter, paginationConverter, solvedCasesConverter,
-	)
-
-	checkerRepo := repository.NewCheckerRepoPostgres(dbConn)
-	directorRepo := repository.NewDirectorRepoPostgres(dbConn)
-	directorService := services.NewDirectorService(directorRepo, checkerRepo)
-	directorHandler := rest.NewDirectorHandler(directorService, caseConverter, analyticsConverter)
-
-	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, expertService)
-
-	// Setup Routes
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/docs/", httpSwagger.WrapHandler)
-
-	// Camera handlers
-	mux.Handle("POST /camera/type",
-		authMiddleware.IdentifyRole(http.HandlerFunc(cameraHandler.AddCameraType), domain.DirectorRole),
-	)
-	mux.Handle("POST /camera",
-		authMiddleware.IdentifyRole(http.HandlerFunc(cameraHandler.RegisterCamera), domain.DirectorRole),
-	)
-
-	// Case handlers
-	mux.Handle("POST /case",
-		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.AddCase), domain.CameraRole),
-	)
-	mux.Handle("POST /case/{id}/img",
-		authMiddleware.IdentifyRole(http.HandlerFunc(caseHandler.UploadCaseImg), domain.CameraRole),
-	)
-	mux.Handle("GET /case/{id}/img",
-		authMiddleware.IdentifyRole(
-			authMiddleware.IsExpertConfirmed(http.HandlerFunc(caseHandler.GetCaseImg)),
-			domain.DirectorRole, domain.ExpertRole,
-		),
-	)
-
-	// ContactInfo handlers
-	mux.Handle("POST /contact_info",
-		authMiddleware.IdentifyRole(http.HandlerFunc(contactInfoHandler.InsertContactInfo), domain.DirectorRole),
-	)
-
-	// Violations handlers
-	mux.Handle("POST /violations",
-		authMiddleware.IdentifyRole(http.HandlerFunc(violationHandler.InsertViolations), domain.DirectorRole),
-	)
-
-	// Auth handlers
-	mux.HandleFunc("POST /auth/sign_up", authHandler.SignUp)
-	mux.HandleFunc("POST /auth/sign_in", authHandler.SignIn)
-	mux.Handle("POST /auth/confirm/expert",
-		authMiddleware.IdentifyRole(http.HandlerFunc(authHandler.ConfirmExpert), domain.DirectorRole),
-	)
-
-	// Expert handlers
-	mux.Handle("POST /expert/{id}/img", authMiddleware.IdentifyRole(
-		authMiddleware.IsExpertConfirmed(http.HandlerFunc(expertHandler.UploadExpertImg)),
-		domain.DirectorRole, domain.ExpertRole),
-	)
-	mux.Handle("GET /expert/{id}/img",
-		authMiddleware.IdentifyRole(
-			authMiddleware.IsExpertConfirmed(
-				http.HandlerFunc(expertHandler.GetExpertImg),
-			),
-			domain.DirectorRole, domain.ExpertRole,
-		),
-	)
-
-	// Expert Handlers
-	mux.Handle("GET /expert/get_case",
-		authMiddleware.IdentifyRole(
-			authMiddleware.IsExpertConfirmed(
-				http.HandlerFunc(expertHandler.GetCaseForExpert),
-			),
-			domain.ExpertRole,
-		),
-	)
-	mux.Handle("POST /expert/decision",
-		authMiddleware.IdentifyRole(
-			authMiddleware.IsExpertConfirmed(
-				http.HandlerFunc(expertHandler.SetCaseDecision),
-			),
-			domain.ExpertRole,
-		),
-	)
-	mux.Handle("POST /expert/training",
-		authMiddleware.IdentifyRole(
-			authMiddleware.IsExpertConfirmed(
-				http.HandlerFunc(trainingHandler.GetSolvedCasesByParams),
-			),
-			domain.ExpertRole,
-		),
-	)
-
-	// Rating Handlers
-	mux.Handle("GET /rating",
-		authMiddleware.IdentifyRole(
-			http.HandlerFunc(ratingHandler.GetRating),
-			domain.ExpertRole, domain.DirectorRole,
-		),
-	)
-
-	// Director Handlers
-	mux.Handle("GET /director/cases",
-		authMiddleware.IdentifyRole(
-			http.HandlerFunc(directorHandler.GetCases),
-			domain.DirectorRole,
-		),
-	)
-	mux.Handle("GET /director/analytics/expert",
-		authMiddleware.IdentifyRole(
-			http.HandlerFunc(directorHandler.ExpertAnalytics),
-			domain.DirectorRole,
-		),
-	)
+	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, services.expert)
+	serveMuxInit := newServeMuxInit(handlers, authMiddleware)
+	mux := serveMuxInit.Init()
 
 	// Run logic
-	registerDirectors(cfg, authService)
+	registerDirectors(cfg, services.auth)
 
 	done := make(chan struct{})
-	go ratingService.RunReportPeriod(done)
+	go services.rating.RunReportPeriod(done)
 
 	// Run Server
 	port := fmt.Sprintf(":%d", cfg.ServerPort)
@@ -271,7 +110,7 @@ func runMigrations(dbUrl string) {
 	log.Println("Migrate ran successfully")
 }
 
-func registerDirectors(cfg *config.Config, authService services.AuthService) {
+func registerDirectors(cfg *config.Config, authService service.AuthService) {
 	users := make([]domain.UserInfo, len(cfg.Directors))
 
 	for i, d := range cfg.Directors {

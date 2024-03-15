@@ -2,7 +2,7 @@ package camera
 
 import (
 	"TrafficPolice/internal/errs"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/transport/rest/dto"
 	"bytes"
 	"encoding/binary"
@@ -22,10 +22,10 @@ const (
 )
 
 type Parser struct {
-	cameraService services.CameraService
+	cameraService service.CameraService
 }
 
-func NewParser(cameraService services.CameraService) *Parser {
+func NewParser(cameraService service.CameraService) *Parser {
 	return &Parser{
 		cameraService: cameraService,
 	}

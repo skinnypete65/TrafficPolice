@@ -3,7 +3,7 @@ package rest
 import (
 	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/errs"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
@@ -14,13 +14,13 @@ import (
 )
 
 type AuthHandler struct {
-	service           services.AuthService
+	service           service.AuthService
 	validate          *validator.Validate
 	userInfoConverter *converter.UserInfoConverter
 	authConverter     *converter.AuthConverter
 }
 
-func NewAuthHandler(service services.AuthService,
+func NewAuthHandler(service service.AuthService,
 	validate *validator.Validate,
 	userInfoConverter *converter.UserInfoConverter,
 	authConverter *converter.AuthConverter,

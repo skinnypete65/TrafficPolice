@@ -3,7 +3,7 @@ package rest
 import (
 	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/errs"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/tokens"
 	"TrafficPolice/internal/transport/rabbitmq"
 	"TrafficPolice/internal/transport/rest/dto"
@@ -26,18 +26,18 @@ const (
 )
 
 type ExpertHandler struct {
-	imgService            services.ImgService
-	expertService         services.ExpertService
-	ratingService         services.RatingService
+	imgService            service.ImgService
+	expertService         service.ExpertService
+	ratingService         service.RatingService
 	finePublisher         *rabbitmq.FinePublisher
 	caseConverter         *converter.CaseConverter
 	caseDecisionConverter *converter.CaseDecisionConverter
 }
 
 func NewExpertHandler(
-	imgService services.ImgService,
-	expertService services.ExpertService,
-	ratingService services.RatingService,
+	imgService service.ImgService,
+	expertService service.ExpertService,
+	ratingService service.RatingService,
 	finePublisher *rabbitmq.FinePublisher,
 	caseConverter *converter.CaseConverter,
 	caseDecisionConverter *converter.CaseDecisionConverter,
