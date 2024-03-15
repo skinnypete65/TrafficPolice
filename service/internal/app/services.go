@@ -4,6 +4,7 @@ import (
 	"TrafficPolice/internal/config"
 	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/tokens"
+	"TrafficPolice/pkg/hash"
 )
 
 type services struct {
@@ -21,10 +22,12 @@ type services struct {
 }
 
 func newServices(r *repos, manager tokens.TokenManager, cfg *config.Config) *services {
+	hasher := hash.NewSHA1Hasher(cfg.PassSalt)
+
 	return &services{
 		img:         service.NewImgService(),
 		rating:      service.NewRatingService(r.rating, cfg.Rating),
-		auth:        service.NewAuthService(r.auth, r.rating, manager, cfg.PassSalt),
+		auth:        service.NewAuthService(r.auth, r.rating, hasher, manager),
 		pagination:  service.NewPaginationService(r.pagination),
 		camera:      service.NewCameraService(r.camera),
 		caseService: service.NewCaseService(r.caseRepo, r.transport),

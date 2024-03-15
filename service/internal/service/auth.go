@@ -30,13 +30,13 @@ type authService struct {
 func NewAuthService(
 	repo repository.AuthRepo,
 	ratingRepo repository.RatingRepo,
+	hasher hash.PasswordHasher,
 	tokenManager tokens.TokenManager,
-	passSalt string,
 ) AuthService {
 	return &authService{
 		authRepo:       repo,
 		ratingRepo:     ratingRepo,
-		hasher:         hash.NewSHA1Hasher(passSalt),
+		hasher:         hasher,
 		tokenManager:   tokenManager,
 		accessTokenTTL: 30 * 24 * time.Hour,
 	}
