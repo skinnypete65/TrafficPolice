@@ -650,6 +650,22 @@ paths:
       description: Получить количество всех случаев, правильно решенных случае, неправильно
         решенных случаев,
       operationId: director-analytics-expert
+      parameters:
+      - description: id эксперта
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: Начало промежутка времени в формате yyyy-mm-dd
+        in: query
+        name: start_time
+        required: true
+        type: string
+      - description: Конец промежутка времени в формате yyyy-mm-dd
+        in: query
+        name: end_time
+        required: true
+        type: string
       produces:
       - application/json
       responses:

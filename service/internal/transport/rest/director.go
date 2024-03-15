@@ -76,6 +76,9 @@ func (h *DirectorHandler) GetCases(w http.ResponseWriter, r *http.Request) {
 // неизвестных случаев и максимальное количество подряд решенных задач. Воспользоваться может только директор
 // @ID director-analytics-expert
 // @Produce  json
+// @Param id query int true "id эксперта"
+// @Param start_time query string true "Начало промежутка времени в формате yyyy-mm-dd"
+// @Param end_time query string true "Конец промежутка времени в формате yyyy-mm-dd"
 // @Success 200 {object} []dto.AnalyticsInterval
 // @Success 204 ""
 // @Failure 400,401,404 {object} response.Body

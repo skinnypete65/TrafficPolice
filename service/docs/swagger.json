@@ -603,6 +603,29 @@
                 ],
                 "summary": "Получение аналитики проверяющих специалистов по промежуткам времени",
                 "operationId": "director-analytics-expert",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "id эксперта",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Начало промежутка времени в формате yyyy-mm-dd",
+                        "name": "start_time",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Конец промежутка времени в формате yyyy-mm-dd",
+                        "name": "end_time",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
