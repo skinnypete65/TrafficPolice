@@ -11,6 +11,7 @@ type CameraRepo interface {
 	GetCameraTypeByCameraID(cameraID string) (string, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name CaseRepo
 type CaseRepo interface {
 	InsertCase(c domain.Case) (string, error)
 	GetCaseByID(caseID string) (domain.Case, error)
@@ -57,6 +58,7 @@ type PaginationRepo interface {
 	GetRecordsCount(table string) (int, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name TransportRepo
 type TransportRepo interface {
 	GetTransportID(chars string, num string, region string) (string, error)
 }
