@@ -4,7 +4,7 @@ import (
 	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/errs"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
@@ -24,8 +24,8 @@ const (
 )
 
 type TrainingHandler struct {
-	trainingService      services.TrainingService
-	paginationService    services.PaginationService
+	trainingService      service.TrainingService
+	paginationService    service.PaginationService
 	validate             *validator.Validate
 	caseConverter        *converter.CaseConverter
 	paginationConverter  *converter.PaginationConverter
@@ -33,8 +33,8 @@ type TrainingHandler struct {
 }
 
 func NewTrainingHandler(
-	trainingService services.TrainingService,
-	paginationService services.PaginationService,
+	trainingService service.TrainingService,
+	paginationService service.PaginationService,
 	validate *validator.Validate,
 	caseConverter *converter.CaseConverter,
 	paginationConverter *converter.PaginationConverter,

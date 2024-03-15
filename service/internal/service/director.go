@@ -1,4 +1,4 @@
-package services
+package service
 
 import (
 	"TrafficPolice/internal/domain"
@@ -63,7 +63,7 @@ func (s *directorService) GetExpertAnalytics(
 		sort.Slice(interval, func(i, j int) bool {
 			return interval[i].GotAt.Before(interval[j].GotAt)
 		})
-		
+
 		maxConsecutive := 0
 		currentConsecutive := 0
 		correctCnt := 0

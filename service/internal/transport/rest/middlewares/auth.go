@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"TrafficPolice/internal/domain"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/tokens"
 	"TrafficPolice/internal/transport/rest/response"
 	"context"
@@ -21,10 +21,10 @@ const (
 
 type AuthMiddleware struct {
 	tokenManager  tokens.TokenManager
-	expertService services.ExpertService
+	expertService service.ExpertService
 }
 
-func NewAuthMiddleware(tokenManager tokens.TokenManager, expertService services.ExpertService) *AuthMiddleware {
+func NewAuthMiddleware(tokenManager tokens.TokenManager, expertService service.ExpertService) *AuthMiddleware {
 	return &AuthMiddleware{
 		tokenManager:  tokenManager,
 		expertService: expertService,

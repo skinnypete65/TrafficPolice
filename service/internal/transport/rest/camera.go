@@ -4,7 +4,7 @@ import (
 	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/domain"
 	"TrafficPolice/internal/errs"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
@@ -15,15 +15,15 @@ import (
 )
 
 type CameraHandler struct {
-	cameraService   services.CameraService
-	authService     services.AuthService
+	cameraService   service.CameraService
+	authService     service.AuthService
 	validate        *validator.Validate
 	cameraConverter *converter.CameraConverter
 }
 
 func NewCameraHandler(
-	service services.CameraService,
-	authService services.AuthService,
+	service service.CameraService,
+	authService service.AuthService,
 	validate *validator.Validate,
 	cameraConverter *converter.CameraConverter,
 ) *CameraHandler {

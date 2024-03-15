@@ -2,7 +2,7 @@ package rest
 
 import (
 	"TrafficPolice/internal/domain"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/transport/rest/response"
 	"fmt"
 	"github.com/xuri/excelize/v2"
@@ -17,10 +17,10 @@ const (
 )
 
 type ViolationHandler struct {
-	service services.ViolationService
+	service service.ViolationService
 }
 
-func NewViolationHandler(service services.ViolationService) *ViolationHandler {
+func NewViolationHandler(service service.ViolationService) *ViolationHandler {
 	return &ViolationHandler{service: service}
 }
 

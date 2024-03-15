@@ -3,7 +3,7 @@ package rest
 import (
 	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/errs"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
 	"errors"
@@ -20,13 +20,13 @@ const (
 )
 
 type DirectorHandler struct {
-	directorService    services.DirectorService
+	directorService    service.DirectorService
 	caseConverter      *converter.CaseConverter
 	analyticsConverter *converter.AnalyticsConverter
 }
 
 func NewDirectorHandler(
-	directorService services.DirectorService,
+	directorService service.DirectorService,
 	caseConverter *converter.CaseConverter,
 	analyticsConverter *converter.AnalyticsConverter,
 ) *DirectorHandler {

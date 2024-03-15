@@ -2,7 +2,7 @@ package rest
 
 import (
 	"TrafficPolice/internal/domain"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/transport/rest/response"
 	"github.com/xuri/excelize/v2"
 	"log"
@@ -15,10 +15,10 @@ const (
 )
 
 type ContactInfoHandler struct {
-	service services.ContactInfoService
+	service service.ContactInfoService
 }
 
-func NewContactInfoHandler(service services.ContactInfoService) *ContactInfoHandler {
+func NewContactInfoHandler(service service.ContactInfoService) *ContactInfoHandler {
 	return &ContactInfoHandler{service: service}
 }
 

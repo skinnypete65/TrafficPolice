@@ -3,7 +3,7 @@ package rest
 import (
 	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/errs"
-	"TrafficPolice/internal/services"
+	"TrafficPolice/internal/service"
 	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
 	"errors"
@@ -12,12 +12,12 @@ import (
 )
 
 type RatingHandler struct {
-	ratingService   services.RatingService
+	ratingService   service.RatingService
 	ratingConverter converter.RatingConverter
 }
 
 func NewRatingHandler(
-	ratingService services.RatingService,
+	ratingService service.RatingService,
 	ratingConverter *converter.RatingConverter,
 ) *RatingHandler {
 	return &RatingHandler{
