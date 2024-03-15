@@ -27,6 +27,7 @@ type ViolationRepo interface {
 	InsertViolations(violations []*domain.Violation) error
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name AuthRepo
 type AuthRepo interface {
 	CheckUserExists(username string) bool
 	InsertUser(user domain.UserInfo) error
@@ -59,6 +60,7 @@ type TransportRepo interface {
 	GetTransportID(chars string, num string, region string) (string, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name RatingRepo
 type RatingRepo interface {
 	GetSolvedCaseDecisions(caseDecision domain.CaseDecisionInfo) ([]domain.ExpertCaseDecision, error)
 	SetRating(decisions []domain.ExpertCaseDecision) error
