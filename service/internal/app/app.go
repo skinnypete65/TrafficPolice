@@ -9,6 +9,7 @@ import (
 	"TrafficPolice/internal/transport/rabbitmq"
 	"TrafficPolice/internal/transport/rest/middlewares"
 	"TrafficPolice/internal/validation"
+	"TrafficPolice/pkg/imagereader"
 	"context"
 	"errors"
 	"fmt"
@@ -62,11 +63,12 @@ func Run() {
 	}
 	finePublisher := setupFinePublisher(mQConn)
 	validate := newValidate()
+	imageReader := imagereader.NewImageReader()
 
 	converters := newConverters()
 	repos := newRepos(dbConn)
 	services := newServices(repos, tokenManager, cfg)
-	handlers := newHandlers(services, converters, validate, finePublisher)
+	handlers := newHandlers(services, converters, validate, finePublisher, imageReader)
 
 	authMiddleware := middlewares.NewAuthMiddleware(tokenManager, services.expert)
 	serveMuxInit := newServeMuxInit(handlers, authMiddleware)
@@ -144,7 +146,7 @@ func setupDBConnString(cfg *config.Config) string {
 	)
 }
 
-func setupFinePublisher(mqConn *amqp.Connection) *rabbitmq.FinePublisher {
+func setupFinePublisher(mqConn *amqp.Connection) *rabbitmq.FinePublisherRabbitMQ {
 	finePublisher, err := rabbitmq.NewFinePublisher(mqConn)
 	if err != nil {
 		log.Fatal(err)

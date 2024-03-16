@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name ExpertService
 type ExpertService interface {
 	GetExpertByUserID(userID string) (domain.Expert, error)
 	GetCase(userID string) (domain.Case, error)

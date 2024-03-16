@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name AuthService
 type AuthService interface {
 	RegisterExpert(input domain.UserInfo) error
 	RegisterCamera(info domain.RegisterCamera) (string, error)

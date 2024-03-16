@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name RatingService
 type RatingService interface {
 	SetRating(caseDecision domain.CaseDecisionInfo) error
 	GetRating() ([]domain.RatingInfo, error)

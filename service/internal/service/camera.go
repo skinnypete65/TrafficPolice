@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name CameraService
 type CameraService interface {
 	AddCameraType(cameraType domain.CameraType) (string, error)
 	GetCameraTypeByCameraID(cameraID string) (string, error)

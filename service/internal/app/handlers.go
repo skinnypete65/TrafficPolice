@@ -4,6 +4,7 @@ import (
 	"TrafficPolice/internal/camera"
 	"TrafficPolice/internal/transport/rabbitmq"
 	"TrafficPolice/internal/transport/rest"
+	"TrafficPolice/pkg/imagereader"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -23,7 +24,8 @@ func newHandlers(
 	s *services,
 	c *converters,
 	validate *validator.Validate,
-	finePublisher *rabbitmq.FinePublisher,
+	finePublisher rabbitmq.FinePublisher,
+	imageReader imagereader.ImageReader,
 ) *handlers {
 	cameraParser := camera.NewParser(s.camera)
 	return &handlers{
@@ -34,7 +36,7 @@ func newHandlers(
 		contactInfo: rest.NewContactInfoHandler(s.contactInfo),
 		violation:   rest.NewViolationHandler(s.violation),
 		expert: rest.NewExpertHandler(
-			s.img, s.expert, s.rating, finePublisher, c.caseConverter, c.caseDecision,
+			s.img, s.expert, s.rating, finePublisher, imageReader, c.caseConverter, c.caseDecision,
 		),
 		training: rest.NewTrainingHandler(
 			s.training, s.pagination, validate, c.caseConverter, c.pagination, c.solvedCases,
