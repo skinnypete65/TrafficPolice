@@ -91,7 +91,7 @@
 				
 				<option value="file17">TrafficPolice/internal/converter/solvedcases.go (0.0%)</option>
 				
-				<option value="file18">TrafficPolice/internal/converter/userinfo.go (66.7%)</option>
+				<option value="file18">TrafficPolice/internal/converter/userinfo.go (100.0%)</option>
 				
 				<option value="file19">TrafficPolice/internal/domain/date.go (50.0%)</option>
 				
@@ -149,7 +149,7 @@
 				
 				<option value="file46">TrafficPolice/internal/service/img.go (0.0%)</option>
 				
-				<option value="file47">TrafficPolice/internal/service/mocks/AuthService.go (15.5%)</option>
+				<option value="file47">TrafficPolice/internal/service/mocks/AuthService.go (29.6%)</option>
 				
 				<option value="file48">TrafficPolice/internal/service/pagination.go (100.0%)</option>
 				
@@ -165,7 +165,7 @@
 				
 				<option value="file54">TrafficPolice/internal/transport/rabbitmq/finepublisher.go (0.0%)</option>
 				
-				<option value="file55">TrafficPolice/internal/transport/rest/auth.go (21.5%)</option>
+				<option value="file55">TrafficPolice/internal/transport/rest/auth.go (50.8%)</option>
 				
 				<option value="file56">TrafficPolice/internal/transport/rest/camera.go (0.0%)</option>
 				
@@ -183,7 +183,7 @@
 				
 				<option value="file63">TrafficPolice/internal/transport/rest/rating.go (0.0%)</option>
 				
-				<option value="file64">TrafficPolice/internal/transport/rest/response/response.go (37.9%)</option>
+				<option value="file64">TrafficPolice/internal/transport/rest/response/response.go (48.3%)</option>
 				
 				<option value="file65">TrafficPolice/internal/transport/rest/training.go (0.0%)</option>
 				
@@ -2948,7 +2948,7 @@ func (c *UserInfoConverter) MapSignUpToUserInfo(signUp dto.SignUp) domain.UserIn
         }
 }</span>
 
-func (c *UserInfoConverter) MapSignInToUserInfo(signIn dto.SignInInput) domain.UserInfo <span class="cov0" title="0">{
+func (c *UserInfoConverter) MapSignInToUserInfo(signIn dto.SignInInput) domain.UserInfo <span class="cov8" title="1">{
         return domain.UserInfo{
                 Username: signIn.Username,
                 Password: signIn.Password,
@@ -5631,31 +5631,31 @@ func (_m *AuthService) RegisterExpert(input domain.UserInfo) error <span class="
 }
 
 // SignIn provides a mock function with given fields: input
-func (_m *AuthService) SignIn(input domain.UserInfo) (domain.Tokens, error) <span class="cov0" title="0">{
+func (_m *AuthService) SignIn(input domain.UserInfo) (domain.Tokens, error) <span class="cov8" title="1">{
         ret := _m.Called(input)
 
         if len(ret) == 0 </span><span class="cov0" title="0">{
                 panic("no return value specified for SignIn")</span>
         }
 
-        <span class="cov0" title="0">var r0 domain.Tokens
+        <span class="cov8" title="1">var r0 domain.Tokens
         var r1 error
         if rf, ok := ret.Get(0).(func(domain.UserInfo) (domain.Tokens, error)); ok </span><span class="cov0" title="0">{
                 return rf(input)
         }</span>
-        <span class="cov0" title="0">if rf, ok := ret.Get(0).(func(domain.UserInfo) domain.Tokens); ok </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(domain.UserInfo) domain.Tokens); ok </span><span class="cov0" title="0">{
                 r0 = rf(input)
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 r0 = ret.Get(0).(domain.Tokens)
         }</span>
 
-        <span class="cov0" title="0">if rf, ok := ret.Get(1).(func(domain.UserInfo) error); ok </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(domain.UserInfo) error); ok </span><span class="cov0" title="0">{
                 r1 = rf(input)
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 r1 = ret.Error(1)
         }</span>
 
-        <span class="cov0" title="0">return r0, r1</span>
+        <span class="cov8" title="1">return r0, r1</span>
 }
 
 // NewAuthService creates a new instance of AuthService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -6213,7 +6213,7 @@ func (h *AuthHandler) SignUp(w http.ResponseWriter, r *http.Request) <span class
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /auth/sign_in [post]
-func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         var input dto.SignInInput
 
         err := json.NewDecoder(r.Body).Decode(&amp;input)
@@ -6222,20 +6222,20 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) <span class
                 return
         }</span>
 
-        <span class="cov0" title="0">err = h.validate.Struct(input)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">err = h.validate.Struct(input)
+        if err != nil </span><span class="cov8" title="1">{
                 response.BadRequest(w, err.Error())
                 return
         }</span>
 
-        <span class="cov0" title="0">tokens, err := h.service.SignIn(h.userInfoConverter.MapSignInToUserInfo(input))
+        <span class="cov8" title="1">tokens, err := h.service.SignIn(h.userInfoConverter.MapSignInToUserInfo(input))
 
-        if err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, errs.ErrNoRows) </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, errs.ErrNoRows) </span><span class="cov8" title="1">{
                         response.NotFound(w, "User with this username not exists")
                         return
                 }</span>
-                <span class="cov0" title="0">if errors.Is(err, errs.ErrInvalidPass) </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if errors.Is(err, errs.ErrInvalidPass) </span><span class="cov8" title="1">{
                         response.Unauthorized(w)
                         return
                 }</span>
@@ -6243,7 +6243,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) <span class
                 return</span>
         }
 
-        <span class="cov0" title="0">ansBytes, err := json.Marshal(
+        <span class="cov8" title="1">ansBytes, err := json.Marshal(
                 dto.SignInOutput{
                         AccessToken:  tokens.AccessToken,
                         RefreshToken: tokens.RefreshToken,
@@ -6255,7 +6255,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) <span class
                 return
         }</span>
 
-        <span class="cov0" title="0">response.WriteResponse(w, http.StatusOK, ansBytes)
+        <span class="cov8" title="1">response.WriteResponse(w, http.StatusOK, ansBytes)
         if err != nil </span><span class="cov0" title="0">{
                 log.Println(err)
         }</span>
@@ -7426,7 +7426,7 @@ func BadRequest(w http.ResponseWriter, text string) <span class="cov8" title="1"
         WriteMessage(w, http.StatusBadRequest, text)
 }</span>
 
-func NotFound(w http.ResponseWriter, text string) <span class="cov0" title="0">{
+func NotFound(w http.ResponseWriter, text string) <span class="cov8" title="1">{
         WriteMessage(w, http.StatusNotFound, text)
 }</span>
 
@@ -7446,7 +7446,7 @@ func InternalServerError(w http.ResponseWriter) <span class="cov0" title="0">{
         WriteMessage(w, http.StatusInternalServerError, "Internal server error")
 }</span>
 
-func Unauthorized(w http.ResponseWriter) <span class="cov0" title="0">{
+func Unauthorized(w http.ResponseWriter) <span class="cov8" title="1">{
         w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
         WriteMessage(w, http.StatusUnauthorized, "Unauthorized")
 }</span>
