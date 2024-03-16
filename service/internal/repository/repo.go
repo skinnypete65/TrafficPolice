@@ -11,6 +11,7 @@ type CameraRepo interface {
 	GetCameraTypeByCameraID(cameraID string) (string, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name CaseRepo
 type CaseRepo interface {
 	InsertCase(c domain.Case) (string, error)
 	GetCaseByID(caseID string) (domain.Case, error)
@@ -38,6 +39,7 @@ type AuthRepo interface {
 	ConfirmExpert(data domain.ConfirmExpert) error
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name ExpertRepo
 type ExpertRepo interface {
 	GetLastNotSolvedCaseID(expertID string) (string, error)
 	GetExpertByUserID(userID string) (domain.Expert, error)
@@ -52,10 +54,12 @@ type TrainingRepo interface {
 	GetSolvedCasesByParams(params domain.SolvedCasesParams, paginationParams domain.PaginationParams) ([]domain.Case, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name PaginationRepo
 type PaginationRepo interface {
 	GetRecordsCount(table string) (int, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name TransportRepo
 type TransportRepo interface {
 	GetTransportID(chars string, num string, region string) (string, error)
 }
@@ -71,6 +75,7 @@ type RatingRepo interface {
 	ClearRating() error
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name DirectorRepo
 type DirectorRepo interface {
 	GetCases() ([]domain.CaseStatus, error)
 	GetExpertIntervalCases(
@@ -79,6 +84,7 @@ type DirectorRepo interface {
 		endDate time.Time) (map[domain.Date][]domain.IntervalCase, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name CheckerRepo
 type CheckerRepo interface {
 	CheckExpertExists(expertID string) (bool, error)
 }
