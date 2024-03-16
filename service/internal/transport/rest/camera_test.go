@@ -42,6 +42,10 @@ func TestAddCameraType(t *testing.T) {
 
 				return mockService
 			},
+			buildAuthService: func() service.AuthService {
+				mockService := mocks.NewAuthService(t)
+				return mockService
+			},
 			expectedCode: http.StatusOK,
 		},
 		{

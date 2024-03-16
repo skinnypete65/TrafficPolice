@@ -75,13 +75,13 @@
 				
 				<option value="file9">TrafficPolice/internal/config/config.go (0.0%)</option>
 				
-				<option value="file10">TrafficPolice/internal/converter/analytics.go (0.0%)</option>
+				<option value="file10">TrafficPolice/internal/converter/analytics.go (66.7%)</option>
 				
 				<option value="file11">TrafficPolice/internal/converter/auth.go (100.0%)</option>
 				
-				<option value="file12">TrafficPolice/internal/converter/camera.go (50.0%)</option>
+				<option value="file12">TrafficPolice/internal/converter/camera.go (100.0%)</option>
 				
-				<option value="file13">TrafficPolice/internal/converter/case.go (0.0%)</option>
+				<option value="file13">TrafficPolice/internal/converter/case.go (23.5%)</option>
 				
 				<option value="file14">TrafficPolice/internal/converter/casedecision.go (0.0%)</option>
 				
@@ -149,51 +149,53 @@
 				
 				<option value="file46">TrafficPolice/internal/service/img.go (0.0%)</option>
 				
-				<option value="file47">TrafficPolice/internal/service/mocks/AuthService.go (38.0%)</option>
+				<option value="file47">TrafficPolice/internal/service/mocks/AuthService.go (52.1%)</option>
 				
 				<option value="file48">TrafficPolice/internal/service/mocks/CameraService.go (45.5%)</option>
 				
-				<option value="file49">TrafficPolice/internal/service/pagination.go (100.0%)</option>
+				<option value="file49">TrafficPolice/internal/service/mocks/DirectorService.go (77.1%)</option>
 				
-				<option value="file50">TrafficPolice/internal/service/rating.go (0.0%)</option>
+				<option value="file50">TrafficPolice/internal/service/pagination.go (100.0%)</option>
 				
-				<option value="file51">TrafficPolice/internal/service/training.go (0.0%)</option>
+				<option value="file51">TrafficPolice/internal/service/rating.go (0.0%)</option>
 				
-				<option value="file52">TrafficPolice/internal/service/violation.go (0.0%)</option>
+				<option value="file52">TrafficPolice/internal/service/training.go (0.0%)</option>
 				
-				<option value="file53">TrafficPolice/internal/tokens/manager.go (29.2%)</option>
+				<option value="file53">TrafficPolice/internal/service/violation.go (0.0%)</option>
 				
-				<option value="file54">TrafficPolice/internal/transport/rabbitmq/connection.go (0.0%)</option>
+				<option value="file54">TrafficPolice/internal/tokens/manager.go (29.2%)</option>
 				
-				<option value="file55">TrafficPolice/internal/transport/rabbitmq/finepublisher.go (0.0%)</option>
+				<option value="file55">TrafficPolice/internal/transport/rabbitmq/connection.go (0.0%)</option>
 				
-				<option value="file56">TrafficPolice/internal/transport/rest/auth.go (72.3%)</option>
+				<option value="file56">TrafficPolice/internal/transport/rabbitmq/finepublisher.go (0.0%)</option>
 				
-				<option value="file57">TrafficPolice/internal/transport/rest/camera.go (33.3%)</option>
+				<option value="file57">TrafficPolice/internal/transport/rest/auth.go (72.3%)</option>
 				
-				<option value="file58">TrafficPolice/internal/transport/rest/case.go (0.0%)</option>
+				<option value="file58">TrafficPolice/internal/transport/rest/camera.go (61.1%)</option>
 				
-				<option value="file59">TrafficPolice/internal/transport/rest/contactinfo.go (0.0%)</option>
+				<option value="file59">TrafficPolice/internal/transport/rest/case.go (0.0%)</option>
 				
-				<option value="file60">TrafficPolice/internal/transport/rest/director.go (0.0%)</option>
+				<option value="file60">TrafficPolice/internal/transport/rest/contactinfo.go (0.0%)</option>
 				
-				<option value="file61">TrafficPolice/internal/transport/rest/expert.go (0.0%)</option>
+				<option value="file61">TrafficPolice/internal/transport/rest/director.go (53.2%)</option>
 				
-				<option value="file62">TrafficPolice/internal/transport/rest/middlewares/auth.go (0.0%)</option>
+				<option value="file62">TrafficPolice/internal/transport/rest/expert.go (0.0%)</option>
 				
-				<option value="file63">TrafficPolice/internal/transport/rest/parseimg.go (0.0%)</option>
+				<option value="file63">TrafficPolice/internal/transport/rest/middlewares/auth.go (0.0%)</option>
 				
-				<option value="file64">TrafficPolice/internal/transport/rest/rating.go (0.0%)</option>
+				<option value="file64">TrafficPolice/internal/transport/rest/parseimg.go (0.0%)</option>
 				
-				<option value="file65">TrafficPolice/internal/transport/rest/response/response.go (62.1%)</option>
+				<option value="file65">TrafficPolice/internal/transport/rest/rating.go (0.0%)</option>
 				
-				<option value="file66">TrafficPolice/internal/transport/rest/training.go (0.0%)</option>
+				<option value="file66">TrafficPolice/internal/transport/rest/response/response.go (65.5%)</option>
 				
-				<option value="file67">TrafficPolice/internal/transport/rest/violation.go (0.0%)</option>
+				<option value="file67">TrafficPolice/internal/transport/rest/training.go (0.0%)</option>
 				
-				<option value="file68">TrafficPolice/internal/validation/date.go (0.0%)</option>
+				<option value="file68">TrafficPolice/internal/transport/rest/violation.go (0.0%)</option>
 				
-				<option value="file69">TrafficPolice/pkg/hash/hash.go (80.0%)</option>
+				<option value="file69">TrafficPolice/internal/validation/date.go (0.0%)</option>
+				
+				<option value="file70">TrafficPolice/pkg/hash/hash.go (80.0%)</option>
 				
 				</select>
 			</div>
@@ -2063,7 +2065,7 @@ func newHandlers(
         return &amp;handlers{
                 rating:      rest.NewRatingHandler(s.rating, c.rating),
                 auth:        rest.NewAuthHandler(s.auth, validate, c.userInfo, c.auth),
-                camera:      rest.NewCameraHandler(s.camera, validate, c.camera),
+                camera:      rest.NewCameraHandler(s.camera, s.auth, validate, c.camera),
                 caseHandler: rest.NewCaseHandler(s.caseService, s.img, s.camera, c.caseConverter, cameraParser),
                 contactInfo: rest.NewContactInfoHandler(s.contactInfo),
                 violation:   rest.NewViolationHandler(s.violation),
@@ -2583,7 +2585,7 @@ import (
 type AnalyticsConverter struct {
 }
 
-func NewAnalyticsConverter() *AnalyticsConverter <span class="cov0" title="0">{
+func NewAnalyticsConverter() *AnalyticsConverter <span class="cov8" title="1">{
         return &amp;AnalyticsConverter{}
 }</span>
 
@@ -2598,12 +2600,12 @@ func (c *AnalyticsConverter) MapDomainToDto(d domain.AnalyticsInterval) dto.Anal
         }
 }</span>
 
-func (c *AnalyticsConverter) MapDomainsToDtos(d []domain.AnalyticsInterval) []dto.AnalyticsInterval <span class="cov0" title="0">{
+func (c *AnalyticsConverter) MapDomainsToDtos(d []domain.AnalyticsInterval) []dto.AnalyticsInterval <span class="cov8" title="1">{
         dtos := make([]dto.AnalyticsInterval, len(d))
         for i := range d </span><span class="cov0" title="0">{
                 dtos[i] = c.MapDomainToDto(d[i])
         }</span>
-        <span class="cov0" title="0">return dtos</span>
+        <span class="cov8" title="1">return dtos</span>
 }
 </pre>
 		
@@ -2645,7 +2647,7 @@ func NewCameraConverter() *CameraConverter <span class="cov8" title="1">{
 
 func (c *CameraConverter) MapRegisterCameraDtoToDomain(camera dto.CameraIn,
         signUp dto.SignUp,
-) domain.RegisterCamera <span class="cov0" title="0">{
+) domain.RegisterCamera <span class="cov8" title="1">{
         return domain.RegisterCamera{
                 Camera: domain.Camera{
                         ID:         "",
@@ -2669,7 +2671,7 @@ import (
 
 type CaseConverter struct{}
 
-func NewCaseConverter() *CaseConverter <span class="cov0" title="0">{
+func NewCaseConverter() *CaseConverter <span class="cov8" title="1">{
         return &amp;CaseConverter{}
 }</span>
 
@@ -2813,13 +2815,13 @@ func (c *CaseConverter) MapCaseStatusToDto(d domain.CaseStatus) dto.CaseStatus <
         }</span>
 }
 
-func (c *CaseConverter) MapCaseStatusesToDto(d []domain.CaseStatus) []dto.CaseStatus <span class="cov0" title="0">{
+func (c *CaseConverter) MapCaseStatusesToDto(d []domain.CaseStatus) []dto.CaseStatus <span class="cov8" title="1">{
         statusesDto := make([]dto.CaseStatus, len(d))
         for i := range d </span><span class="cov0" title="0">{
                 statusesDto[i] = c.MapCaseStatusToDto(d[i])
         }</span>
 
-        <span class="cov0" title="0">return statusesDto</span>
+        <span class="cov8" title="1">return statusesDto</span>
 }
 </pre>
 		
@@ -5217,6 +5219,7 @@ import (
         "time"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name DirectorService
 type DirectorService interface {
         GetCases() ([]domain.CaseStatus, error)
         GetExpertAnalytics(expertID string, startTime time.Time, endTime time.Time) ([]domain.AnalyticsInterval, error)
@@ -5570,31 +5573,31 @@ func (_m *AuthService) ParseAccessToken(accessToken string) (tokens.TokenInfo, e
 }
 
 // RegisterCamera provides a mock function with given fields: info
-func (_m *AuthService) RegisterCamera(info domain.RegisterCamera) (string, error) <span class="cov0" title="0">{
+func (_m *AuthService) RegisterCamera(info domain.RegisterCamera) (string, error) <span class="cov8" title="1">{
         ret := _m.Called(info)
 
         if len(ret) == 0 </span><span class="cov0" title="0">{
                 panic("no return value specified for RegisterCamera")</span>
         }
 
-        <span class="cov0" title="0">var r0 string
+        <span class="cov8" title="1">var r0 string
         var r1 error
         if rf, ok := ret.Get(0).(func(domain.RegisterCamera) (string, error)); ok </span><span class="cov0" title="0">{
                 return rf(info)
         }</span>
-        <span class="cov0" title="0">if rf, ok := ret.Get(0).(func(domain.RegisterCamera) string); ok </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(domain.RegisterCamera) string); ok </span><span class="cov0" title="0">{
                 r0 = rf(info)
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 r0 = ret.Get(0).(string)
         }</span>
 
-        <span class="cov0" title="0">if rf, ok := ret.Get(1).(func(domain.RegisterCamera) error); ok </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(domain.RegisterCamera) error); ok </span><span class="cov0" title="0">{
                 r1 = rf(info)
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 r1 = ret.Error(1)
         }</span>
 
-        <span class="cov0" title="0">return r0, r1</span>
+        <span class="cov8" title="1">return r0, r1</span>
 }
 
 // RegisterDirectors provides a mock function with given fields: users
@@ -5762,7 +5765,99 @@ func NewCameraService(t interface {
 }
 </pre>
 		
-		<pre class="file" id="file49" style="display: none">package service
+		<pre class="file" id="file49" style="display: none">// Code generated by mockery v2.42.1. DO NOT EDIT.
+
+package mocks
+
+import (
+        domain "TrafficPolice/internal/domain"
+
+        mock "github.com/stretchr/testify/mock"
+
+        time "time"
+)
+
+// DirectorService is an autogenerated mock type for the DirectorService type
+type DirectorService struct {
+        mock.Mock
+}
+
+// GetCases provides a mock function with given fields:
+func (_m *DirectorService) GetCases() ([]domain.CaseStatus, error) <span class="cov8" title="1">{
+        ret := _m.Called()
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetCases")</span>
+        }
+
+        <span class="cov8" title="1">var r0 []domain.CaseStatus
+        var r1 error
+        if rf, ok := ret.Get(0).(func() ([]domain.CaseStatus, error)); ok </span><span class="cov0" title="0">{
+                return rf()
+        }</span>
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func() []domain.CaseStatus); ok </span><span class="cov0" title="0">{
+                r0 = rf()
+        }</span> else<span class="cov8" title="1"> {
+                if ret.Get(0) != nil </span><span class="cov8" title="1">{
+                        r0 = ret.Get(0).([]domain.CaseStatus)
+                }</span>
+        }
+
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func() error); ok </span><span class="cov0" title="0">{
+                r1 = rf()
+        }</span> else<span class="cov8" title="1"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return r0, r1</span>
+}
+
+// GetExpertAnalytics provides a mock function with given fields: expertID, startTime, endTime
+func (_m *DirectorService) GetExpertAnalytics(expertID string, startTime time.Time, endTime time.Time) ([]domain.AnalyticsInterval, error) <span class="cov8" title="1">{
+        ret := _m.Called(expertID, startTime, endTime)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetExpertAnalytics")</span>
+        }
+
+        <span class="cov8" title="1">var r0 []domain.AnalyticsInterval
+        var r1 error
+        if rf, ok := ret.Get(0).(func(string, time.Time, time.Time) ([]domain.AnalyticsInterval, error)); ok </span><span class="cov0" title="0">{
+                return rf(expertID, startTime, endTime)
+        }</span>
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(string, time.Time, time.Time) []domain.AnalyticsInterval); ok </span><span class="cov0" title="0">{
+                r0 = rf(expertID, startTime, endTime)
+        }</span> else<span class="cov8" title="1"> {
+                if ret.Get(0) != nil </span><span class="cov8" title="1">{
+                        r0 = ret.Get(0).([]domain.AnalyticsInterval)
+                }</span>
+        }
+
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(string, time.Time, time.Time) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(expertID, startTime, endTime)
+        }</span> else<span class="cov8" title="1"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return r0, r1</span>
+}
+
+// NewDirectorService creates a new instance of DirectorService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewDirectorService(t interface {
+        mock.TestingT
+        Cleanup(func())
+}) *DirectorService <span class="cov8" title="1">{
+        mock := &amp;DirectorService{}
+        mock.Mock.Test(t)
+
+        t.Cleanup(func() </span><span class="cov8" title="1">{ mock.AssertExpectations(t) }</span>)
+
+        <span class="cov8" title="1">return mock</span>
+}
+</pre>
+		
+		<pre class="file" id="file50" style="display: none">package service
 
 import (
         "TrafficPolice/internal/domain"
@@ -5822,7 +5917,7 @@ func (s *paginationService) GetPaginationInfo(
 }
 </pre>
 		
-		<pre class="file" id="file50" style="display: none">package service
+		<pre class="file" id="file51" style="display: none">package service
 
 import (
         "TrafficPolice/internal/config"
@@ -5937,7 +6032,7 @@ func (s *ratingService) setupCompetenceSkill() error <span class="cov0" title="0
 }
 </pre>
 		
-		<pre class="file" id="file51" style="display: none">package service
+		<pre class="file" id="file52" style="display: none">package service
 
 import (
         "TrafficPolice/internal/domain"
@@ -5966,7 +6061,7 @@ func (s *trainingService) GetSolvedCasesByParams(
 }</span>
 </pre>
 		
-		<pre class="file" id="file52" style="display: none">package service
+		<pre class="file" id="file53" style="display: none">package service
 
 import (
         "TrafficPolice/internal/domain"
@@ -5995,7 +6090,7 @@ func (s *violationService) InsertViolations(violations []*domain.Violation) erro
 }
 </pre>
 		
-		<pre class="file" id="file53" style="display: none">package tokens
+		<pre class="file" id="file54" style="display: none">package tokens
 
 import (
         "TrafficPolice/internal/domain"
@@ -6080,7 +6175,7 @@ func (m *manager) NewRefreshToken() (string, error) <span class="cov0" title="0"
 }
 </pre>
 		
-		<pre class="file" id="file54" style="display: none">package rabbitmq
+		<pre class="file" id="file55" style="display: none">package rabbitmq
 
 import (
         "TrafficPolice/internal/config"
@@ -6100,7 +6195,7 @@ func NewRabbitMQConn(cfg *config.Config) (*amqp.Connection, error) <span class="
 }</span>
 </pre>
 		
-		<pre class="file" id="file55" style="display: none">package rabbitmq
+		<pre class="file" id="file56" style="display: none">package rabbitmq
 
 import (
         "TrafficPolice/internal/transport/rest/dto"
@@ -6213,7 +6308,7 @@ func (p *FinePublisher) PublishFineNotification(c dto.CaseWithImage) error <span
 }
 </pre>
 		
-		<pre class="file" id="file56" style="display: none">package rest
+		<pre class="file" id="file57" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -6398,7 +6493,7 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) <spa
 }
 </pre>
 		
-		<pre class="file" id="file57" style="display: none">package rest
+		<pre class="file" id="file58" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -6423,11 +6518,13 @@ type CameraHandler struct {
 
 func NewCameraHandler(
         service service.CameraService,
+        authService service.AuthService,
         validate *validator.Validate,
         cameraConverter *converter.CameraConverter,
 ) *CameraHandler <span class="cov8" title="1">{
         return &amp;CameraHandler{
                 cameraService:   service,
+                authService:     authService,
                 validate:        validate,
                 cameraConverter: cameraConverter,
         }
@@ -6457,7 +6554,7 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) <s
         }</span>
 
         <span class="cov8" title="1">err = h.validate.Struct(cameraType)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 response.BadRequest(w, err.Error())
                 return
         }</span>
@@ -6492,7 +6589,7 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) <s
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /camera [post]
-func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         var registerInfo dto.RegisterCamera
         err := json.NewDecoder(r.Body).Decode(&amp;registerInfo)
 
@@ -6501,13 +6598,13 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) <
                 return
         }</span>
 
-        <span class="cov0" title="0">err = h.validate.Struct(registerInfo)
+        <span class="cov8" title="1">err = h.validate.Struct(registerInfo)
         if err != nil </span><span class="cov0" title="0">{
                 response.BadRequest(w, err.Error())
                 return
         }</span>
 
-        <span class="cov0" title="0">cameraID, err := h.authService.RegisterCamera(
+        <span class="cov8" title="1">cameraID, err := h.authService.RegisterCamera(
                 h.cameraConverter.MapRegisterCameraDtoToDomain(registerInfo.CameraIn, registerInfo.SignUp),
         )
         if err != nil </span><span class="cov0" title="0">{
@@ -6520,11 +6617,11 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) <
                 return</span>
         }
 
-        <span class="cov0" title="0">response.IdResponse(w, cameraID)</span>
+        <span class="cov8" title="1">response.IdResponse(w, cameraID)</span>
 }
 </pre>
 		
-		<pre class="file" id="file58" style="display: none">package rest
+		<pre class="file" id="file59" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/camera"
@@ -6711,7 +6808,7 @@ func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) <span c
 }
 </pre>
 		
-		<pre class="file" id="file59" style="display: none">package rest
+		<pre class="file" id="file60" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/domain"
@@ -6814,7 +6911,7 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 }
 </pre>
 		
-		<pre class="file" id="file60" style="display: none">package rest
+		<pre class="file" id="file61" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -6845,7 +6942,7 @@ func NewDirectorHandler(
         directorService service.DirectorService,
         caseConverter *converter.CaseConverter,
         analyticsConverter *converter.AnalyticsConverter,
-) *DirectorHandler <span class="cov0" title="0">{
+) *DirectorHandler <span class="cov8" title="1">{
         return &amp;DirectorHandler{
                 directorService:    directorService,
                 caseConverter:      caseConverter,
@@ -6865,10 +6962,10 @@ func NewDirectorHandler(
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /director/cases [get]
-func (h *DirectorHandler) GetCases(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (h *DirectorHandler) GetCases(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         cases, err := h.directorService.GetCases()
-        if err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, errs.ErrNoRows) </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, errs.ErrNoRows) </span><span class="cov8" title="1">{
                         response.NoContent(w)
                         return
                 }</span>
@@ -6876,12 +6973,12 @@ func (h *DirectorHandler) GetCases(w http.ResponseWriter, r *http.Request) <span
                 response.InternalServerError(w)</span>
         }
 
-        <span class="cov0" title="0">casesBytes, err := json.Marshal(h.caseConverter.MapCaseStatusesToDto(cases))
+        <span class="cov8" title="1">casesBytes, err := json.Marshal(h.caseConverter.MapCaseStatusesToDto(cases))
         if err != nil </span><span class="cov0" title="0">{
                 response.InternalServerError(w)
         }</span>
 
-        <span class="cov0" title="0">response.WriteResponse(w, http.StatusOK, casesBytes)</span>
+        <span class="cov8" title="1">response.WriteResponse(w, http.StatusOK, casesBytes)</span>
 }
 
 // ExpertAnalytics docs
@@ -6901,26 +6998,26 @@ func (h *DirectorHandler) GetCases(w http.ResponseWriter, r *http.Request) <span
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /director/analytics/expert [get]
-func (h *DirectorHandler) ExpertAnalytics(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (h *DirectorHandler) ExpertAnalytics(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         expertID := r.URL.Query().Get(expertIDKey)
         if expertID == "" </span><span class="cov0" title="0">{
                 response.BadRequest(w, "Id is empty")
                 return
         }</span>
 
-        <span class="cov0" title="0">startTime, err := h.parseTimeQuery(r, startTimeKey)
+        <span class="cov8" title="1">startTime, err := h.parseTimeQuery(r, startTimeKey)
         if err != nil </span><span class="cov0" title="0">{
                 response.BadRequest(w, err.Error())
                 return
         }</span>
 
-        <span class="cov0" title="0">endTime, err := h.parseTimeQuery(r, endTimeKey)
+        <span class="cov8" title="1">endTime, err := h.parseTimeQuery(r, endTimeKey)
         if err != nil </span><span class="cov0" title="0">{
                 response.BadRequest(w, err.Error())
                 return
         }</span>
 
-        <span class="cov0" title="0">analytics, err := h.directorService.GetExpertAnalytics(expertID, startTime, endTime)
+        <span class="cov8" title="1">analytics, err := h.directorService.GetExpertAnalytics(expertID, startTime, endTime)
         if err != nil </span><span class="cov0" title="0">{
                 if errors.Is(err, errs.ErrExpertNotExists) </span><span class="cov0" title="0">{
                         response.NotFound(w, "Expert with input ID not found")
@@ -6935,31 +7032,31 @@ func (h *DirectorHandler) ExpertAnalytics(w http.ResponseWriter, r *http.Request
                 return</span>
         }
 
-        <span class="cov0" title="0">analyticsBytes, err := json.Marshal(h.analyticsConverter.MapDomainsToDtos(analytics))
+        <span class="cov8" title="1">analyticsBytes, err := json.Marshal(h.analyticsConverter.MapDomainsToDtos(analytics))
         if err != nil </span><span class="cov0" title="0">{
                 response.InternalServerError(w)
                 return
         }</span>
 
-        <span class="cov0" title="0">response.WriteResponse(w, http.StatusOK, analyticsBytes)</span>
+        <span class="cov8" title="1">response.WriteResponse(w, http.StatusOK, analyticsBytes)</span>
 }
 
-func (h *DirectorHandler) parseTimeQuery(r *http.Request, key string) (time.Time, error) <span class="cov0" title="0">{
+func (h *DirectorHandler) parseTimeQuery(r *http.Request, key string) (time.Time, error) <span class="cov8" title="1">{
         timeQuery := r.URL.Query().Get(key)
         if timeQuery == "" </span><span class="cov0" title="0">{
                 return time.Time{}, fmt.Errorf("%s is empty", key)
         }</span>
 
-        <span class="cov0" title="0">date, err := time.Parse(time.DateOnly, timeQuery)
+        <span class="cov8" title="1">date, err := time.Parse(time.DateOnly, timeQuery)
         if err != nil </span><span class="cov0" title="0">{
                 return time.Time{}, err
         }</span>
 
-        <span class="cov0" title="0">return date, nil</span>
+        <span class="cov8" title="1">return date, nil</span>
 }
 </pre>
 		
-		<pre class="file" id="file61" style="display: none">package rest
+		<pre class="file" id="file62" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7236,7 +7333,7 @@ func (h *ExpertHandler) getCaseImage(caseID string) ([]byte, string, error) <spa
 }
 </pre>
 		
-		<pre class="file" id="file62" style="display: none">package middlewares
+		<pre class="file" id="file63" style="display: none">package middlewares
 
 import (
         "TrafficPolice/internal/domain"
@@ -7346,7 +7443,7 @@ func (h *AuthMiddleware) parseAuthHeader(authHeader string) (tokens.TokenInfo, e
 }
 </pre>
 		
-		<pre class="file" id="file63" style="display: none">package rest
+		<pre class="file" id="file64" style="display: none">package rest
 
 import (
         "fmt"
@@ -7409,7 +7506,7 @@ func getImgExtension(contentType string) (string, error) <span class="cov0" titl
 }
 </pre>
 		
-		<pre class="file" id="file64" style="display: none">package rest
+		<pre class="file" id="file65" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7470,7 +7567,7 @@ func (h *RatingHandler) GetRating(w http.ResponseWriter, r *http.Request) <span 
 }
 </pre>
 		
-		<pre class="file" id="file65" style="display: none">package response
+		<pre class="file" id="file66" style="display: none">package response
 
 import (
         "encoding/json"
@@ -7521,7 +7618,7 @@ func OKMessage(w http.ResponseWriter, text string) <span class="cov8" title="1">
         WriteMessage(w, http.StatusOK, text)
 }</span>
 
-func NoContent(w http.ResponseWriter) <span class="cov0" title="0">{
+func NoContent(w http.ResponseWriter) <span class="cov8" title="1">{
         w.WriteHeader(http.StatusNoContent)
 }</span>
 
@@ -7555,7 +7652,7 @@ func NotConfirmedError(w http.ResponseWriter) <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file66" style="display: none">package rest
+		<pre class="file" id="file67" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7710,7 +7807,7 @@ func (h *TrainingHandler) parseQueryParam(r *http.Request, key string, defaultVa
 }
 </pre>
 		
-		<pre class="file" id="file67" style="display: none">package rest
+		<pre class="file" id="file68" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/domain"
@@ -7824,7 +7921,7 @@ func (h *ViolationHandler) parseViolations(rows [][]string) []*domain.Violation 
 }
 </pre>
 		
-		<pre class="file" id="file68" style="display: none">package validation
+		<pre class="file" id="file69" style="display: none">package validation
 
 import (
         "github.com/go-playground/validator/v10"
@@ -7839,7 +7936,7 @@ func IsDateOnly(fl validator.FieldLevel) bool <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file69" style="display: none">package hash
+		<pre class="file" id="file70" style="display: none">package hash
 
 import (
         "crypto/sha1"

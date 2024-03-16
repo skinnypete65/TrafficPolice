@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name DirectorService
 type DirectorService interface {
 	GetCases() ([]domain.CaseStatus, error)
 	GetExpertAnalytics(expertID string, startTime time.Time, endTime time.Time) ([]domain.AnalyticsInterval, error)
