@@ -74,6 +74,7 @@ type RatingRepo interface {
 	ClearRating() error
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name DirectorRepo
 type DirectorRepo interface {
 	GetCases() ([]domain.CaseStatus, error)
 	GetExpertIntervalCases(
@@ -82,6 +83,7 @@ type DirectorRepo interface {
 		endDate time.Time) (map[domain.Date][]domain.IntervalCase, error)
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name CheckerRepo
 type CheckerRepo interface {
 	CheckExpertExists(expertID string) (bool, error)
 }
