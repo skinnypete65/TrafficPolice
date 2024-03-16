@@ -68,7 +68,6 @@ func TestGetCases(t *testing.T) {
 func TestExpertAnalytics(t *testing.T) {
 	caseConverter := converter.NewCaseConverter()
 	analyticsConverter := converter.NewAnalyticsConverter()
-	path := "/director/analytics/expert?"
 
 	expertID := uuid.New().String()
 
@@ -145,7 +144,7 @@ func TestExpertAnalytics(t *testing.T) {
 			buildDirectorService: func() service.DirectorService {
 				mockService := mocks.NewDirectorService(t)
 				mockService.On("GetExpertAnalytics", mock.Anything, mock.Anything, mock.Anything).
-					Return([]domain.AnalyticsInterval{}, errs.ErrExpertNotExists)
+					Return(nil, errs.ErrExpertNotExists)
 				return mockService
 			},
 			params: []param{
@@ -174,6 +173,7 @@ func TestExpertAnalytics(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			path := "/director/analytics/expert"
 			handler := NewDirectorHandler(tc.buildDirectorService(), caseConverter, analyticsConverter)
 
 			var buf bytes.Buffer
@@ -186,11 +186,13 @@ func TestExpertAnalytics(t *testing.T) {
 			}
 
 			if len(filteredParams) > 0 {
+				path += "?"
 				for i := 0; i < len(filteredParams)-1; i++ {
 					path += fmt.Sprintf("%s=%s&", filteredParams[i].Name, filteredParams[i].Param)
 				}
+
 				last := len(filteredParams) - 1
-				path += fmt.Sprintf("%s=%s&", filteredParams[last].Name, filteredParams[last].Param)
+				path += fmt.Sprintf("%s=%s", filteredParams[last].Name, filteredParams[last].Param)
 			}
 
 			req := httptest.NewRequest(http.MethodGet, path, &buf)

@@ -177,7 +177,7 @@
 				
 				<option value="file60">TrafficPolice/internal/transport/rest/contactinfo.go (0.0%)</option>
 				
-				<option value="file61">TrafficPolice/internal/transport/rest/director.go (53.2%)</option>
+				<option value="file61">TrafficPolice/internal/transport/rest/director.go (80.9%)</option>
 				
 				<option value="file62">TrafficPolice/internal/transport/rest/expert.go (0.0%)</option>
 				
@@ -7000,30 +7000,30 @@ func (h *DirectorHandler) GetCases(w http.ResponseWriter, r *http.Request) <span
 // @Router /director/analytics/expert [get]
 func (h *DirectorHandler) ExpertAnalytics(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         expertID := r.URL.Query().Get(expertIDKey)
-        if expertID == "" </span><span class="cov0" title="0">{
+        if expertID == "" </span><span class="cov8" title="1">{
                 response.BadRequest(w, "Id is empty")
                 return
         }</span>
 
         <span class="cov8" title="1">startTime, err := h.parseTimeQuery(r, startTimeKey)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 response.BadRequest(w, err.Error())
                 return
         }</span>
 
         <span class="cov8" title="1">endTime, err := h.parseTimeQuery(r, endTimeKey)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 response.BadRequest(w, err.Error())
                 return
         }</span>
 
         <span class="cov8" title="1">analytics, err := h.directorService.GetExpertAnalytics(expertID, startTime, endTime)
-        if err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, errs.ErrExpertNotExists) </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, errs.ErrExpertNotExists) </span><span class="cov8" title="1">{
                         response.NotFound(w, "Expert with input ID not found")
                         return
                 }</span>
-                <span class="cov0" title="0">if errors.Is(err, errs.ErrNoRows) </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if errors.Is(err, errs.ErrNoRows) </span><span class="cov8" title="1">{
                         response.NoContent(w)
                         return
                 }</span>
@@ -7048,7 +7048,7 @@ func (h *DirectorHandler) parseTimeQuery(r *http.Request, key string) (time.Time
         }</span>
 
         <span class="cov8" title="1">date, err := time.Parse(time.DateOnly, timeQuery)
-        if err != nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
                 return time.Time{}, err
         }</span>
 
