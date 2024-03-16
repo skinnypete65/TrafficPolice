@@ -189,7 +189,7 @@
 				
 				<option value="file66">TrafficPolice/internal/transport/rest/expert.go (42.5%)</option>
 				
-				<option value="file67">TrafficPolice/internal/transport/rest/middlewares/auth.go (0.0%)</option>
+				<option value="file67">TrafficPolice/internal/transport/rest/middlewares/auth.go (59.1%)</option>
 				
 				<option value="file68">TrafficPolice/internal/transport/rest/parseimg.go (0.0%)</option>
 				
@@ -7735,37 +7735,37 @@ type AuthMiddleware struct {
         expertService service.ExpertService
 }
 
-func NewAuthMiddleware(tokenManager tokens.TokenManager, expertService service.ExpertService) *AuthMiddleware <span class="cov0" title="0">{
+func NewAuthMiddleware(tokenManager tokens.TokenManager, expertService service.ExpertService) *AuthMiddleware <span class="cov8" title="1">{
         return &amp;AuthMiddleware{
                 tokenManager:  tokenManager,
                 expertService: expertService,
         }
 }</span>
 
-func (h *AuthMiddleware) IdentifyRole(next http.Handler, roles ...domain.Role) http.Handler <span class="cov0" title="0">{
-        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+func (h *AuthMiddleware) IdentifyRole(next http.Handler, roles ...domain.Role) http.Handler <span class="cov8" title="1">{
+        return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov8" title="1">{
                 authHeader := r.Header.Get(authorizationHeader)
                 tokenInfo, err := h.parseAuthHeader(authHeader)
 
-                if err != nil </span><span class="cov0" title="0">{
+                if err != nil </span><span class="cov8" title="1">{
                         response.Unauthorized(w)
                         return
                 }</span>
 
-                <span class="cov0" title="0">hasPermission := false
-                for _, role := range roles </span><span class="cov0" title="0">{
-                        if tokenInfo.UserRole == role </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">hasPermission := false
+                for _, role := range roles </span><span class="cov8" title="1">{
+                        if tokenInfo.UserRole == role </span><span class="cov8" title="1">{
                                 hasPermission = true
                                 break</span>
                         }
                 }
 
-                <span class="cov0" title="0">if !hasPermission </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if !hasPermission </span><span class="cov8" title="1">{
                         response.Unauthorized(w)
                         return
                 }</span>
 
-                <span class="cov0" title="0">ctx := context.WithValue(r.Context(), TokenInfoKey, tokenInfo)
+                <span class="cov8" title="1">ctx := context.WithValue(r.Context(), TokenInfoKey, tokenInfo)
                 next.ServeHTTP(w, r.WithContext(ctx))</span>
         })
 }
@@ -7800,20 +7800,20 @@ func (h *AuthMiddleware) IsExpertConfirmed(next http.Handler) http.Handler <span
         })
 }
 
-func (h *AuthMiddleware) parseAuthHeader(authHeader string) (tokens.TokenInfo, error) <span class="cov0" title="0">{
-        if authHeader == "" </span><span class="cov0" title="0">{
+func (h *AuthMiddleware) parseAuthHeader(authHeader string) (tokens.TokenInfo, error) <span class="cov8" title="1">{
+        if authHeader == "" </span><span class="cov8" title="1">{
                 return tokens.TokenInfo{}, errors.New("empty auth header")
         }</span>
 
-        <span class="cov0" title="0">headerParts := strings.Split(authHeader, " ")
-        if len(headerParts) != 2 || headerParts[0] != "Bearer" </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">headerParts := strings.Split(authHeader, " ")
+        if len(headerParts) != 2 || headerParts[0] != "Bearer" </span><span class="cov8" title="1">{
                 return tokens.TokenInfo{}, errors.New("invalid auth header")
         }</span>
 
-        <span class="cov0" title="0">if len(headerParts[1]) == 0 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if len(headerParts[1]) == 0 </span><span class="cov8" title="1">{
                 return tokens.TokenInfo{}, errors.New("token is empty")
         }</span>
-        <span class="cov0" title="0">accessToken := headerParts[1]
+        <span class="cov8" title="1">accessToken := headerParts[1]
 
         return h.tokenManager.Parse(accessToken)</span>
 }
