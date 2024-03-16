@@ -39,6 +39,7 @@ type AuthRepo interface {
 	ConfirmExpert(data domain.ConfirmExpert) error
 }
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name ExpertRepo
 type ExpertRepo interface {
 	GetLastNotSolvedCaseID(expertID string) (string, error)
 	GetExpertByUserID(userID string) (domain.Expert, error)
