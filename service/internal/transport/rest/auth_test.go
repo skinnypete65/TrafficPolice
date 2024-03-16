@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"net/http"
@@ -107,7 +108,7 @@ func TestSignIn(t *testing.T) {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	userInfoConverter := converter.NewUserInfoConverter()
 	authConverter := converter.NewAuthConverter()
-	path := "/auth/sign_up"
+	path := "/auth/sign_in"
 
 	testCases := []struct {
 		name             string
@@ -199,6 +200,79 @@ func TestSignIn(t *testing.T) {
 			rec := httptest.NewRecorder()
 
 			handler.SignIn(rec, req)
+			assert.Equal(t, tc.expectedCode, rec.Code)
+		})
+	}
+}
+
+func TestConfirmExpert(t *testing.T) {
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	userInfoConverter := converter.NewUserInfoConverter()
+	authConverter := converter.NewAuthConverter()
+	path := "/auth/confirm/expert"
+	expertID := uuid.New().String()
+
+	testCases := []struct {
+		name             string
+		input            dto.ConfirmExpertInput
+		buildAuthService func() service.AuthService
+		expectedCode     int
+	}{
+		{
+			name: "Confirm expert. 200 OK",
+			input: dto.ConfirmExpertInput{
+				ExpertID:    expertID,
+				IsConfirmed: true,
+			},
+			buildAuthService: func() service.AuthService {
+				mockService := mocks.NewAuthService(t)
+				mockService.On("ConfirmExpert", mock.Anything).
+					Return(nil)
+
+				return mockService
+			},
+			expectedCode: http.StatusOK,
+		},
+		{
+			name:  "Expert id not passed. 400 Bad request",
+			input: dto.ConfirmExpertInput{},
+			buildAuthService: func() service.AuthService {
+				mockService := mocks.NewAuthService(t)
+
+				return mockService
+			},
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name: "Expert with passed id not exists. 404 Not found",
+			input: dto.ConfirmExpertInput{
+				ExpertID:    expertID,
+				IsConfirmed: true,
+			},
+			buildAuthService: func() service.AuthService {
+				mockService := mocks.NewAuthService(t)
+				mockService.On("ConfirmExpert", mock.Anything).
+					Return(errs.ErrNoRows)
+
+				return mockService
+			},
+			expectedCode: http.StatusNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			authService := tc.buildAuthService()
+			handler := NewAuthHandler(authService, validate, userInfoConverter, authConverter)
+
+			var buf bytes.Buffer
+			err := json.NewEncoder(&buf).Encode(tc.input)
+			assert.NoError(t, err)
+
+			req := httptest.NewRequest(http.MethodPost, path, &buf)
+			rec := httptest.NewRecorder()
+
+			handler.ConfirmExpert(rec, req)
 			assert.Equal(t, tc.expectedCode, rec.Code)
 		})
 	}

@@ -77,7 +77,7 @@
 				
 				<option value="file10">TrafficPolice/internal/converter/analytics.go (0.0%)</option>
 				
-				<option value="file11">TrafficPolice/internal/converter/auth.go (50.0%)</option>
+				<option value="file11">TrafficPolice/internal/converter/auth.go (100.0%)</option>
 				
 				<option value="file12">TrafficPolice/internal/converter/camera.go (0.0%)</option>
 				
@@ -149,7 +149,7 @@
 				
 				<option value="file46">TrafficPolice/internal/service/img.go (0.0%)</option>
 				
-				<option value="file47">TrafficPolice/internal/service/mocks/AuthService.go (29.6%)</option>
+				<option value="file47">TrafficPolice/internal/service/mocks/AuthService.go (38.0%)</option>
 				
 				<option value="file48">TrafficPolice/internal/service/pagination.go (100.0%)</option>
 				
@@ -165,7 +165,7 @@
 				
 				<option value="file54">TrafficPolice/internal/transport/rabbitmq/finepublisher.go (0.0%)</option>
 				
-				<option value="file55">TrafficPolice/internal/transport/rest/auth.go (50.8%)</option>
+				<option value="file55">TrafficPolice/internal/transport/rest/auth.go (72.3%)</option>
 				
 				<option value="file56">TrafficPolice/internal/transport/rest/camera.go (0.0%)</option>
 				
@@ -2619,7 +2619,7 @@ func NewAuthConverter() *AuthConverter <span class="cov8" title="1">{
         return &amp;AuthConverter{}
 }</span>
 
-func (c *AuthConverter) MapConfirmExpertDtoToDomain(confirm dto.ConfirmExpertInput) domain.ConfirmExpert <span class="cov0" title="0">{
+func (c *AuthConverter) MapConfirmExpertDtoToDomain(confirm dto.ConfirmExpertInput) domain.ConfirmExpert <span class="cov8" title="1">{
         return domain.ConfirmExpert{
                 ExpertID:    confirm.ExpertID,
                 IsConfirmed: confirm.IsConfirmed,
@@ -5521,21 +5521,21 @@ type AuthService struct {
 }
 
 // ConfirmExpert provides a mock function with given fields: data
-func (_m *AuthService) ConfirmExpert(data domain.ConfirmExpert) error <span class="cov0" title="0">{
+func (_m *AuthService) ConfirmExpert(data domain.ConfirmExpert) error <span class="cov8" title="1">{
         ret := _m.Called(data)
 
         if len(ret) == 0 </span><span class="cov0" title="0">{
                 panic("no return value specified for ConfirmExpert")</span>
         }
 
-        <span class="cov0" title="0">var r0 error
+        <span class="cov8" title="1">var r0 error
         if rf, ok := ret.Get(0).(func(domain.ConfirmExpert) error); ok </span><span class="cov0" title="0">{
                 r0 = rf(data)
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 r0 = ret.Error(0)
         }</span>
 
-        <span class="cov0" title="0">return r0</span>
+        <span class="cov8" title="1">return r0</span>
 }
 
 // ParseAccessToken provides a mock function with given fields: accessToken
@@ -6275,7 +6275,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) <span class
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /auth/confirm/expert [post]
-func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         var input dto.ConfirmExpertInput
 
         err := json.NewDecoder(r.Body).Decode(&amp;input)
@@ -6284,16 +6284,16 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) <spa
                 return
         }</span>
 
-        <span class="cov0" title="0">err = h.validate.Struct(input)
-        if err != nil </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">err = h.validate.Struct(input)
+        if err != nil </span><span class="cov8" title="1">{
                 response.BadRequest(w, err.Error())
                 return
         }</span>
 
-        <span class="cov0" title="0">err = h.service.ConfirmExpert(h.authConverter.MapConfirmExpertDtoToDomain(input))
+        <span class="cov8" title="1">err = h.service.ConfirmExpert(h.authConverter.MapConfirmExpertDtoToDomain(input))
 
-        if err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, errs.ErrNoRows) </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, errs.ErrNoRows) </span><span class="cov8" title="1">{
                         response.NotFound(w, "Expert with input id not found")
                         return
                 }</span>
@@ -6301,7 +6301,7 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) <spa
                 return</span>
         }
 
-        <span class="cov0" title="0">if input.IsConfirmed </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if input.IsConfirmed </span><span class="cov8" title="1">{
                 response.OKMessage(w, "Expert confirmed successfully")
         }</span> else<span class="cov0" title="0"> {
                 response.OKMessage(w, "Expert unconfirmed successfully")
