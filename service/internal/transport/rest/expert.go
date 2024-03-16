@@ -9,14 +9,13 @@ import (
 	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/internal/transport/rest/middlewares"
 	"TrafficPolice/internal/transport/rest/response"
+	"TrafficPolice/pkg/imagereader"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"os"
-	"strings"
 )
 
 const (
@@ -29,7 +28,8 @@ type ExpertHandler struct {
 	imgService            service.ImgService
 	expertService         service.ExpertService
 	ratingService         service.RatingService
-	finePublisher         *rabbitmq.FinePublisher
+	finePublisher         rabbitmq.FinePublisher
+	imageReader           imagereader.ImageReader
 	caseConverter         *converter.CaseConverter
 	caseDecisionConverter *converter.CaseDecisionConverter
 }
@@ -38,7 +38,8 @@ func NewExpertHandler(
 	imgService service.ImgService,
 	expertService service.ExpertService,
 	ratingService service.RatingService,
-	finePublisher *rabbitmq.FinePublisher,
+	finePublisher rabbitmq.FinePublisher,
+	imageReader imagereader.ImageReader,
 	caseConverter *converter.CaseConverter,
 	caseDecisionConverter *converter.CaseDecisionConverter,
 ) *ExpertHandler {
@@ -47,6 +48,7 @@ func NewExpertHandler(
 		expertService:         expertService,
 		ratingService:         ratingService,
 		finePublisher:         finePublisher,
+		imageReader:           imageReader,
 		caseConverter:         caseConverter,
 		caseDecisionConverter: caseDecisionConverter,
 	}
@@ -154,7 +156,11 @@ func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) {
 // @Failure default {object} response.Body
 // @Router /expert/get_case [get]
 func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) {
-	tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
+	tokenInfo, ok := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
+	if !ok {
+		response.InternalServerError(w)
+		return
+	}
 
 	c, err := h.expertService.GetCase(tokenInfo.UserID)
 	if err != nil {
@@ -260,16 +266,17 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *ExpertHandler) getCaseImage(caseID string) ([]byte, string, error) {
-	file, err := h.imgService.GetImgFilePath(casesDir, caseID)
+	filePath, err := h.imgService.GetImgFilePath(casesDir, caseID)
 	if err != nil {
 		return nil, "", err
 	}
 
-	img, err := os.ReadFile(file)
+	file, err := h.imageReader.Read(filePath)
 	if err != nil {
 		return nil, "", err
 	}
 
-	dotIdx := strings.LastIndex(file, ".")
-	return img, file[dotIdx+1:], nil
+	extension := h.imageReader.GetExtension(filePath)
+
+	return file, extension, nil
 }

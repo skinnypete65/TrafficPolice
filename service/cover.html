@@ -81,9 +81,9 @@
 				
 				<option value="file12">TrafficPolice/internal/converter/camera.go (100.0%)</option>
 				
-				<option value="file13">TrafficPolice/internal/converter/case.go (23.5%)</option>
+				<option value="file13">TrafficPolice/internal/converter/case.go (35.3%)</option>
 				
-				<option value="file14">TrafficPolice/internal/converter/casedecision.go (0.0%)</option>
+				<option value="file14">TrafficPolice/internal/converter/casedecision.go (100.0%)</option>
 				
 				<option value="file15">TrafficPolice/internal/converter/pagination.go (0.0%)</option>
 				
@@ -155,47 +155,59 @@
 				
 				<option value="file49">TrafficPolice/internal/service/mocks/DirectorService.go (77.1%)</option>
 				
-				<option value="file50">TrafficPolice/internal/service/pagination.go (100.0%)</option>
+				<option value="file50">TrafficPolice/internal/service/mocks/ExpertService.go (73.8%)</option>
 				
-				<option value="file51">TrafficPolice/internal/service/rating.go (0.0%)</option>
+				<option value="file51">TrafficPolice/internal/service/mocks/ImgService.go (55.6%)</option>
 				
-				<option value="file52">TrafficPolice/internal/service/training.go (0.0%)</option>
+				<option value="file52">TrafficPolice/internal/service/mocks/RatingService.go (37.9%)</option>
 				
-				<option value="file53">TrafficPolice/internal/service/violation.go (0.0%)</option>
+				<option value="file53">TrafficPolice/internal/service/pagination.go (100.0%)</option>
 				
-				<option value="file54">TrafficPolice/internal/tokens/manager.go (29.2%)</option>
+				<option value="file54">TrafficPolice/internal/service/rating.go (0.0%)</option>
 				
-				<option value="file55">TrafficPolice/internal/transport/rabbitmq/connection.go (0.0%)</option>
+				<option value="file55">TrafficPolice/internal/service/training.go (0.0%)</option>
 				
-				<option value="file56">TrafficPolice/internal/transport/rabbitmq/finepublisher.go (0.0%)</option>
+				<option value="file56">TrafficPolice/internal/service/violation.go (0.0%)</option>
 				
-				<option value="file57">TrafficPolice/internal/transport/rest/auth.go (72.3%)</option>
+				<option value="file57">TrafficPolice/internal/tokens/manager.go (29.2%)</option>
 				
-				<option value="file58">TrafficPolice/internal/transport/rest/camera.go (61.1%)</option>
+				<option value="file58">TrafficPolice/internal/transport/rabbitmq/connection.go (0.0%)</option>
 				
-				<option value="file59">TrafficPolice/internal/transport/rest/case.go (0.0%)</option>
+				<option value="file59">TrafficPolice/internal/transport/rabbitmq/finepublisher.go (0.0%)</option>
 				
-				<option value="file60">TrafficPolice/internal/transport/rest/contactinfo.go (0.0%)</option>
+				<option value="file60">TrafficPolice/internal/transport/rabbitmq/mocks/FinePublisher.go (84.6%)</option>
 				
-				<option value="file61">TrafficPolice/internal/transport/rest/director.go (80.9%)</option>
+				<option value="file61">TrafficPolice/internal/transport/rest/auth.go (72.3%)</option>
 				
-				<option value="file62">TrafficPolice/internal/transport/rest/expert.go (0.0%)</option>
+				<option value="file62">TrafficPolice/internal/transport/rest/camera.go (61.1%)</option>
 				
-				<option value="file63">TrafficPolice/internal/transport/rest/middlewares/auth.go (0.0%)</option>
+				<option value="file63">TrafficPolice/internal/transport/rest/case.go (0.0%)</option>
 				
-				<option value="file64">TrafficPolice/internal/transport/rest/parseimg.go (0.0%)</option>
+				<option value="file64">TrafficPolice/internal/transport/rest/contactinfo.go (0.0%)</option>
 				
-				<option value="file65">TrafficPolice/internal/transport/rest/rating.go (0.0%)</option>
+				<option value="file65">TrafficPolice/internal/transport/rest/director.go (80.9%)</option>
 				
-				<option value="file66">TrafficPolice/internal/transport/rest/response/response.go (65.5%)</option>
+				<option value="file66">TrafficPolice/internal/transport/rest/expert.go (42.5%)</option>
 				
-				<option value="file67">TrafficPolice/internal/transport/rest/training.go (0.0%)</option>
+				<option value="file67">TrafficPolice/internal/transport/rest/middlewares/auth.go (0.0%)</option>
 				
-				<option value="file68">TrafficPolice/internal/transport/rest/violation.go (0.0%)</option>
+				<option value="file68">TrafficPolice/internal/transport/rest/parseimg.go (0.0%)</option>
 				
-				<option value="file69">TrafficPolice/internal/validation/date.go (0.0%)</option>
+				<option value="file69">TrafficPolice/internal/transport/rest/rating.go (0.0%)</option>
 				
-				<option value="file70">TrafficPolice/pkg/hash/hash.go (80.0%)</option>
+				<option value="file70">TrafficPolice/internal/transport/rest/response/response.go (69.0%)</option>
+				
+				<option value="file71">TrafficPolice/internal/transport/rest/training.go (0.0%)</option>
+				
+				<option value="file72">TrafficPolice/internal/transport/rest/violation.go (0.0%)</option>
+				
+				<option value="file73">TrafficPolice/internal/validation/date.go (0.0%)</option>
+				
+				<option value="file74">TrafficPolice/pkg/hash/hash.go (80.0%)</option>
+				
+				<option value="file75">TrafficPolice/pkg/imagereader/imagereader.go (0.0%)</option>
+				
+				<option value="file76">TrafficPolice/pkg/imagereader/mocks/ImageReader.go (78.6%)</option>
 				
 				</select>
 			</div>
@@ -1829,6 +1841,7 @@ import (
         "TrafficPolice/internal/transport/rabbitmq"
         "TrafficPolice/internal/transport/rest/middlewares"
         "TrafficPolice/internal/validation"
+        "TrafficPolice/pkg/imagereader"
         "context"
         "errors"
         "fmt"
@@ -1882,11 +1895,12 @@ func Run() <span class="cov0" title="0">{
         }</span>
         <span class="cov0" title="0">finePublisher := setupFinePublisher(mQConn)
         validate := newValidate()
+        imageReader := imagereader.NewImageReader()
 
         converters := newConverters()
         repos := newRepos(dbConn)
         services := newServices(repos, tokenManager, cfg)
-        handlers := newHandlers(services, converters, validate, finePublisher)
+        handlers := newHandlers(services, converters, validate, finePublisher, imageReader)
 
         authMiddleware := middlewares.NewAuthMiddleware(tokenManager, services.expert)
         serveMuxInit := newServeMuxInit(handlers, authMiddleware)
@@ -1964,7 +1978,7 @@ func setupDBConnString(cfg *config.Config) string <span class="cov0" title="0">{
         )
 }</span>
 
-func setupFinePublisher(mqConn *amqp.Connection) *rabbitmq.FinePublisher <span class="cov0" title="0">{
+func setupFinePublisher(mqConn *amqp.Connection) *rabbitmq.FinePublisherRabbitMQ <span class="cov0" title="0">{
         finePublisher, err := rabbitmq.NewFinePublisher(mqConn)
         if err != nil </span><span class="cov0" title="0">{
                 log.Fatal(err)
@@ -2040,6 +2054,7 @@ import (
         "TrafficPolice/internal/camera"
         "TrafficPolice/internal/transport/rabbitmq"
         "TrafficPolice/internal/transport/rest"
+        "TrafficPolice/pkg/imagereader"
         "github.com/go-playground/validator/v10"
 )
 
@@ -2059,7 +2074,8 @@ func newHandlers(
         s *services,
         c *converters,
         validate *validator.Validate,
-        finePublisher *rabbitmq.FinePublisher,
+        finePublisher rabbitmq.FinePublisher,
+        imageReader imagereader.ImageReader,
 ) *handlers <span class="cov0" title="0">{
         cameraParser := camera.NewParser(s.camera)
         return &amp;handlers{
@@ -2070,7 +2086,7 @@ func newHandlers(
                 contactInfo: rest.NewContactInfoHandler(s.contactInfo),
                 violation:   rest.NewViolationHandler(s.violation),
                 expert: rest.NewExpertHandler(
-                        s.img, s.expert, s.rating, finePublisher, c.caseConverter, c.caseDecision,
+                        s.img, s.expert, s.rating, finePublisher, imageReader, c.caseConverter, c.caseDecision,
                 ),
                 training: rest.NewTrainingHandler(
                         s.training, s.pagination, validate, c.caseConverter, c.pagination, c.solvedCases,
@@ -2730,7 +2746,7 @@ func (c *CaseConverter) MapDomainsToDto(cases []domain.Case) []dto.Case <span cl
         <span class="cov0" title="0">return dtos</span>
 }
 
-func (c *CaseConverter) MapDomainToDto(d domain.Case) dto.Case <span class="cov0" title="0">{
+func (c *CaseConverter) MapDomainToDto(d domain.Case) dto.Case <span class="cov8" title="1">{
         return dto.Case{
                 ID: d.ID,
                 Transport: dto.Transport{
@@ -2761,7 +2777,7 @@ func (c *CaseConverter) MapDomainToDto(d domain.Case) dto.Case <span class="cov0
         }
 }</span>
 
-func (c *CaseConverter) MapCaseWithPersonToDTO(d domain.Case) dto.Case <span class="cov0" title="0">{
+func (c *CaseConverter) MapCaseWithPersonToDTO(d domain.Case) dto.Case <span class="cov8" title="1">{
         return dto.Case{
                 ID: d.ID,
                 Transport: dto.Transport{
@@ -2835,11 +2851,11 @@ import (
 type CaseDecisionConverter struct {
 }
 
-func NewCaseDecisionConverter() *CaseDecisionConverter <span class="cov0" title="0">{
+func NewCaseDecisionConverter() *CaseDecisionConverter <span class="cov8" title="1">{
         return &amp;CaseDecisionConverter{}
 }</span>
 
-func (c *CaseDecisionConverter) MapDtoToDomain(decision dto.Decision, expert domain.Expert) domain.Decision <span class="cov0" title="0">{
+func (c *CaseDecisionConverter) MapDtoToDomain(decision dto.Decision, expert domain.Expert) domain.Decision <span class="cov8" title="1">{
         return domain.Decision{
                 CaseID:       decision.CaseID,
                 Expert:       expert,
@@ -5330,6 +5346,7 @@ import (
         "time"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name ExpertService
 type ExpertService interface {
         GetExpertByUserID(userID string) (domain.Expert, error)
         GetCase(userID string) (domain.Case, error)
@@ -5467,6 +5484,7 @@ import (
         "path/filepath"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name ImgService
 type ImgService interface {
         SaveImg(img []byte, filepath string) error
         GetImgFilePath(dir string, id string) (string, error)
@@ -5857,7 +5875,304 @@ func NewDirectorService(t interface {
 }
 </pre>
 		
-		<pre class="file" id="file50" style="display: none">package service
+		<pre class="file" id="file50" style="display: none">// Code generated by mockery v2.42.1. DO NOT EDIT.
+
+package mocks
+
+import (
+        domain "TrafficPolice/internal/domain"
+
+        mock "github.com/stretchr/testify/mock"
+)
+
+// ExpertService is an autogenerated mock type for the ExpertService type
+type ExpertService struct {
+        mock.Mock
+}
+
+// GetCase provides a mock function with given fields: userID
+func (_m *ExpertService) GetCase(userID string) (domain.Case, error) <span class="cov8" title="1">{
+        ret := _m.Called(userID)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetCase")</span>
+        }
+
+        <span class="cov8" title="1">var r0 domain.Case
+        var r1 error
+        if rf, ok := ret.Get(0).(func(string) (domain.Case, error)); ok </span><span class="cov0" title="0">{
+                return rf(userID)
+        }</span>
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(string) domain.Case); ok </span><span class="cov0" title="0">{
+                r0 = rf(userID)
+        }</span> else<span class="cov8" title="1"> {
+                r0 = ret.Get(0).(domain.Case)
+        }</span>
+
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(string) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(userID)
+        }</span> else<span class="cov8" title="1"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return r0, r1</span>
+}
+
+// GetCaseWithPersonInfo provides a mock function with given fields: caseID
+func (_m *ExpertService) GetCaseWithPersonInfo(caseID string) (domain.Case, error) <span class="cov8" title="1">{
+        ret := _m.Called(caseID)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetCaseWithPersonInfo")</span>
+        }
+
+        <span class="cov8" title="1">var r0 domain.Case
+        var r1 error
+        if rf, ok := ret.Get(0).(func(string) (domain.Case, error)); ok </span><span class="cov0" title="0">{
+                return rf(caseID)
+        }</span>
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(string) domain.Case); ok </span><span class="cov0" title="0">{
+                r0 = rf(caseID)
+        }</span> else<span class="cov8" title="1"> {
+                r0 = ret.Get(0).(domain.Case)
+        }</span>
+
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(string) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(caseID)
+        }</span> else<span class="cov8" title="1"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return r0, r1</span>
+}
+
+// GetExpertByUserID provides a mock function with given fields: userID
+func (_m *ExpertService) GetExpertByUserID(userID string) (domain.Expert, error) <span class="cov8" title="1">{
+        ret := _m.Called(userID)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetExpertByUserID")</span>
+        }
+
+        <span class="cov8" title="1">var r0 domain.Expert
+        var r1 error
+        if rf, ok := ret.Get(0).(func(string) (domain.Expert, error)); ok </span><span class="cov0" title="0">{
+                return rf(userID)
+        }</span>
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(string) domain.Expert); ok </span><span class="cov0" title="0">{
+                r0 = rf(userID)
+        }</span> else<span class="cov8" title="1"> {
+                r0 = ret.Get(0).(domain.Expert)
+        }</span>
+
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(string) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(userID)
+        }</span> else<span class="cov8" title="1"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return r0, r1</span>
+}
+
+// SetCaseDecision provides a mock function with given fields: decision
+func (_m *ExpertService) SetCaseDecision(decision domain.Decision) (domain.CaseDecisionInfo, error) <span class="cov8" title="1">{
+        ret := _m.Called(decision)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for SetCaseDecision")</span>
+        }
+
+        <span class="cov8" title="1">var r0 domain.CaseDecisionInfo
+        var r1 error
+        if rf, ok := ret.Get(0).(func(domain.Decision) (domain.CaseDecisionInfo, error)); ok </span><span class="cov0" title="0">{
+                return rf(decision)
+        }</span>
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(domain.Decision) domain.CaseDecisionInfo); ok </span><span class="cov0" title="0">{
+                r0 = rf(decision)
+        }</span> else<span class="cov8" title="1"> {
+                r0 = ret.Get(0).(domain.CaseDecisionInfo)
+        }</span>
+
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(domain.Decision) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(decision)
+        }</span> else<span class="cov8" title="1"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return r0, r1</span>
+}
+
+// NewExpertService creates a new instance of ExpertService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewExpertService(t interface {
+        mock.TestingT
+        Cleanup(func())
+}) *ExpertService <span class="cov8" title="1">{
+        mock := &amp;ExpertService{}
+        mock.Mock.Test(t)
+
+        t.Cleanup(func() </span><span class="cov8" title="1">{ mock.AssertExpectations(t) }</span>)
+
+        <span class="cov8" title="1">return mock</span>
+}
+</pre>
+		
+		<pre class="file" id="file51" style="display: none">// Code generated by mockery v2.42.1. DO NOT EDIT.
+
+package mocks
+
+import mock "github.com/stretchr/testify/mock"
+
+// ImgService is an autogenerated mock type for the ImgService type
+type ImgService struct {
+        mock.Mock
+}
+
+// GetImgFilePath provides a mock function with given fields: dir, id
+func (_m *ImgService) GetImgFilePath(dir string, id string) (string, error) <span class="cov8" title="1">{
+        ret := _m.Called(dir, id)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetImgFilePath")</span>
+        }
+
+        <span class="cov8" title="1">var r0 string
+        var r1 error
+        if rf, ok := ret.Get(0).(func(string, string) (string, error)); ok </span><span class="cov0" title="0">{
+                return rf(dir, id)
+        }</span>
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(string, string) string); ok </span><span class="cov0" title="0">{
+                r0 = rf(dir, id)
+        }</span> else<span class="cov8" title="1"> {
+                r0 = ret.Get(0).(string)
+        }</span>
+
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(string, string) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(dir, id)
+        }</span> else<span class="cov8" title="1"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return r0, r1</span>
+}
+
+// SaveImg provides a mock function with given fields: img, filepath
+func (_m *ImgService) SaveImg(img []byte, filepath string) error <span class="cov0" title="0">{
+        ret := _m.Called(img, filepath)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for SaveImg")</span>
+        }
+
+        <span class="cov0" title="0">var r0 error
+        if rf, ok := ret.Get(0).(func([]byte, string) error); ok </span><span class="cov0" title="0">{
+                r0 = rf(img, filepath)
+        }</span> else<span class="cov0" title="0"> {
+                r0 = ret.Error(0)
+        }</span>
+
+        <span class="cov0" title="0">return r0</span>
+}
+
+// NewImgService creates a new instance of ImgService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewImgService(t interface {
+        mock.TestingT
+        Cleanup(func())
+}) *ImgService <span class="cov8" title="1">{
+        mock := &amp;ImgService{}
+        mock.Mock.Test(t)
+
+        t.Cleanup(func() </span><span class="cov8" title="1">{ mock.AssertExpectations(t) }</span>)
+
+        <span class="cov8" title="1">return mock</span>
+}
+</pre>
+		
+		<pre class="file" id="file52" style="display: none">// Code generated by mockery v2.42.1. DO NOT EDIT.
+
+package mocks
+
+import (
+        domain "TrafficPolice/internal/domain"
+
+        mock "github.com/stretchr/testify/mock"
+)
+
+// RatingService is an autogenerated mock type for the RatingService type
+type RatingService struct {
+        mock.Mock
+}
+
+// GetRating provides a mock function with given fields:
+func (_m *RatingService) GetRating() ([]domain.RatingInfo, error) <span class="cov0" title="0">{
+        ret := _m.Called()
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetRating")</span>
+        }
+
+        <span class="cov0" title="0">var r0 []domain.RatingInfo
+        var r1 error
+        if rf, ok := ret.Get(0).(func() ([]domain.RatingInfo, error)); ok </span><span class="cov0" title="0">{
+                return rf()
+        }</span>
+        <span class="cov0" title="0">if rf, ok := ret.Get(0).(func() []domain.RatingInfo); ok </span><span class="cov0" title="0">{
+                r0 = rf()
+        }</span> else<span class="cov0" title="0"> {
+                if ret.Get(0) != nil </span><span class="cov0" title="0">{
+                        r0 = ret.Get(0).([]domain.RatingInfo)
+                }</span>
+        }
+
+        <span class="cov0" title="0">if rf, ok := ret.Get(1).(func() error); ok </span><span class="cov0" title="0">{
+                r1 = rf()
+        }</span> else<span class="cov0" title="0"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov0" title="0">return r0, r1</span>
+}
+
+// RunReportPeriod provides a mock function with given fields: done
+func (_m *RatingService) RunReportPeriod(done &lt;-chan struct{}) <span class="cov0" title="0">{
+        _m.Called(done)
+}</span>
+
+// SetRating provides a mock function with given fields: caseDecision
+func (_m *RatingService) SetRating(caseDecision domain.CaseDecisionInfo) error <span class="cov8" title="1">{
+        ret := _m.Called(caseDecision)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for SetRating")</span>
+        }
+
+        <span class="cov8" title="1">var r0 error
+        if rf, ok := ret.Get(0).(func(domain.CaseDecisionInfo) error); ok </span><span class="cov0" title="0">{
+                r0 = rf(caseDecision)
+        }</span> else<span class="cov8" title="1"> {
+                r0 = ret.Error(0)
+        }</span>
+
+        <span class="cov8" title="1">return r0</span>
+}
+
+// NewRatingService creates a new instance of RatingService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewRatingService(t interface {
+        mock.TestingT
+        Cleanup(func())
+}) *RatingService <span class="cov8" title="1">{
+        mock := &amp;RatingService{}
+        mock.Mock.Test(t)
+
+        t.Cleanup(func() </span><span class="cov8" title="1">{ mock.AssertExpectations(t) }</span>)
+
+        <span class="cov8" title="1">return mock</span>
+}
+</pre>
+		
+		<pre class="file" id="file53" style="display: none">package service
 
 import (
         "TrafficPolice/internal/domain"
@@ -5917,7 +6232,7 @@ func (s *paginationService) GetPaginationInfo(
 }
 </pre>
 		
-		<pre class="file" id="file51" style="display: none">package service
+		<pre class="file" id="file54" style="display: none">package service
 
 import (
         "TrafficPolice/internal/config"
@@ -5930,6 +6245,7 @@ import (
         "time"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name RatingService
 type RatingService interface {
         SetRating(caseDecision domain.CaseDecisionInfo) error
         GetRating() ([]domain.RatingInfo, error)
@@ -6032,7 +6348,7 @@ func (s *ratingService) setupCompetenceSkill() error <span class="cov0" title="0
 }
 </pre>
 		
-		<pre class="file" id="file52" style="display: none">package service
+		<pre class="file" id="file55" style="display: none">package service
 
 import (
         "TrafficPolice/internal/domain"
@@ -6061,7 +6377,7 @@ func (s *trainingService) GetSolvedCasesByParams(
 }</span>
 </pre>
 		
-		<pre class="file" id="file53" style="display: none">package service
+		<pre class="file" id="file56" style="display: none">package service
 
 import (
         "TrafficPolice/internal/domain"
@@ -6090,7 +6406,7 @@ func (s *violationService) InsertViolations(violations []*domain.Violation) erro
 }
 </pre>
 		
-		<pre class="file" id="file54" style="display: none">package tokens
+		<pre class="file" id="file57" style="display: none">package tokens
 
 import (
         "TrafficPolice/internal/domain"
@@ -6175,7 +6491,7 @@ func (m *manager) NewRefreshToken() (string, error) <span class="cov0" title="0"
 }
 </pre>
 		
-		<pre class="file" id="file55" style="display: none">package rabbitmq
+		<pre class="file" id="file58" style="display: none">package rabbitmq
 
 import (
         "TrafficPolice/internal/config"
@@ -6195,7 +6511,7 @@ func NewRabbitMQConn(cfg *config.Config) (*amqp.Connection, error) <span class="
 }</span>
 </pre>
 		
-		<pre class="file" id="file56" style="display: none">package rabbitmq
+		<pre class="file" id="file59" style="display: none">package rabbitmq
 
 import (
         "TrafficPolice/internal/transport/rest/dto"
@@ -6213,22 +6529,27 @@ const (
         Fanout          = "fanout"
 )
 
-type FinePublisher struct {
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name FinePublisher
+type FinePublisher interface {
+        PublishFineNotification(c dto.CaseWithImage) error
+}
+
+type FinePublisherRabbitMQ struct {
         amqpChan *amqp.Channel
 }
 
-func NewFinePublisher(mqConn *amqp.Connection) (*FinePublisher, error) <span class="cov0" title="0">{
+func NewFinePublisher(mqConn *amqp.Connection) (*FinePublisherRabbitMQ, error) <span class="cov0" title="0">{
         amqpChan, err := mqConn.Channel()
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">return &amp;FinePublisher{
+        <span class="cov0" title="0">return &amp;FinePublisherRabbitMQ{
                 amqpChan: amqpChan,
         }, nil</span>
 }
 
-func (p *FinePublisher) SetupExchangeAndQueue(
+func (p *FinePublisherRabbitMQ) SetupExchangeAndQueue(
         exchangeParams ExchangeParams,
         queueParams QueueParams,
         bindingsParams BindingParams,
@@ -6273,13 +6594,13 @@ func (p *FinePublisher) SetupExchangeAndQueue(
         <span class="cov0" title="0">return nil</span>
 }
 
-func (p *FinePublisher) CloseChan() <span class="cov0" title="0">{
+func (p *FinePublisherRabbitMQ) CloseChan() <span class="cov0" title="0">{
         if err := p.amqpChan.Close(); err != nil </span><span class="cov0" title="0">{
-                log.Printf("FinePublisher CloseChan: %v\n", err)
+                log.Printf("FinePublisherRabbitMQ CloseChan: %v\n", err)
         }</span>
 }
 
-func (p *FinePublisher) Publish(exchange string, contentType string, body []byte) error <span class="cov0" title="0">{
+func (p *FinePublisherRabbitMQ) Publish(exchange string, contentType string, body []byte) error <span class="cov0" title="0">{
         ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
         defer cancel()
 
@@ -6298,7 +6619,7 @@ func (p *FinePublisher) Publish(exchange string, contentType string, body []byte
         return err
 }</span>
 
-func (p *FinePublisher) PublishFineNotification(c dto.CaseWithImage) error <span class="cov0" title="0">{
+func (p *FinePublisherRabbitMQ) PublishFineNotification(c dto.CaseWithImage) error <span class="cov0" title="0">{
         cBytes, err := json.Marshal(c)
         if err != nil </span><span class="cov0" title="0">{
                 return err
@@ -6308,7 +6629,55 @@ func (p *FinePublisher) PublishFineNotification(c dto.CaseWithImage) error <span
 }
 </pre>
 		
-		<pre class="file" id="file57" style="display: none">package rest
+		<pre class="file" id="file60" style="display: none">// Code generated by mockery v2.42.1. DO NOT EDIT.
+
+package mocks
+
+import (
+        dto "TrafficPolice/internal/transport/rest/dto"
+
+        mock "github.com/stretchr/testify/mock"
+)
+
+// FinePublisher is an autogenerated mock type for the FinePublisher type
+type FinePublisher struct {
+        mock.Mock
+}
+
+// PublishFineNotification provides a mock function with given fields: c
+func (_m *FinePublisher) PublishFineNotification(c dto.CaseWithImage) error <span class="cov8" title="1">{
+        ret := _m.Called(c)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for PublishFineNotification")</span>
+        }
+
+        <span class="cov8" title="1">var r0 error
+        if rf, ok := ret.Get(0).(func(dto.CaseWithImage) error); ok </span><span class="cov0" title="0">{
+                r0 = rf(c)
+        }</span> else<span class="cov8" title="1"> {
+                r0 = ret.Error(0)
+        }</span>
+
+        <span class="cov8" title="1">return r0</span>
+}
+
+// NewFinePublisher creates a new instance of FinePublisher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewFinePublisher(t interface {
+        mock.TestingT
+        Cleanup(func())
+}) *FinePublisher <span class="cov8" title="1">{
+        mock := &amp;FinePublisher{}
+        mock.Mock.Test(t)
+
+        t.Cleanup(func() </span><span class="cov8" title="1">{ mock.AssertExpectations(t) }</span>)
+
+        <span class="cov8" title="1">return mock</span>
+}
+</pre>
+		
+		<pre class="file" id="file61" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -6493,7 +6862,7 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) <spa
 }
 </pre>
 		
-		<pre class="file" id="file58" style="display: none">package rest
+		<pre class="file" id="file62" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -6621,7 +6990,7 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) <
 }
 </pre>
 		
-		<pre class="file" id="file59" style="display: none">package rest
+		<pre class="file" id="file63" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/camera"
@@ -6808,7 +7177,7 @@ func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) <span c
 }
 </pre>
 		
-		<pre class="file" id="file60" style="display: none">package rest
+		<pre class="file" id="file64" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/domain"
@@ -6911,7 +7280,7 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 }
 </pre>
 		
-		<pre class="file" id="file61" style="display: none">package rest
+		<pre class="file" id="file65" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7056,7 +7425,7 @@ func (h *DirectorHandler) parseTimeQuery(r *http.Request, key string) (time.Time
 }
 </pre>
 		
-		<pre class="file" id="file62" style="display: none">package rest
+		<pre class="file" id="file66" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7067,14 +7436,13 @@ import (
         "TrafficPolice/internal/transport/rest/dto"
         "TrafficPolice/internal/transport/rest/middlewares"
         "TrafficPolice/internal/transport/rest/response"
+        "TrafficPolice/pkg/imagereader"
         "encoding/json"
         "errors"
         "fmt"
         "io"
         "log"
         "net/http"
-        "os"
-        "strings"
 )
 
 const (
@@ -7087,7 +7455,8 @@ type ExpertHandler struct {
         imgService            service.ImgService
         expertService         service.ExpertService
         ratingService         service.RatingService
-        finePublisher         *rabbitmq.FinePublisher
+        finePublisher         rabbitmq.FinePublisher
+        imageReader           imagereader.ImageReader
         caseConverter         *converter.CaseConverter
         caseDecisionConverter *converter.CaseDecisionConverter
 }
@@ -7096,15 +7465,17 @@ func NewExpertHandler(
         imgService service.ImgService,
         expertService service.ExpertService,
         ratingService service.RatingService,
-        finePublisher *rabbitmq.FinePublisher,
+        finePublisher rabbitmq.FinePublisher,
+        imageReader imagereader.ImageReader,
         caseConverter *converter.CaseConverter,
         caseDecisionConverter *converter.CaseDecisionConverter,
-) *ExpertHandler <span class="cov0" title="0">{
+) *ExpertHandler <span class="cov8" title="1">{
         return &amp;ExpertHandler{
                 imgService:            imgService,
                 expertService:         expertService,
                 ratingService:         ratingService,
                 finePublisher:         finePublisher,
+                imageReader:           imageReader,
                 caseConverter:         caseConverter,
                 caseDecisionConverter: caseDecisionConverter,
         }
@@ -7211,31 +7582,35 @@ func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) <sp
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /expert/get_case [get]
-func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
-        tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
+func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        tokenInfo, ok := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
+        if !ok </span><span class="cov0" title="0">{
+                response.InternalServerError(w)
+                return
+        }</span>
 
-        c, err := h.expertService.GetCase(tokenInfo.UserID)
-        if err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, errs.ErrUserNotExists) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">c, err := h.expertService.GetCase(tokenInfo.UserID)
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, errs.ErrUserNotExists) </span><span class="cov8" title="1">{
                         response.NotFound(w, "Expert not found")
                 }</span>
-                <span class="cov0" title="0">if errors.Is(err, errs.ErrNoNotSolvedCase) || errors.Is(err, errs.ErrNoCase) </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if errors.Is(err, errs.ErrNoNotSolvedCase) || errors.Is(err, errs.ErrNoCase) </span><span class="cov8" title="1">{
                         response.NoContent(w)
                         return
                 }</span>
-                <span class="cov0" title="0">log.Println(err)
+                <span class="cov8" title="1">log.Println(err)
                 response.InternalServerError(w)
                 return</span>
         }
 
-        <span class="cov0" title="0">cBytes, err := json.Marshal(h.caseConverter.MapDomainToDto(c))
+        <span class="cov8" title="1">cBytes, err := json.Marshal(h.caseConverter.MapDomainToDto(c))
         if err != nil </span><span class="cov0" title="0">{
                 log.Println(err)
                 response.InternalServerError(w)
                 return
         }</span>
 
-        <span class="cov0" title="0">response.WriteResponse(w, http.StatusOK, cBytes)</span>
+        <span class="cov8" title="1">response.WriteResponse(w, http.StatusOK, cBytes)</span>
 }
 
 // SetCaseDecision docs
@@ -7252,7 +7627,7 @@ func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request)
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /expert/decision [post]
-func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         tokenInfo := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
 
         var decision dto.Decision
@@ -7262,9 +7637,9 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
                 return
         }</span>
 
-        <span class="cov0" title="0">expert, err := h.expertService.GetExpertByUserID(tokenInfo.UserID)
-        if err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, errs.ErrUserNotExists) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">expert, err := h.expertService.GetExpertByUserID(tokenInfo.UserID)
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, errs.ErrUserNotExists) </span><span class="cov8" title="1">{
                         response.NotFound(w, "Input expert not found")
                         return
                 }</span>
@@ -7273,7 +7648,7 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
                 return</span>
         }
 
-        <span class="cov0" title="0">caseDecision, err := h.expertService.SetCaseDecision(
+        <span class="cov8" title="1">caseDecision, err := h.expertService.SetCaseDecision(
                 h.caseDecisionConverter.MapDtoToDomain(decision, expert),
         )
 
@@ -7283,7 +7658,7 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
                 return
         }</span>
 
-        <span class="cov0" title="0">if caseDecision.IsSolved </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if caseDecision.IsSolved </span><span class="cov8" title="1">{
                 err = h.ratingService.SetRating(caseDecision)
                 if err != nil </span><span class="cov0" title="0">{
                         log.Println(err)
@@ -7291,19 +7666,19 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
                 }</span>
         }
 
-        <span class="cov0" title="0">if caseDecision.ShouldSendFine </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if caseDecision.ShouldSendFine </span><span class="cov8" title="1">{
                 caseInfo, err := h.expertService.GetCaseWithPersonInfo(decision.CaseID)
                 if err != nil </span><span class="cov0" title="0">{
                         log.Println(err)
                         return
                 }</span>
-                <span class="cov0" title="0">c := h.caseConverter.MapCaseWithPersonToDTO(caseInfo)
+                <span class="cov8" title="1">c := h.caseConverter.MapCaseWithPersonToDTO(caseInfo)
                 image, extension, err := h.getCaseImage(caseInfo.ID)
                 if err != nil </span><span class="cov0" title="0">{
                         log.Println(err)
                         return
                 }</span>
-                <span class="cov0" title="0">err = h.finePublisher.PublishFineNotification(dto.CaseWithImage{
+                <span class="cov8" title="1">err = h.finePublisher.PublishFineNotification(dto.CaseWithImage{
                         Case:           c,
                         Image:          image,
                         ImageExtension: extension,
@@ -7314,26 +7689,27 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
                 }</span>
         }
 
-        <span class="cov0" title="0">response.OKMessage(w, "Decision accepted")</span>
+        <span class="cov8" title="1">response.OKMessage(w, "Decision accepted")</span>
 }
 
-func (h *ExpertHandler) getCaseImage(caseID string) ([]byte, string, error) <span class="cov0" title="0">{
-        file, err := h.imgService.GetImgFilePath(casesDir, caseID)
+func (h *ExpertHandler) getCaseImage(caseID string) ([]byte, string, error) <span class="cov8" title="1">{
+        filePath, err := h.imgService.GetImgFilePath(casesDir, caseID)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, "", err
         }</span>
 
-        <span class="cov0" title="0">img, err := os.ReadFile(file)
+        <span class="cov8" title="1">file, err := h.imageReader.Read(filePath)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, "", err
         }</span>
 
-        <span class="cov0" title="0">dotIdx := strings.LastIndex(file, ".")
-        return img, file[dotIdx+1:], nil</span>
+        <span class="cov8" title="1">extension := h.imageReader.GetExtension(filePath)
+
+        return file, extension, nil</span>
 }
 </pre>
 		
-		<pre class="file" id="file63" style="display: none">package middlewares
+		<pre class="file" id="file67" style="display: none">package middlewares
 
 import (
         "TrafficPolice/internal/domain"
@@ -7443,7 +7819,7 @@ func (h *AuthMiddleware) parseAuthHeader(authHeader string) (tokens.TokenInfo, e
 }
 </pre>
 		
-		<pre class="file" id="file64" style="display: none">package rest
+		<pre class="file" id="file68" style="display: none">package rest
 
 import (
         "fmt"
@@ -7506,7 +7882,7 @@ func getImgExtension(contentType string) (string, error) <span class="cov0" titl
 }
 </pre>
 		
-		<pre class="file" id="file65" style="display: none">package rest
+		<pre class="file" id="file69" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7567,7 +7943,7 @@ func (h *RatingHandler) GetRating(w http.ResponseWriter, r *http.Request) <span 
 }
 </pre>
 		
-		<pre class="file" id="file66" style="display: none">package response
+		<pre class="file" id="file70" style="display: none">package response
 
 import (
         "encoding/json"
@@ -7626,7 +8002,7 @@ func Conflict(w http.ResponseWriter, text string) <span class="cov8" title="1">{
         WriteMessage(w, http.StatusConflict, text)
 }</span>
 
-func InternalServerError(w http.ResponseWriter) <span class="cov0" title="0">{
+func InternalServerError(w http.ResponseWriter) <span class="cov8" title="1">{
         WriteMessage(w, http.StatusInternalServerError, "Internal server error")
 }</span>
 
@@ -7652,7 +8028,7 @@ func NotConfirmedError(w http.ResponseWriter) <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file67" style="display: none">package rest
+		<pre class="file" id="file71" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7807,7 +8183,7 @@ func (h *TrainingHandler) parseQueryParam(r *http.Request, key string, defaultVa
 }
 </pre>
 		
-		<pre class="file" id="file68" style="display: none">package rest
+		<pre class="file" id="file72" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/domain"
@@ -7921,7 +8297,7 @@ func (h *ViolationHandler) parseViolations(rows [][]string) []*domain.Violation 
 }
 </pre>
 		
-		<pre class="file" id="file69" style="display: none">package validation
+		<pre class="file" id="file73" style="display: none">package validation
 
 import (
         "github.com/go-playground/validator/v10"
@@ -7936,7 +8312,7 @@ func IsDateOnly(fl validator.FieldLevel) bool <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file70" style="display: none">package hash
+		<pre class="file" id="file74" style="display: none">package hash
 
 import (
         "crypto/sha1"
@@ -7965,6 +8341,115 @@ func (h *SHA1Hasher) Hash(password string) (string, error) <span class="cov8" ti
         }</span>
 
         <span class="cov8" title="1">return fmt.Sprintf("%x", hash.Sum([]byte(h.salt))), nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file75" style="display: none">package imagereader
+
+import (
+        "os"
+        "strings"
+)
+
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name ImageReader
+type ImageReader interface {
+        Read(filePath string) ([]byte, error)
+        GetExtension(filePath string) string
+}
+
+type imageReader struct {
+}
+
+func NewImageReader() ImageReader <span class="cov0" title="0">{
+        return &amp;imageReader{}
+}</span>
+
+func (r *imageReader) Read(filePath string) ([]byte, error) <span class="cov0" title="0">{
+        img, err := os.ReadFile(filePath)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov0" title="0">return img, nil</span>
+}
+
+func (r *imageReader) GetExtension(filePath string) string <span class="cov0" title="0">{
+        dotIdx := strings.LastIndex(filePath, ".")
+        return filePath[dotIdx+1:]
+}</span>
+</pre>
+		
+		<pre class="file" id="file76" style="display: none">// Code generated by mockery v2.42.1. DO NOT EDIT.
+
+package mocks
+
+import mock "github.com/stretchr/testify/mock"
+
+// ImageReader is an autogenerated mock type for the ImageReader type
+type ImageReader struct {
+        mock.Mock
+}
+
+// GetExtension provides a mock function with given fields: filePath
+func (_m *ImageReader) GetExtension(filePath string) string <span class="cov8" title="1">{
+        ret := _m.Called(filePath)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetExtension")</span>
+        }
+
+        <span class="cov8" title="1">var r0 string
+        if rf, ok := ret.Get(0).(func(string) string); ok </span><span class="cov0" title="0">{
+                r0 = rf(filePath)
+        }</span> else<span class="cov8" title="1"> {
+                r0 = ret.Get(0).(string)
+        }</span>
+
+        <span class="cov8" title="1">return r0</span>
+}
+
+// Read provides a mock function with given fields: filePath
+func (_m *ImageReader) Read(filePath string) ([]byte, error) <span class="cov8" title="1">{
+        ret := _m.Called(filePath)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for Read")</span>
+        }
+
+        <span class="cov8" title="1">var r0 []byte
+        var r1 error
+        if rf, ok := ret.Get(0).(func(string) ([]byte, error)); ok </span><span class="cov0" title="0">{
+                return rf(filePath)
+        }</span>
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(string) []byte); ok </span><span class="cov0" title="0">{
+                r0 = rf(filePath)
+        }</span> else<span class="cov8" title="1"> {
+                if ret.Get(0) != nil </span><span class="cov8" title="1">{
+                        r0 = ret.Get(0).([]byte)
+                }</span>
+        }
+
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(string) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(filePath)
+        }</span> else<span class="cov8" title="1"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return r0, r1</span>
+}
+
+// NewImageReader creates a new instance of ImageReader. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewImageReader(t interface {
+        mock.TestingT
+        Cleanup(func())
+}) *ImageReader <span class="cov8" title="1">{
+        mock := &amp;ImageReader{}
+        mock.Mock.Test(t)
+
+        t.Cleanup(func() </span><span class="cov8" title="1">{ mock.AssertExpectations(t) }</span>)
+
+        <span class="cov8" title="1">return mock</span>
 }
 </pre>
 		

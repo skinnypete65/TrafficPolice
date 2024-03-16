@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name ImgService
 type ImgService interface {
 	SaveImg(img []byte, filepath string) error
 	GetImgFilePath(dir string, id string) (string, error)

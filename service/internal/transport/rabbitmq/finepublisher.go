@@ -16,22 +16,27 @@ const (
 	Fanout          = "fanout"
 )
 
-type FinePublisher struct {
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name FinePublisher
+type FinePublisher interface {
+	PublishFineNotification(c dto.CaseWithImage) error
+}
+
+type FinePublisherRabbitMQ struct {
 	amqpChan *amqp.Channel
 }
 
-func NewFinePublisher(mqConn *amqp.Connection) (*FinePublisher, error) {
+func NewFinePublisher(mqConn *amqp.Connection) (*FinePublisherRabbitMQ, error) {
 	amqpChan, err := mqConn.Channel()
 	if err != nil {
 		return nil, err
 	}
 
-	return &FinePublisher{
+	return &FinePublisherRabbitMQ{
 		amqpChan: amqpChan,
 	}, nil
 }
 
-func (p *FinePublisher) SetupExchangeAndQueue(
+func (p *FinePublisherRabbitMQ) SetupExchangeAndQueue(
 	exchangeParams ExchangeParams,
 	queueParams QueueParams,
 	bindingsParams BindingParams,
@@ -76,13 +81,13 @@ func (p *FinePublisher) SetupExchangeAndQueue(
 	return nil
 }
 
-func (p *FinePublisher) CloseChan() {
+func (p *FinePublisherRabbitMQ) CloseChan() {
 	if err := p.amqpChan.Close(); err != nil {
-		log.Printf("FinePublisher CloseChan: %v\n", err)
+		log.Printf("FinePublisherRabbitMQ CloseChan: %v\n", err)
 	}
 }
 
-func (p *FinePublisher) Publish(exchange string, contentType string, body []byte) error {
+func (p *FinePublisherRabbitMQ) Publish(exchange string, contentType string, body []byte) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -101,7 +106,7 @@ func (p *FinePublisher) Publish(exchange string, contentType string, body []byte
 	return err
 }
 
-func (p *FinePublisher) PublishFineNotification(c dto.CaseWithImage) error {
+func (p *FinePublisherRabbitMQ) PublishFineNotification(c dto.CaseWithImage) error {
 	cBytes, err := json.Marshal(c)
 	if err != nil {
 		return err
