@@ -277,3 +277,50 @@ func TestConfirmExpert(t *testing.T) {
 		})
 	}
 }
+
+func FuzzSignUp(f *testing.F) {
+	path := "/auth/sign_up"
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	userInfoConverter := converter.NewUserInfoConverter()
+	authConverter := converter.NewAuthConverter()
+
+	mockService := mocks.NewAuthService(f)
+	mockService.On("RegisterExpert", mock.Anything).
+		Return(nil)
+
+	handler := NewAuthHandler(mockService, validate, userInfoConverter, authConverter)
+
+	args := []dto.SignUp{
+		{Username: "user1", Password: "pass1"},
+		{Username: "user1", Password: "pass1"},
+		{Username: "user1", Password: "pass1"},
+	}
+
+	for _, arg := range args {
+		data, _ := json.Marshal(arg)
+		f.Add(data)
+	}
+
+	f.Fuzz(func(t *testing.T, data []byte) {
+		req := httptest.NewRequest(http.MethodPost, path, bytes.NewBuffer(data))
+		resp := httptest.NewRecorder()
+
+		handler.SignUp(resp, req)
+
+		var signUp dto.SignUp
+		err := json.Unmarshal(data, &signUp)
+		if err != nil {
+			assert.Equal(t, http.StatusBadRequest, resp.Code)
+			return
+		}
+
+		err = validate.Struct(signUp)
+		if err != nil {
+			assert.Equal(t, http.StatusBadRequest, resp.Code)
+			return
+		}
+
+		assert.Equal(t, http.StatusOK, resp.Code)
+	})
+
+}
