@@ -151,7 +151,7 @@
 				
 				<option value="file47">TrafficPolice/internal/service/violation.go (0.0%)</option>
 				
-				<option value="file48">TrafficPolice/internal/tokens/manager.go (41.7%)</option>
+				<option value="file48">TrafficPolice/internal/tokens/manager.go (29.2%)</option>
 				
 				<option value="file49">TrafficPolice/internal/transport/rabbitmq/connection.go (0.0%)</option>
 				
@@ -5359,11 +5359,11 @@ type ViolationService interface {
 }
 
 type violationService struct {
-        db repository.ViolationRepo
+        repo repository.ViolationRepo
 }
 
 func NewViolationService(db repository.ViolationRepo) ViolationService <span class="cov0" title="0">{
-        return &amp;violationService{db: db}
+        return &amp;violationService{repo: db}
 }</span>
 
 func (s *violationService) InsertViolations(violations []*domain.Violation) error <span class="cov0" title="0">{
@@ -5371,7 +5371,7 @@ func (s *violationService) InsertViolations(violations []*domain.Violation) erro
                 violations[i].ID = uuid.New().String()
         }</span>
 
-        <span class="cov0" title="0">return s.db.InsertViolations(violations)</span>
+        <span class="cov0" title="0">return s.repo.InsertViolations(violations)</span>
 }
 </pre>
 		
@@ -5402,7 +5402,7 @@ type manager struct {
 }
 
 func NewTokenManager(signingKey string) (TokenManager, error) <span class="cov8" title="1">{
-        if signingKey == "" </span><span class="cov0" title="0">{
+        if signingKey == "" </span><span class="cov8" title="1">{
                 return nil, errors.New("empty signing key")
         }</span>
 
@@ -5410,7 +5410,7 @@ func NewTokenManager(signingKey string) (TokenManager, error) <span class="cov8"
 }
 
 func (m *manager) NewJWT(tokenInfo TokenInfo, ttl time.Duration) (string, error) <span class="cov8" title="1">{
-        if tokenInfo.UserID == "" || tokenInfo.UserRole == "" </span><span class="cov0" title="0">{
+        if tokenInfo.UserID == "" || tokenInfo.UserRole == "" </span><span class="cov8" title="1">{
                 return "", fmt.Errorf("userID or user role is empty")
         }</span>
         <span class="cov8" title="1">token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -5446,7 +5446,7 @@ func (m *manager) Parse(accessToken string) (TokenInfo, error) <span class="cov0
         }, nil</span>
 }
 
-func (m *manager) NewRefreshToken() (string, error) <span class="cov8" title="1">{
+func (m *manager) NewRefreshToken() (string, error) <span class="cov0" title="0">{
         b := make([]byte, 32)
 
         s := rand.NewSource(time.Now().Unix())
@@ -5456,7 +5456,7 @@ func (m *manager) NewRefreshToken() (string, error) <span class="cov8" title="1"
                 return "", err
         }</span>
 
-        <span class="cov8" title="1">return fmt.Sprintf("%x", b), nil</span>
+        <span class="cov0" title="0">return fmt.Sprintf("%x", b), nil</span>
 }
 </pre>
 		
