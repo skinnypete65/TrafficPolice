@@ -79,7 +79,7 @@
 				
 				<option value="file11">TrafficPolice/internal/converter/auth.go (100.0%)</option>
 				
-				<option value="file12">TrafficPolice/internal/converter/camera.go (0.0%)</option>
+				<option value="file12">TrafficPolice/internal/converter/camera.go (50.0%)</option>
 				
 				<option value="file13">TrafficPolice/internal/converter/case.go (0.0%)</option>
 				
@@ -151,47 +151,49 @@
 				
 				<option value="file47">TrafficPolice/internal/service/mocks/AuthService.go (38.0%)</option>
 				
-				<option value="file48">TrafficPolice/internal/service/pagination.go (100.0%)</option>
+				<option value="file48">TrafficPolice/internal/service/mocks/CameraService.go (45.5%)</option>
 				
-				<option value="file49">TrafficPolice/internal/service/rating.go (0.0%)</option>
+				<option value="file49">TrafficPolice/internal/service/pagination.go (100.0%)</option>
 				
-				<option value="file50">TrafficPolice/internal/service/training.go (0.0%)</option>
+				<option value="file50">TrafficPolice/internal/service/rating.go (0.0%)</option>
 				
-				<option value="file51">TrafficPolice/internal/service/violation.go (0.0%)</option>
+				<option value="file51">TrafficPolice/internal/service/training.go (0.0%)</option>
 				
-				<option value="file52">TrafficPolice/internal/tokens/manager.go (29.2%)</option>
+				<option value="file52">TrafficPolice/internal/service/violation.go (0.0%)</option>
 				
-				<option value="file53">TrafficPolice/internal/transport/rabbitmq/connection.go (0.0%)</option>
+				<option value="file53">TrafficPolice/internal/tokens/manager.go (29.2%)</option>
 				
-				<option value="file54">TrafficPolice/internal/transport/rabbitmq/finepublisher.go (0.0%)</option>
+				<option value="file54">TrafficPolice/internal/transport/rabbitmq/connection.go (0.0%)</option>
 				
-				<option value="file55">TrafficPolice/internal/transport/rest/auth.go (72.3%)</option>
+				<option value="file55">TrafficPolice/internal/transport/rabbitmq/finepublisher.go (0.0%)</option>
 				
-				<option value="file56">TrafficPolice/internal/transport/rest/camera.go (0.0%)</option>
+				<option value="file56">TrafficPolice/internal/transport/rest/auth.go (72.3%)</option>
 				
-				<option value="file57">TrafficPolice/internal/transport/rest/case.go (0.0%)</option>
+				<option value="file57">TrafficPolice/internal/transport/rest/camera.go (33.3%)</option>
 				
-				<option value="file58">TrafficPolice/internal/transport/rest/contactinfo.go (0.0%)</option>
+				<option value="file58">TrafficPolice/internal/transport/rest/case.go (0.0%)</option>
 				
-				<option value="file59">TrafficPolice/internal/transport/rest/director.go (0.0%)</option>
+				<option value="file59">TrafficPolice/internal/transport/rest/contactinfo.go (0.0%)</option>
 				
-				<option value="file60">TrafficPolice/internal/transport/rest/expert.go (0.0%)</option>
+				<option value="file60">TrafficPolice/internal/transport/rest/director.go (0.0%)</option>
 				
-				<option value="file61">TrafficPolice/internal/transport/rest/middlewares/auth.go (0.0%)</option>
+				<option value="file61">TrafficPolice/internal/transport/rest/expert.go (0.0%)</option>
 				
-				<option value="file62">TrafficPolice/internal/transport/rest/parseimg.go (0.0%)</option>
+				<option value="file62">TrafficPolice/internal/transport/rest/middlewares/auth.go (0.0%)</option>
 				
-				<option value="file63">TrafficPolice/internal/transport/rest/rating.go (0.0%)</option>
+				<option value="file63">TrafficPolice/internal/transport/rest/parseimg.go (0.0%)</option>
 				
-				<option value="file64">TrafficPolice/internal/transport/rest/response/response.go (48.3%)</option>
+				<option value="file64">TrafficPolice/internal/transport/rest/rating.go (0.0%)</option>
 				
-				<option value="file65">TrafficPolice/internal/transport/rest/training.go (0.0%)</option>
+				<option value="file65">TrafficPolice/internal/transport/rest/response/response.go (62.1%)</option>
 				
-				<option value="file66">TrafficPolice/internal/transport/rest/violation.go (0.0%)</option>
+				<option value="file66">TrafficPolice/internal/transport/rest/training.go (0.0%)</option>
 				
-				<option value="file67">TrafficPolice/internal/validation/date.go (0.0%)</option>
+				<option value="file67">TrafficPolice/internal/transport/rest/violation.go (0.0%)</option>
 				
-				<option value="file68">TrafficPolice/pkg/hash/hash.go (80.0%)</option>
+				<option value="file68">TrafficPolice/internal/validation/date.go (0.0%)</option>
+				
+				<option value="file69">TrafficPolice/pkg/hash/hash.go (80.0%)</option>
 				
 				</select>
 			</div>
@@ -2061,7 +2063,7 @@ func newHandlers(
         return &amp;handlers{
                 rating:      rest.NewRatingHandler(s.rating, c.rating),
                 auth:        rest.NewAuthHandler(s.auth, validate, c.userInfo, c.auth),
-                camera:      rest.NewCameraHandler(s.camera, s.auth, validate, c.camera),
+                camera:      rest.NewCameraHandler(s.camera, validate, c.camera),
                 caseHandler: rest.NewCaseHandler(s.caseService, s.img, s.camera, c.caseConverter, cameraParser),
                 contactInfo: rest.NewContactInfoHandler(s.contactInfo),
                 violation:   rest.NewViolationHandler(s.violation),
@@ -2637,7 +2639,7 @@ import (
 type CameraConverter struct {
 }
 
-func NewCameraConverter() *CameraConverter <span class="cov0" title="0">{
+func NewCameraConverter() *CameraConverter <span class="cov8" title="1">{
         return &amp;CameraConverter{}
 }</span>
 
@@ -5106,6 +5108,7 @@ import (
         "github.com/google/uuid"
 )
 
+//go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name CameraService
 type CameraService interface {
         AddCameraType(cameraType domain.CameraType) (string, error)
         GetCameraTypeByCameraID(cameraID string) (string, error)
@@ -5673,7 +5676,93 @@ func NewAuthService(t interface {
 }
 </pre>
 		
-		<pre class="file" id="file48" style="display: none">package service
+		<pre class="file" id="file48" style="display: none">// Code generated by mockery v2.42.1. DO NOT EDIT.
+
+package mocks
+
+import (
+        domain "TrafficPolice/internal/domain"
+
+        mock "github.com/stretchr/testify/mock"
+)
+
+// CameraService is an autogenerated mock type for the CameraService type
+type CameraService struct {
+        mock.Mock
+}
+
+// AddCameraType provides a mock function with given fields: cameraType
+func (_m *CameraService) AddCameraType(cameraType domain.CameraType) (string, error) <span class="cov8" title="1">{
+        ret := _m.Called(cameraType)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for AddCameraType")</span>
+        }
+
+        <span class="cov8" title="1">var r0 string
+        var r1 error
+        if rf, ok := ret.Get(0).(func(domain.CameraType) (string, error)); ok </span><span class="cov0" title="0">{
+                return rf(cameraType)
+        }</span>
+        <span class="cov8" title="1">if rf, ok := ret.Get(0).(func(domain.CameraType) string); ok </span><span class="cov0" title="0">{
+                r0 = rf(cameraType)
+        }</span> else<span class="cov8" title="1"> {
+                r0 = ret.Get(0).(string)
+        }</span>
+
+        <span class="cov8" title="1">if rf, ok := ret.Get(1).(func(domain.CameraType) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(cameraType)
+        }</span> else<span class="cov8" title="1"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov8" title="1">return r0, r1</span>
+}
+
+// GetCameraTypeByCameraID provides a mock function with given fields: cameraID
+func (_m *CameraService) GetCameraTypeByCameraID(cameraID string) (string, error) <span class="cov0" title="0">{
+        ret := _m.Called(cameraID)
+
+        if len(ret) == 0 </span><span class="cov0" title="0">{
+                panic("no return value specified for GetCameraTypeByCameraID")</span>
+        }
+
+        <span class="cov0" title="0">var r0 string
+        var r1 error
+        if rf, ok := ret.Get(0).(func(string) (string, error)); ok </span><span class="cov0" title="0">{
+                return rf(cameraID)
+        }</span>
+        <span class="cov0" title="0">if rf, ok := ret.Get(0).(func(string) string); ok </span><span class="cov0" title="0">{
+                r0 = rf(cameraID)
+        }</span> else<span class="cov0" title="0"> {
+                r0 = ret.Get(0).(string)
+        }</span>
+
+        <span class="cov0" title="0">if rf, ok := ret.Get(1).(func(string) error); ok </span><span class="cov0" title="0">{
+                r1 = rf(cameraID)
+        }</span> else<span class="cov0" title="0"> {
+                r1 = ret.Error(1)
+        }</span>
+
+        <span class="cov0" title="0">return r0, r1</span>
+}
+
+// NewCameraService creates a new instance of CameraService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
+// The first argument is typically a *testing.T value.
+func NewCameraService(t interface {
+        mock.TestingT
+        Cleanup(func())
+}) *CameraService <span class="cov8" title="1">{
+        mock := &amp;CameraService{}
+        mock.Mock.Test(t)
+
+        t.Cleanup(func() </span><span class="cov8" title="1">{ mock.AssertExpectations(t) }</span>)
+
+        <span class="cov8" title="1">return mock</span>
+}
+</pre>
+		
+		<pre class="file" id="file49" style="display: none">package service
 
 import (
         "TrafficPolice/internal/domain"
@@ -5733,7 +5822,7 @@ func (s *paginationService) GetPaginationInfo(
 }
 </pre>
 		
-		<pre class="file" id="file49" style="display: none">package service
+		<pre class="file" id="file50" style="display: none">package service
 
 import (
         "TrafficPolice/internal/config"
@@ -5848,7 +5937,7 @@ func (s *ratingService) setupCompetenceSkill() error <span class="cov0" title="0
 }
 </pre>
 		
-		<pre class="file" id="file50" style="display: none">package service
+		<pre class="file" id="file51" style="display: none">package service
 
 import (
         "TrafficPolice/internal/domain"
@@ -5877,7 +5966,7 @@ func (s *trainingService) GetSolvedCasesByParams(
 }</span>
 </pre>
 		
-		<pre class="file" id="file51" style="display: none">package service
+		<pre class="file" id="file52" style="display: none">package service
 
 import (
         "TrafficPolice/internal/domain"
@@ -5906,7 +5995,7 @@ func (s *violationService) InsertViolations(violations []*domain.Violation) erro
 }
 </pre>
 		
-		<pre class="file" id="file52" style="display: none">package tokens
+		<pre class="file" id="file53" style="display: none">package tokens
 
 import (
         "TrafficPolice/internal/domain"
@@ -5991,7 +6080,7 @@ func (m *manager) NewRefreshToken() (string, error) <span class="cov0" title="0"
 }
 </pre>
 		
-		<pre class="file" id="file53" style="display: none">package rabbitmq
+		<pre class="file" id="file54" style="display: none">package rabbitmq
 
 import (
         "TrafficPolice/internal/config"
@@ -6011,7 +6100,7 @@ func NewRabbitMQConn(cfg *config.Config) (*amqp.Connection, error) <span class="
 }</span>
 </pre>
 		
-		<pre class="file" id="file54" style="display: none">package rabbitmq
+		<pre class="file" id="file55" style="display: none">package rabbitmq
 
 import (
         "TrafficPolice/internal/transport/rest/dto"
@@ -6124,7 +6213,7 @@ func (p *FinePublisher) PublishFineNotification(c dto.CaseWithImage) error <span
 }
 </pre>
 		
-		<pre class="file" id="file55" style="display: none">package rest
+		<pre class="file" id="file56" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -6309,7 +6398,7 @@ func (h *AuthHandler) ConfirmExpert(w http.ResponseWriter, r *http.Request) <spa
 }
 </pre>
 		
-		<pre class="file" id="file56" style="display: none">package rest
+		<pre class="file" id="file57" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -6334,13 +6423,11 @@ type CameraHandler struct {
 
 func NewCameraHandler(
         service service.CameraService,
-        authService service.AuthService,
         validate *validator.Validate,
         cameraConverter *converter.CameraConverter,
-) *CameraHandler <span class="cov0" title="0">{
+) *CameraHandler <span class="cov8" title="1">{
         return &amp;CameraHandler{
                 cameraService:   service,
-                authService:     authService,
                 validate:        validate,
                 cameraConverter: cameraConverter,
         }
@@ -6360,7 +6447,7 @@ func NewCameraHandler(
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
 // @Router /camera/type [post]
-func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
         var cameraType dto.CameraTypeIn
         err := json.NewDecoder(r.Body).Decode(&amp;cameraType)
 
@@ -6369,18 +6456,18 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) <s
                 return
         }</span>
 
-        <span class="cov0" title="0">err = h.validate.Struct(cameraType)
+        <span class="cov8" title="1">err = h.validate.Struct(cameraType)
         if err != nil </span><span class="cov0" title="0">{
                 response.BadRequest(w, err.Error())
                 return
         }</span>
 
-        <span class="cov0" title="0">cameraTypeID, err := h.cameraService.AddCameraType(domain.CameraType{
+        <span class="cov8" title="1">cameraTypeID, err := h.cameraService.AddCameraType(domain.CameraType{
                 Name: cameraType.Name,
         })
 
-        if err != nil </span><span class="cov0" title="0">{
-                if errors.Is(err, errs.ErrAlreadyExists) </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov8" title="1">{
+                if errors.Is(err, errs.ErrAlreadyExists) </span><span class="cov8" title="1">{
                         response.Conflict(w, "Camera with input name already exists")
                         return
                 }</span>
@@ -6388,7 +6475,7 @@ func (h *CameraHandler) AddCameraType(w http.ResponseWriter, r *http.Request) <s
                 return</span>
         }
 
-        <span class="cov0" title="0">response.IdResponse(w, cameraTypeID)</span>
+        <span class="cov8" title="1">response.IdResponse(w, cameraTypeID)</span>
 }
 
 // RegisterCamera docs
@@ -6437,7 +6524,7 @@ func (h *CameraHandler) RegisterCamera(w http.ResponseWriter, r *http.Request) <
 }
 </pre>
 		
-		<pre class="file" id="file57" style="display: none">package rest
+		<pre class="file" id="file58" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/camera"
@@ -6624,7 +6711,7 @@ func (h *CaseHandler) GetCaseImg(w http.ResponseWriter, r *http.Request) <span c
 }
 </pre>
 		
-		<pre class="file" id="file58" style="display: none">package rest
+		<pre class="file" id="file59" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/domain"
@@ -6727,7 +6814,7 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 }
 </pre>
 		
-		<pre class="file" id="file59" style="display: none">package rest
+		<pre class="file" id="file60" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -6872,7 +6959,7 @@ func (h *DirectorHandler) parseTimeQuery(r *http.Request, key string) (time.Time
 }
 </pre>
 		
-		<pre class="file" id="file60" style="display: none">package rest
+		<pre class="file" id="file61" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7149,7 +7236,7 @@ func (h *ExpertHandler) getCaseImage(caseID string) ([]byte, string, error) <spa
 }
 </pre>
 		
-		<pre class="file" id="file61" style="display: none">package middlewares
+		<pre class="file" id="file62" style="display: none">package middlewares
 
 import (
         "TrafficPolice/internal/domain"
@@ -7259,7 +7346,7 @@ func (h *AuthMiddleware) parseAuthHeader(authHeader string) (tokens.TokenInfo, e
 }
 </pre>
 		
-		<pre class="file" id="file62" style="display: none">package rest
+		<pre class="file" id="file63" style="display: none">package rest
 
 import (
         "fmt"
@@ -7322,7 +7409,7 @@ func getImgExtension(contentType string) (string, error) <span class="cov0" titl
 }
 </pre>
 		
-		<pre class="file" id="file63" style="display: none">package rest
+		<pre class="file" id="file64" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7383,7 +7470,7 @@ func (h *RatingHandler) GetRating(w http.ResponseWriter, r *http.Request) <span 
 }
 </pre>
 		
-		<pre class="file" id="file64" style="display: none">package response
+		<pre class="file" id="file65" style="display: none">package response
 
 import (
         "encoding/json"
@@ -7451,7 +7538,7 @@ func Unauthorized(w http.ResponseWriter) <span class="cov8" title="1">{
         WriteMessage(w, http.StatusUnauthorized, "Unauthorized")
 }</span>
 
-func IdResponse(w http.ResponseWriter, id string) <span class="cov0" title="0">{
+func IdResponse(w http.ResponseWriter, id string) <span class="cov8" title="1">{
         respBody := IDResponse{ID: id}
         body, err := json.Marshal(respBody)
         if err != nil </span><span class="cov0" title="0">{
@@ -7460,7 +7547,7 @@ func IdResponse(w http.ResponseWriter, id string) <span class="cov0" title="0">{
                 return
         }</span>
 
-        <span class="cov0" title="0">WriteResponse(w, http.StatusOK, body)</span>
+        <span class="cov8" title="1">WriteResponse(w, http.StatusOK, body)</span>
 }
 
 func NotConfirmedError(w http.ResponseWriter) <span class="cov0" title="0">{
@@ -7468,7 +7555,7 @@ func NotConfirmedError(w http.ResponseWriter) <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file65" style="display: none">package rest
+		<pre class="file" id="file66" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/converter"
@@ -7623,7 +7710,7 @@ func (h *TrainingHandler) parseQueryParam(r *http.Request, key string, defaultVa
 }
 </pre>
 		
-		<pre class="file" id="file66" style="display: none">package rest
+		<pre class="file" id="file67" style="display: none">package rest
 
 import (
         "TrafficPolice/internal/domain"
@@ -7737,7 +7824,7 @@ func (h *ViolationHandler) parseViolations(rows [][]string) []*domain.Violation 
 }
 </pre>
 		
-		<pre class="file" id="file67" style="display: none">package validation
+		<pre class="file" id="file68" style="display: none">package validation
 
 import (
         "github.com/go-playground/validator/v10"
@@ -7752,7 +7839,7 @@ func IsDateOnly(fl validator.FieldLevel) bool <span class="cov0" title="0">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file68" style="display: none">package hash
+		<pre class="file" id="file69" style="display: none">package hash
 
 import (
         "crypto/sha1"
