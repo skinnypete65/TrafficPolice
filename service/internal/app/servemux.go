@@ -138,9 +138,9 @@ func (s *ServeMuxInit) initRatingHandlers() {
 
 func (s *ServeMuxInit) initDirectorHandlers() {
 	// Director Handlers
-	s.mux.Handle("GET /director/cases",
+	s.mux.Handle("GET /director/case",
 		s.authMiddleware.IdentifyRole(
-			http.HandlerFunc(s.h.director.GetCases),
+			http.HandlerFunc(s.h.director.GetCase),
 			domain.DirectorRole,
 		),
 	)

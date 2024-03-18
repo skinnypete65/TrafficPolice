@@ -611,7 +611,7 @@ const docTemplate = `{
                 "operationId": "director-analytics-expert",
                 "parameters": [
                     {
-                        "type": "integer",
+                        "type": "string",
                         "description": "id эксперта",
                         "name": "id",
                         "in": "query",
@@ -678,34 +678,55 @@ const docTemplate = `{
                 }
             }
         },
-        "/director/cases": {
+        "/director/case": {
             "get": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Получение состояния случаев. Воспользоваться может только директор",
+                "description": "Получение состояния для конкретного случая по его id. Воспользоваться может только директор",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "director"
                 ],
-                "summary": "Получение состояния случаев",
-                "operationId": "director-cases-get",
+                "summary": "Получение состояния для случая",
+                "operationId": "director-case-get",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id случая",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.CaseStatus"
-                            }
+                            "$ref": "#/definitions/dto.CaseStatus"
                         }
                     },
-                    "204": {
-                        "description": ""
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
                     },
                     "500": {
                         "description": "Internal Server Error",

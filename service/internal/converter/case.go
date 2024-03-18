@@ -150,12 +150,3 @@ func (c *CaseConverter) MapCaseStatusToDto(d domain.CaseStatus) dto.CaseStatus {
 		CaseAssessments: assessments,
 	}
 }
-
-func (c *CaseConverter) MapCaseStatusesToDto(d []domain.CaseStatus) []dto.CaseStatus {
-	statusesDto := make([]dto.CaseStatus, len(d))
-	for i := range d {
-		statusesDto[i] = c.MapCaseStatusToDto(d[i])
-	}
-
-	return statusesDto
-}

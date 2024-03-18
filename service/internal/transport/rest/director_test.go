@@ -14,44 +14,75 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestGetCases(t *testing.T) {
 	caseConverter := converter.NewCaseConverter()
 	analyticsConverter := converter.NewAnalyticsConverter()
-	path := "/director/cases"
+
+	caseID := uuid.New().String()
+	caseStatus := domain.CaseStatus{CaseID: caseID, ViolationValue: "100km/h", RequiredSkill: 2,
+		CaseDate: time.Now(), FineDecision: true}
 
 	testCases := []struct {
 		name                 string
+		caseIDParam          string
 		buildDirectorService func() service.DirectorService
 		expectedCode         int
 	}{
 		{
-			name: "Get cases. 200 OK",
+			name:        "Get case. 200 OK",
+			caseIDParam: caseID,
 			buildDirectorService: func() service.DirectorService {
 				mockService := mocks.NewDirectorService(t)
-				mockService.On("GetCases", mock.Anything).
-					Return([]domain.CaseStatus{}, errs.ErrNoRows)
-
-				return mockService
-			},
-			expectedCode: http.StatusNoContent,
-		},
-		{
-			name: "No cases. 204 No content",
-			buildDirectorService: func() service.DirectorService {
-				mockService := mocks.NewDirectorService(t)
-				mockService.On("GetCases", mock.Anything).
-					Return([]domain.CaseStatus{}, nil)
+				mockService.On("GetCase", caseID).
+					Return(caseStatus, nil)
 
 				return mockService
 			},
 			expectedCode: http.StatusOK,
 		},
+		{
+			name:        "Empty case id. 400 Bad request",
+			caseIDParam: "",
+			buildDirectorService: func() service.DirectorService {
+				mockService := mocks.NewDirectorService(t)
+
+				return mockService
+			},
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name:        "Case id is not uuid. 400 Bad request",
+			caseIDParam: "case_id",
+			buildDirectorService: func() service.DirectorService {
+				mockService := mocks.NewDirectorService(t)
+
+				return mockService
+			},
+			expectedCode: http.StatusBadRequest,
+		},
+		{
+			name:        "Case id with passed id not found. 404 Not found",
+			caseIDParam: caseID,
+			buildDirectorService: func() service.DirectorService {
+				mockService := mocks.NewDirectorService(t)
+				mockService.On("GetCase", caseID).
+					Return(domain.CaseStatus{}, errs.ErrNoCase)
+
+				return mockService
+			},
+			expectedCode: http.StatusNotFound,
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			path := "/director/case"
+			if tc.caseIDParam != "" {
+				path += fmt.Sprintf("?id=%s", tc.caseIDParam)
+			}
 			handler := NewDirectorHandler(tc.buildDirectorService(), caseConverter, analyticsConverter)
 
 			var buf bytes.Buffer
@@ -59,7 +90,7 @@ func TestGetCases(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, path, &buf)
 			rec := httptest.NewRecorder()
 
-			handler.GetCases(rec, req)
+			handler.GetCase(rec, req)
 			assert.Equal(t, tc.expectedCode, rec.Code)
 		})
 	}

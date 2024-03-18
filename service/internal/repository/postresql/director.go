@@ -19,56 +19,51 @@ func NewDirectorRepoPostgres(conn *pgx.Conn) repository.DirectorRepo {
 	return &directorRepoPostgres{conn: conn}
 }
 
-const getCasesQuery = `SELECT case_id, violation_value, required_skill, case_date, is_solved, fine_decision
-FROM cases`
+const getCaseQuery = `SELECT case_id, violation_value, required_skill, case_date, is_solved, 
+       fine_decision, solved_at
+FROM cases WHERE case_id = $1`
 
 const getCaseAssessments = `SELECT expert_id, is_expert_solve, fine_decision 
 FROM expert_cases WHERE case_id = $1`
 
-func (r *directorRepoPostgres) GetCases() ([]domain.CaseStatus, error) {
-	rows, err := r.conn.Query(context.Background(), getCasesQuery)
+func (r *directorRepoPostgres) GetCase(caseID string) (domain.CaseStatus, error) {
+	row := r.conn.QueryRow(context.Background(), getCaseQuery, caseID)
+
+	status := domain.CaseStatus{CaseAssessments: make([]domain.CaseAssessment, 0)}
+	err := row.Scan(&status.CaseID, &status.ViolationValue, &status.RequiredSkill, &status.CaseDate,
+		&status.IsSolved, &status.FineDecision, &status.SolvedAt)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.CaseStatus{}, errs.ErrNoCase
+		}
+		return domain.CaseStatus{}, err
 	}
 
-	statuses := make([]domain.CaseStatus, 0)
-	for rows.Next() {
-		status := domain.CaseStatus{CaseAssessments: make([]domain.CaseAssessment, 0)}
+	assessmentsRows, err := r.conn.Query(context.Background(), getCaseAssessments, caseID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return status, nil
+		}
+		return domain.CaseStatus{}, err
+	}
 
-		err = rows.Scan(&status.CaseID, &status.ViolationValue, &status.RequiredSkill, &status.CaseDate, &status.IsSolved, &status.FineDecision)
+	assessments := make([]domain.CaseAssessment, 0)
+	for assessmentsRows.Next() {
+		assessment := domain.CaseAssessment{}
+		err = assessmentsRows.Scan(
+			&assessment.ExpertID, &assessment.IsExpertSolve, &assessment.FineDecision,
+		)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		statuses = append(statuses, status)
+		assessments = append(assessments, assessment)
 	}
 
-	for i := range statuses {
-		assessmentsRows, err := r.conn.Query(context.Background(), getCaseAssessments, statuses[i].CaseID)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
+	status.CaseAssessments = assessments
 
-		assessments := make([]domain.CaseAssessment, 0)
-		for assessmentsRows.Next() {
-			assessment := domain.CaseAssessment{}
-			err = assessmentsRows.Scan(
-				&assessment.ExpertID, &assessment.IsExpertSolve, &assessment.FineDecision,
-			)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			assessments = append(assessments, assessment)
-		}
-
-		statuses[i].CaseAssessments = assessments
-	}
-
-	return statuses, nil
+	return status, nil
 }
 
 const getExpertIntervalCasesQuery = `SELECT ec.is_expert_solve , ec.fine_decision AS expert_fine_decision,

@@ -10,7 +10,7 @@ import (
 
 //go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name DirectorService
 type DirectorService interface {
-	GetCases() ([]domain.CaseStatus, error)
+	GetCase(caseID string) (domain.CaseStatus, error)
 	GetExpertAnalytics(expertID string, startTime time.Time, endTime time.Time) ([]domain.AnalyticsInterval, error)
 }
 
@@ -29,15 +29,8 @@ func NewDirectorService(
 	}
 }
 
-func (s *directorService) GetCases() ([]domain.CaseStatus, error) {
-	cases, err := s.directorRepo.GetCases()
-	if err != nil {
-		return nil, err
-	}
-	if len(cases) == 0 {
-		return nil, errs.ErrNoRows
-	}
-	return cases, nil
+func (s *directorService) GetCase(caseID string) (domain.CaseStatus, error) {
+	return s.directorRepo.GetCase(caseID)
 }
 
 func (s *directorService) GetExpertAnalytics(

@@ -33,5 +33,6 @@ type CaseStatus struct {
 	CaseDate        time.Time
 	IsSolved        bool
 	FineDecision    bool
+	SolvedAt        *time.Time
 	CaseAssessments []CaseAssessment
 }

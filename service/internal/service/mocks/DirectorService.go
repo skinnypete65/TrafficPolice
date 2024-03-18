@@ -15,29 +15,27 @@ type DirectorService struct {
 	mock.Mock
 }
 
-// GetCases provides a mock function with given fields:
-func (_m *DirectorService) GetCases() ([]domain.CaseStatus, error) {
-	ret := _m.Called()
+// GetCase provides a mock function with given fields: caseID
+func (_m *DirectorService) GetCase(caseID string) (domain.CaseStatus, error) {
+	ret := _m.Called(caseID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetCases")
+		panic("no return value specified for GetCase")
 	}
 
-	var r0 []domain.CaseStatus
+	var r0 domain.CaseStatus
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]domain.CaseStatus, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(string) (domain.CaseStatus, error)); ok {
+		return rf(caseID)
 	}
-	if rf, ok := ret.Get(0).(func() []domain.CaseStatus); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(string) domain.CaseStatus); ok {
+		r0 = rf(caseID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]domain.CaseStatus)
-		}
+		r0 = ret.Get(0).(domain.CaseStatus)
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(caseID)
 	} else {
 		r1 = ret.Error(1)
 	}
