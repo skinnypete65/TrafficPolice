@@ -80,7 +80,7 @@ func (s *expertService) SetCaseDecision(decision domain.Decision) (domain.CaseDe
 		return domain.CaseDecisionInfo{}, err
 	}
 
-	caseDecisions, err := s.expertRepo.GetCaseFineDecisions(decision.CaseID)
+	caseDecisions, err := s.expertRepo.GetCaseFineDecisions(decision.CaseID, decision.Expert.CompetenceSkill)
 	if err != nil {
 		return domain.CaseDecisionInfo{}, err
 	}

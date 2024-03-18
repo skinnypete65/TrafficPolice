@@ -130,13 +130,14 @@ func (r *expertRepoPostgres) SetCaseDecision(decision domain.Decision) error {
 }
 
 const gGetCaseFineDecisions = `SELECT 
-    SUM(CASE WHEN fine_decision = true THEN 1 ELSE 0 END) AS positive_decisions,
-    SUM(CASE WHEN fine_decision = false THEN 1 ELSE 0 END) AS negative_decisions
-FROM expert_cases
-WHERE case_id = $1`
+    SUM(CASE WHEN ec.fine_decision = true THEN 1 ELSE 0 END) AS positive_decisions,
+    SUM(CASE WHEN ec.fine_decision = false THEN 1 ELSE 0 END) AS negative_decisions
+FROM expert_cases AS ec
+JOIN experts AS e ON ec.expert_id = e.expert_id 
+WHERE ec.case_id = $1 and ec.is_expert_solve = true and e.competence_skill = $2`
 
-func (r *expertRepoPostgres) GetCaseFineDecisions(caseID string) (domain.FineDecisions, error) {
-	row := r.conn.QueryRow(context.Background(), gGetCaseFineDecisions, caseID)
+func (r *expertRepoPostgres) GetCaseFineDecisions(caseID string, competenceSkill int) (domain.FineDecisions, error) {
+	row := r.conn.QueryRow(context.Background(), gGetCaseFineDecisions, caseID, competenceSkill)
 
 	var fineDecisions domain.FineDecisions
 	err := row.Scan(&fineDecisions.PositiveDecisions, &fineDecisions.NegativeDecisions)
@@ -145,7 +146,7 @@ func (r *expertRepoPostgres) GetCaseFineDecisions(caseID string) (domain.FineDec
 
 const getExpertsCountByRequiredSkillQuery = `SELECT COUNT(*)
 FROM experts
-WHERE competence_skill = $1`
+WHERE competence_skill = $1 and is_confirmed = true`
 
 func (r *expertRepoPostgres) GetExpertsCountBySkill(competenceSkill int) (int, error) {
 	row := r.conn.QueryRow(context.Background(), getExpertsCountByRequiredSkillQuery, competenceSkill)

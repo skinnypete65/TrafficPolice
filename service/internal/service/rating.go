@@ -89,9 +89,8 @@ func (s *ratingService) setupCompetenceSkill() error {
 	sort.Slice(ratings, func(i, j int) bool {
 		return (ratings[i].CorrectCnt - ratings[i].IncorrectCnt) > (ratings[j].CorrectCnt - ratings[j].IncorrectCnt)
 	})
-	log.Println(ratings)
-	tenPercent := int(math.Ceil(float64(len(ratings)) / 10))
 
+	tenPercent := int(math.Ceil(float64(len(ratings)) / 10))
 	skills := make([]domain.UpdateCompetenceSkill, 0)
 
 	// Get top 10%
