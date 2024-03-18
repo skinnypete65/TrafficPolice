@@ -149,12 +149,12 @@ func (h *ExpertHandler) GetExpertImg(w http.ResponseWriter, r *http.Request) {
 // @Description Получение случая для оценки экспертом. Воспользоваться могут эксперт или директор
 // @ID expert-get-case
 // @Produce  json
-// @Success 200 {file} dto.Case
+// @Success 200 {object} dto.Case
 // @Success 204 ""
 // @Failure 401,404 {object} response.Body
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body
-// @Router /expert/get_case [get]
+// @Router /expert/case [get]
 func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request) {
 	tokenInfo, ok := r.Context().Value(middlewares.TokenInfoKey).(tokens.TokenInfo)
 	if !ok {
@@ -195,7 +195,7 @@ func (h *ExpertHandler) GetCaseForExpert(w http.ResponseWriter, r *http.Request)
 // @Accept   json
 // @Produce  json
 // @Param input body dto.Decision true "id случая и решение эксперта"
-// @Success 200 {file} response.Body
+// @Success 200 {object} response.Body
 // @Failure 400,401,404 {object} response.Body
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body

@@ -29,6 +29,10 @@ func (r *caseRepoPostgres) InsertCase(c domain.Case) (string, error) {
 		c.ID, c.Transport.ID, c.Camera.ID, c.Violation.ID, c.ViolationValue, c.RequiredSkill, c.Date,
 	).Scan(&caseID)
 
+	if err != nil {
+		return "", errs.ErrInvalidRelevantParams
+	}
+
 	return caseID, err
 }
 

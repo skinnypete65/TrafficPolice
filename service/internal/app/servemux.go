@@ -100,7 +100,7 @@ func (s *ServeMuxInit) initExpertHandlers() {
 		),
 	)
 
-	s.mux.Handle("GET /expert/get_case",
+	s.mux.Handle("GET /expert/case",
 		s.authMiddleware.IdentifyRole(
 			s.authMiddleware.IsExpertConfirmed(
 				http.HandlerFunc(s.h.expert.GetCaseForExpert),

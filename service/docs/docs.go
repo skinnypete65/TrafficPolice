@@ -49,7 +49,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.SignInOutput"
+                            "$ref": "#/definitions/response.Body"
                         }
                     },
                     "400": {
@@ -484,7 +484,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "id камеры",
+                        "description": "id проишествия",
                         "name": "id",
                         "in": "query",
                         "required": true
@@ -600,7 +600,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Получить количество всех случаев, правильно решенных случае, неправильно решенных случаев,",
+                "description": "Получить количество всех случаев, правильно решенных случаев, неправильно решенных случаев, неизвестных случаев и максимальное количество подряд решенных задач. Воспользоваться может только директор",
                 "produces": [
                     "application/json"
                 ],
@@ -722,6 +722,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/expert/case": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получение случая для оценки экспертом. Воспользоваться могут эксперт или директор",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "expert"
+                ],
+                "summary": "Получение случая для оценки экспертом",
+                "operationId": "expert-get-case",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Case"
+                        }
+                    },
+                    "204": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/expert/decision": {
             "post": {
                 "security": [
@@ -756,7 +809,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "file"
+                            "$ref": "#/definitions/response.Body"
                         }
                     },
                     "400": {
@@ -764,59 +817,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/response.Body"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/response.Body"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.Body"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/response.Body"
-                        }
-                    },
-                    "default": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/response.Body"
-                        }
-                    }
-                }
-            }
-        },
-        "/expert/get_case": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Получение случая для оценки экспертом. Воспользоваться могут эксперт или директор",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "expert"
-                ],
-                "summary": "Получение случая для оценки экспертом",
-                "operationId": "expert-get-case",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "file"
-                        }
-                    },
-                    "204": {
-                        "description": ""
                     },
                     "401": {
                         "description": "Unauthorized",
