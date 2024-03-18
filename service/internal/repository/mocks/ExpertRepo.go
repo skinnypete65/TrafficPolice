@@ -13,9 +13,9 @@ type ExpertRepo struct {
 	mock.Mock
 }
 
-// GetCaseFineDecisions provides a mock function with given fields: caseID
-func (_m *ExpertRepo) GetCaseFineDecisions(caseID string) (domain.FineDecisions, error) {
-	ret := _m.Called(caseID)
+// GetCaseFineDecisions provides a mock function with given fields: caseID, competenceSkill
+func (_m *ExpertRepo) GetCaseFineDecisions(caseID string, competenceSkill int) (domain.FineDecisions, error) {
+	ret := _m.Called(caseID, competenceSkill)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCaseFineDecisions")
@@ -23,17 +23,17 @@ func (_m *ExpertRepo) GetCaseFineDecisions(caseID string) (domain.FineDecisions,
 
 	var r0 domain.FineDecisions
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (domain.FineDecisions, error)); ok {
-		return rf(caseID)
+	if rf, ok := ret.Get(0).(func(string, int) (domain.FineDecisions, error)); ok {
+		return rf(caseID, competenceSkill)
 	}
-	if rf, ok := ret.Get(0).(func(string) domain.FineDecisions); ok {
-		r0 = rf(caseID)
+	if rf, ok := ret.Get(0).(func(string, int) domain.FineDecisions); ok {
+		r0 = rf(caseID, competenceSkill)
 	} else {
 		r0 = ret.Get(0).(domain.FineDecisions)
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(caseID)
+	if rf, ok := ret.Get(1).(func(string, int) error); ok {
+		r1 = rf(caseID, competenceSkill)
 	} else {
 		r1 = ret.Error(1)
 	}
