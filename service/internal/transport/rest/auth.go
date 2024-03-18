@@ -144,7 +144,7 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 // @Accept  json
 // @Produce  json
 // @Param input body dto.ConfirmExpertInput true "id эксперта и информация о подтверждении"
-// @Success 200 {object} dto.SignInOutput
+// @Success 200 {object} response.Body
 // @Failure 400,401,404 {object} response.Body
 // @Failure 500 {object} response.Body
 // @Failure default {object} response.Body

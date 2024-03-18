@@ -8,8 +8,12 @@ var (
 	ErrInvalidPass   = errors.New("invalid password")
 	ErrEmptyPayload  = errors.New("empty payload")
 
-	ErrUnknownCameraID   = errors.New("unknown camera id")
-	ErrUnknownCameraType = errors.New("unknown camera type")
+	ErrUnknownCameraID       = errors.New("unknown camera id")
+	ErrUnknownCameraType     = errors.New("unknown camera type")
+	ErrInvalidCameraID       = errors.New("invalid camera id")
+	ErrCameraNotExists       = errors.New("camera with id not exists")
+	ErrInvalidViolationID    = errors.New("invalid violation id")
+	ErrInvalidRelevantParams = errors.New("invalid relevant params")
 
 	ErrUserNotExists = errors.New("user not exists")
 
@@ -20,5 +24,5 @@ var (
 	ErrNoTransport = errors.New("no transport")
 	ErrNoImage     = errors.New("no image")
 
-	ErrExpertNotExists = errors.New("expert not exissts")
+	ErrExpertNotExists = errors.New("expert not exists")
 )

@@ -283,7 +283,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.SignInOutput'
+            $ref: '#/definitions/response.Body'
         "400":
           description: Bad Request
           schema:
@@ -565,7 +565,7 @@ paths:
         фотографию может только камера
       operationId: case-image-upload
       parameters:
-      - description: id камеры
+      - description: id проишествия
         in: query
         name: id
         required: true
@@ -647,8 +647,9 @@ paths:
       - contact_info
   /director/analytics/expert:
     get:
-      description: Получить количество всех случаев, правильно решенных случае, неправильно
-        решенных случаев,
+      description: Получить количество всех случаев, правильно решенных случаев, неправильно
+        решенных случаев, неизвестных случаев и максимальное количество подряд решенных
+        задач. Воспользоваться может только директор
       operationId: director-analytics-expert
       parameters:
       - description: id эксперта
@@ -820,6 +821,41 @@ paths:
       summary: Добавление фотографии к профилю эксперта
       tags:
       - expert
+  /expert/case:
+    get:
+      description: Получение случая для оценки экспертом. Воспользоваться могут эксперт
+        или директор
+      operationId: expert-get-case
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Case'
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Получение случая для оценки экспертом
+      tags:
+      - expert
   /expert/decision:
     post:
       consumes:
@@ -840,7 +876,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: file
+            $ref: '#/definitions/response.Body'
         "400":
           description: Bad Request
           schema:
@@ -864,41 +900,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Оценка случая экспертом
-      tags:
-      - expert
-  /expert/get_case:
-    get:
-      description: Получение случая для оценки экспертом. Воспользоваться могут эксперт
-        или директор
-      operationId: expert-get-case
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: file
-        "204":
-          description: ""
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/response.Body'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/response.Body'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.Body'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/response.Body'
-      security:
-      - ApiKeyAuth: []
-      summary: Получение случая для оценки экспертом
       tags:
       - expert
   /expert/training:

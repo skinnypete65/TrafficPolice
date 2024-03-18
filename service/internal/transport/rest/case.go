@@ -78,6 +78,18 @@ func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 			response.BadRequest(w, "Unknown camera type")
 			return
 		}
+		if errors.Is(err, errs.ErrInvalidCameraID) {
+			response.BadRequest(w, "Invalid camera id")
+			return
+		}
+		if errors.Is(err, errs.ErrCameraNotExists) {
+			response.BadRequest(w, "Camera with passed id not exists")
+			return
+		}
+		if errors.Is(err, errs.ErrInvalidViolationID) {
+			response.BadRequest(w, "Passed violation ID is invalid")
+			return
+		}
 		log.Println(err)
 		response.InternalServerError(w)
 		return
@@ -87,6 +99,10 @@ func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, errs.ErrNoTransport) {
 			response.BadRequest(w, "No transport by input credentials")
+			return
+		}
+		if errors.Is(err, errs.ErrInvalidRelevantParams) {
+			response.BadRequest(w, "Invalid relevant params")
 			return
 		}
 		log.Println(err)
@@ -105,7 +121,7 @@ func (h *CaseHandler) AddCase(w http.ResponseWriter, r *http.Request) {
 // @ID case-image-upload
 // @Accept   multipart/form-data
 // @Produce  json
-// @Param id query string true "id камеры"
+// @Param id query string true "id проишествия"
 // @Param file formData file true "Фотография проишествия"
 // @Success 200 {object} response.Body
 // @Failure 400,401 {object} response.Body

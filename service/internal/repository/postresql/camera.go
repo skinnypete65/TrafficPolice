@@ -44,7 +44,7 @@ func (r *cameraRepoPostgres) GetCameraTypeByCameraID(cameraID string) (string, e
 	err := row.Scan(&cameraType)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return "", errs.ErrNoRows
+			return "", errs.ErrCameraNotExists
 		}
 		return "", err
 	}

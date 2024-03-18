@@ -7,8 +7,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/jcalabro/leb128"
-	"log"
 	"time"
 )
 
@@ -41,11 +41,18 @@ func (p *Parser) ParseCameraInfo(payload []byte) (dto.Case, error) {
 
 	var cameraType string
 	var err error
-
 	if cameraID, ok := info[cameraIDKey]; ok {
+		_, err = uuid.Parse(cameraID.(string))
+		if err != nil {
+			return dto.Case{}, errs.ErrInvalidCameraID
+		}
 		cameraType, err = p.cameraService.GetCameraTypeByCameraID(cameraID.(string))
 	} else if camera, ok := info[cameraKey].(map[string]any); ok {
 		cameraID := camera["id"].(string)
+		_, err = uuid.Parse(cameraID)
+		if err != nil {
+			return dto.Case{}, errs.ErrInvalidCameraID
+		}
 		cameraType, err = p.cameraService.GetCameraTypeByCameraID(cameraID)
 	} else {
 		err = errs.ErrUnknownCameraID
@@ -55,16 +62,26 @@ func (p *Parser) ParseCameraInfo(payload []byte) (dto.Case, error) {
 		return dto.Case{}, err
 	}
 
+	var caseInfo dto.Case
 	switch cameraType {
 	case typeCamerus1:
-		return p.parseCamerus1(info)
+		caseInfo, err = p.parseCamerus1(info)
 	case typeCamerus2:
-		return p.parseCamerus2(info)
+		caseInfo, err = p.parseCamerus2(info)
 	case typeCamerus3:
-		return p.parseCamerus3(info)
+		caseInfo, err = p.parseCamerus3(info)
 	default:
 		return dto.Case{}, errs.ErrUnknownCameraType
 	}
+	if err != nil {
+		return dto.Case{}, err
+	}
+
+	err = p.validateCase(caseInfo)
+	if err != nil {
+		return dto.Case{}, err
+	}
+	return caseInfo, nil
 }
 
 func (p *Parser) parsePayload(payload []byte) map[string]any {
@@ -85,8 +102,6 @@ func (p *Parser) parsePayload(payload []byte) map[string]any {
 
 		value := payload[:valueSize]
 		payload = payload[valueSize:]
-
-		log.Println(keySize, valueSize, valueType, keyValue, value)
 
 		if valueType == 0 {
 			info[string(keyValue)] = string(value)
@@ -193,4 +208,12 @@ func (p *Parser) parseCamerus3(info map[string]any) (dto.Case, error) {
 		RequiredSkill:  info["skill"].(int64),
 		Date:           time.Unix(info["datetime"].(int64), 0),
 	}, nil
+}
+
+func (p *Parser) validateCase(c dto.Case) error {
+	_, err := uuid.Parse(c.Violation.ID)
+	if err != nil {
+		return errs.ErrInvalidViolationID
+	}
+	return nil
 }

@@ -173,7 +173,7 @@ func TestSetCaseDecision(t *testing.T) {
 				mockRepo := mocks.NewExpertRepo(t)
 				mockRepo.On("SetCaseDecision", mock.Anything).
 					Return(nil)
-				mockRepo.On("GetCaseFineDecisions", positiveDecision.CaseID).
+				mockRepo.On("GetCaseFineDecisions", positiveDecision.CaseID, mock.AnythingOfType("int")).
 					Return(domain.FineDecisions{PositiveDecisions: 1, NegativeDecisions: 0}, nil)
 				mockRepo.On("GetExpertsCountBySkill", positiveDecision.Expert.CompetenceSkill).
 					Return(4, nil)
@@ -196,7 +196,7 @@ func TestSetCaseDecision(t *testing.T) {
 				mockRepo := mocks.NewExpertRepo(t)
 				mockRepo.On("SetCaseDecision", mock.Anything).
 					Return(nil)
-				mockRepo.On("GetCaseFineDecisions", positiveDecision.CaseID).
+				mockRepo.On("GetCaseFineDecisions", positiveDecision.CaseID, mock.AnythingOfType("int")).
 					Return(domain.FineDecisions{PositiveDecisions: 2, NegativeDecisions: 0}, nil)
 
 				return mockRepo
@@ -219,7 +219,7 @@ func TestSetCaseDecision(t *testing.T) {
 				mockRepo := mocks.NewExpertRepo(t)
 				mockRepo.On("SetCaseDecision", mock.Anything).
 					Return(nil)
-				mockRepo.On("GetCaseFineDecisions", positiveDecision.CaseID).
+				mockRepo.On("GetCaseFineDecisions", positiveDecision.CaseID, mock.AnythingOfType("int")).
 					Return(domain.FineDecisions{PositiveDecisions: 0, NegativeDecisions: 2}, nil)
 
 				return mockRepo
@@ -242,7 +242,7 @@ func TestSetCaseDecision(t *testing.T) {
 				mockRepo := mocks.NewExpertRepo(t)
 				mockRepo.On("SetCaseDecision", mock.Anything).
 					Return(nil)
-				mockRepo.On("GetCaseFineDecisions", positiveDecision.CaseID).
+				mockRepo.On("GetCaseFineDecisions", positiveDecision.CaseID, mock.AnythingOfType("int")).
 					Return(domain.FineDecisions{PositiveDecisions: 1, NegativeDecisions: 1}, nil)
 				mockRepo.On("GetExpertsCountBySkill", positiveDecision.Expert.CompetenceSkill).
 					Return(3, nil)

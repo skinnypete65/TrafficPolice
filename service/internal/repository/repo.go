@@ -46,7 +46,7 @@ type ExpertRepo interface {
 	GetNotSolvedCase(expert domain.Expert) (domain.Case, error)
 	InsertNotSolvedCase(solvedCase domain.ExpertCase) error
 	SetCaseDecision(decision domain.Decision) error
-	GetCaseFineDecisions(caseID string) (domain.FineDecisions, error)
+	GetCaseFineDecisions(caseID string, competenceSkill int) (domain.FineDecisions, error)
 	GetExpertsCountBySkill(competenceSkill int) (int, error)
 }
 
