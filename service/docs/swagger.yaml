@@ -656,7 +656,7 @@ paths:
         in: query
         name: id
         required: true
-        type: integer
+        type: string
       - description: Начало промежутка времени в формате yyyy-mm-dd
         in: query
         name: start_time
@@ -703,21 +703,36 @@ paths:
       summary: Получение аналитики проверяющих специалистов по промежуткам времени
       tags:
       - director
-  /director/cases:
+  /director/case:
     get:
-      description: Получение состояния случаев. Воспользоваться может только директор
-      operationId: director-cases-get
+      description: Получение состояния для конкретного случая по его id. Воспользоваться
+        может только директор
+      operationId: director-case-get
+      parameters:
+      - description: id случая
+        in: query
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/dto.CaseStatus'
-            type: array
-        "204":
-          description: ""
+            $ref: '#/definitions/dto.CaseStatus'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Body'
         "500":
           description: Internal Server Error
           schema:
@@ -728,7 +743,7 @@ paths:
             $ref: '#/definitions/response.Body'
       security:
       - ApiKeyAuth: []
-      summary: Получение состояния случаев
+      summary: Получение состояния для случая
       tags:
       - director
   /expert/{id}/img:

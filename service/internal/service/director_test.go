@@ -6,69 +6,69 @@ import (
 	"TrafficPolice/internal/repository"
 	"TrafficPolice/internal/repository/mocks"
 	"errors"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
 func TestGetCases(t *testing.T) {
-	caseStatuses := []domain.CaseStatus{
-		{CaseID: "case_id1", ViolationValue: "100km/h", RequiredSkill: 2, CaseDate: time.Now(), FineDecision: true},
-		{CaseID: "case_id2", ViolationValue: "130km/h", RequiredSkill: 4, CaseDate: time.Now(), FineDecision: false},
-		{CaseID: "case_id3", ViolationValue: "Yes", RequiredSkill: 1, CaseDate: time.Now(), FineDecision: false},
-	}
+	caseID := uuid.New().String()
+	caseStatus := domain.CaseStatus{CaseID: caseID, ViolationValue: "100km/h", RequiredSkill: 2,
+		CaseDate: time.Now(), FineDecision: true}
+
 	errInternal := errors.New("internal repo error")
 
 	testCases := []struct {
 		name               string
 		buildDirectorRepo  func() repository.DirectorRepo
 		buildCheckerRepo   func() repository.CheckerRepo
-		expectedCaseStatus []domain.CaseStatus
+		expectedCaseStatus domain.CaseStatus
 		expectedErr        error
 	}{
 		{
-			name: "Get statuses. Expect no error",
+			name: "Get status. Expect no error",
 			buildDirectorRepo: func() repository.DirectorRepo {
 				mockRepo := mocks.NewDirectorRepo(t)
 
-				mockRepo.On("GetCases").
-					Return(caseStatuses, nil)
+				mockRepo.On("GetCase", caseID).
+					Return(caseStatus, nil)
 				return mockRepo
 			},
 			buildCheckerRepo: func() repository.CheckerRepo {
 				return mocks.NewCheckerRepo(t)
 			},
-			expectedCaseStatus: caseStatuses,
+			expectedCaseStatus: caseStatus,
 			expectedErr:        nil,
 		},
 		{
-			name: "No cases. Expect ErrNoRows",
+			name: "No case. Expect ErrNoCase",
 			buildDirectorRepo: func() repository.DirectorRepo {
 				mockRepo := mocks.NewDirectorRepo(t)
 
-				mockRepo.On("GetCases").
-					Return(nil, nil)
+				mockRepo.On("GetCase", caseID).
+					Return(domain.CaseStatus{}, errs.ErrNoCase)
 				return mockRepo
 			},
 			buildCheckerRepo: func() repository.CheckerRepo {
 				return mocks.NewCheckerRepo(t)
 			},
-			expectedCaseStatus: nil,
-			expectedErr:        errs.ErrNoRows,
+			expectedCaseStatus: domain.CaseStatus{},
+			expectedErr:        errs.ErrNoCase,
 		},
 		{
 			name: "Unexpected error",
 			buildDirectorRepo: func() repository.DirectorRepo {
 				mockRepo := mocks.NewDirectorRepo(t)
 
-				mockRepo.On("GetCases").
-					Return(nil, errInternal)
+				mockRepo.On("GetCase", caseID).
+					Return(domain.CaseStatus{}, errInternal)
 				return mockRepo
 			},
 			buildCheckerRepo: func() repository.CheckerRepo {
 				return mocks.NewCheckerRepo(t)
 			},
-			expectedCaseStatus: nil,
+			expectedCaseStatus: domain.CaseStatus{},
 			expectedErr:        errInternal,
 		},
 	}
@@ -80,7 +80,7 @@ func TestGetCases(t *testing.T) {
 
 			directorService := NewDirectorService(directorRepo, checkerRepo)
 
-			cases, err := directorService.GetCases()
+			cases, err := directorService.GetCase(caseID)
 			assert.Equal(t, tc.expectedErr, err)
 			assert.Equal(t, tc.expectedCaseStatus, cases)
 		})

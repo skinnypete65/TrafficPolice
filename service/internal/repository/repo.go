@@ -77,7 +77,7 @@ type RatingRepo interface {
 
 //go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name DirectorRepo
 type DirectorRepo interface {
-	GetCases() ([]domain.CaseStatus, error)
+	GetCase(caseID string) (domain.CaseStatus, error)
 	GetExpertIntervalCases(
 		expertID string,
 		startDate time.Time,
