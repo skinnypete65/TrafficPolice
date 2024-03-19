@@ -192,3 +192,15 @@ docker compose up -d
 База данных PostgreSQL работает на порту 5440
 
 Веб интерфейс RabbitMQ работает на порту 15672
+
+# Генерация отчета покрытия тестами для service
+1. Скачать Go SDK последней версии: https://go.dev/dl/
+2. Перейти в папку `service` (cd service)
+3. Запустить тесты и сгенерировать профиль покрытия:
+``` 
+go test -v -coverprofile cover.out ./...
+```
+4. Сгененировать html отчет покрытия тестами:
+```
+go tool cover -html cover.out -o cover.html
+```
