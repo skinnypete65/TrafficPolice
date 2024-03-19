@@ -204,3 +204,4 @@ go test -v -coverprofile cover.out ./...
 ```
 go tool cover -html cover.out -o cover.html
 ```
+5. html отчет появится в папке `service`
