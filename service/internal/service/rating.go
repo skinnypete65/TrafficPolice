@@ -68,7 +68,7 @@ func (s *ratingService) RunReportPeriod(done <-chan struct{}) {
 				log.Println(err)
 			}
 		case <-done:
-			log.Println("DONE")
+			log.Println("Stop report period")
 			return
 		}
 	}

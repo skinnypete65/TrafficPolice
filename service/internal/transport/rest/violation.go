@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	violationSheet   = "Лист1"
-	violationFileKey = "file"
+	violationSheet     = "Лист1"
+	violationFileKey   = "file"
+	violationMaxMemory = int64(10 << 30)
 )
 
 type ViolationHandler struct {
@@ -39,9 +40,7 @@ func NewViolationHandler(service service.ViolationService) *ViolationHandler {
 // @Failure default {object} response.Body
 // @Router /violations [post]
 func (h *ViolationHandler) InsertViolations(w http.ResponseWriter, r *http.Request) {
-	maxMemory := int64(10 << 30)
-
-	err := r.ParseMultipartForm(maxMemory)
+	err := r.ParseMultipartForm(violationMaxMemory)
 	if err != nil {
 		text := fmt.Sprintf("Error while ParseMultipartForm: %v", err)
 		response.BadRequest(w, text)
