@@ -73,6 +73,24 @@ func (_m *DirectorRepo) GetExpertIntervalCases(expertID string, startDate time.T
 	return r0, r1
 }
 
+// UpdateExpertSkill provides a mock function with given fields: expertID, skill
+func (_m *DirectorRepo) UpdateExpertSkill(expertID string, skill int) error {
+	ret := _m.Called(expertID, skill)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateExpertSkill")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, int) error); ok {
+		r0 = rf(expertID, skill)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // NewDirectorRepo creates a new instance of DirectorRepo. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewDirectorRepo(t interface {
