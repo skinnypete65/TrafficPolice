@@ -13,6 +13,12 @@ services:
       - pg_vol:/var/lib/postgresql/data
     networks:
       - service_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "traffic_police_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   rabbitmq:
     image: rabbitmq:3.13.0-management-alpine
@@ -28,6 +34,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 5s
 
   service:
     build: ./service
@@ -35,7 +42,7 @@ services:
       - "8080:8080"
     depends_on:
       postgres:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
         condition: service_healthy
     volumes:
