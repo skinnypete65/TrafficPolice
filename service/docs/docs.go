@@ -743,6 +743,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/director/expert_skill": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновление уровня компетенций у эксперта по его id. Воспользоваться может только директор",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "director"
+                ],
+                "summary": "Обновление уровня компетенций у эксперта",
+                "operationId": "director-expert-skill",
+                "parameters": [
+                    {
+                        "description": "id эксперта и его новый уровень компетенций",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateExpertSkill"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/response.Body"
+                        }
+                    }
+                }
+            }
+        },
         "/expert/case": {
             "get": {
                 "security": [
@@ -1544,6 +1605,17 @@ const docTemplate = `{
                 },
                 "region": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.UpdateExpertSkill": {
+            "type": "object",
+            "properties": {
+                "expert_id": {
+                    "type": "string"
+                },
+                "skill": {
+                    "type": "integer"
                 }
             }
         },

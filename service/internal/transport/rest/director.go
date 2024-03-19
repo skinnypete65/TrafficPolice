@@ -4,6 +4,7 @@ import (
 	"TrafficPolice/internal/converter"
 	"TrafficPolice/internal/errs"
 	"TrafficPolice/internal/service"
+	"TrafficPolice/internal/transport/rest/dto"
 	"TrafficPolice/internal/transport/rest/response"
 	"encoding/json"
 	"errors"
@@ -140,6 +141,37 @@ func (h *DirectorHandler) ExpertAnalytics(w http.ResponseWriter, r *http.Request
 	}
 
 	response.WriteResponse(w, http.StatusOK, analyticsBytes)
+}
+
+// UpdateExpertSkill docs
+// @Summary Обновление уровня компетенций у эксперта
+// @Security ApiKeyAuth
+// @Tags director
+// @Description Обновление уровня компетенций у эксперта по его id. Воспользоваться может только директор
+// @ID director-expert-skill
+// @Produce  json
+// @Param input body dto.UpdateExpertSkill true "id эксперта и его новый уровень компетенций"
+// @Success 200 {object} response.Body
+// @Failure 400,401 {object} response.Body
+// @Failure 500 {object} response.Body
+// @Failure default {object} response.Body
+// @Router /director/expert_skill [patch]
+func (h *DirectorHandler) UpdateExpertSkill(w http.ResponseWriter, r *http.Request) {
+	var input dto.UpdateExpertSkill
+	err := json.NewDecoder(r.Body).Decode(&input)
+	if err != nil {
+		response.BadRequest(w, err.Error())
+		return
+	}
+
+	err = h.directorService.UpdateExpertSkill(input.ExpertID, input.Skill)
+	if err != nil {
+		response.InternalServerError(w)
+		log.Println(err)
+		return
+	}
+
+	response.OKMessage(w, "Competence skill of expert updated successfully")
 }
 
 func (h *DirectorHandler) parseTimeQuery(r *http.Request, key string) (time.Time, error) {

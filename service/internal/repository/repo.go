@@ -82,6 +82,7 @@ type DirectorRepo interface {
 		expertID string,
 		startDate time.Time,
 		endDate time.Time) (map[domain.Date][]domain.IntervalCase, error)
+	UpdateExpertSkill(expertID string, skill int) error
 }
 
 //go:generate go run github.com/vektra/mockery/v2@v2.42.1 --name CheckerRepo
