@@ -106,3 +106,12 @@ func (r *directorRepoPostgres) GetExpertIntervalCases(
 
 	return intervals, nil
 }
+
+const updateExpertSkillQuery = `UPDATE experts
+SET competence_skill = $1
+WHERE expert_id = $2`
+
+func (r *directorRepoPostgres) UpdateExpertSkill(expertID string, skill int) error {
+	_, err := r.conn.Exec(context.Background(), updateExpertSkillQuery, skill, expertID)
+	return err
+}

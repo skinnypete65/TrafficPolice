@@ -12,6 +12,7 @@ import (
 type DirectorService interface {
 	GetCase(caseID string) (domain.CaseStatus, error)
 	GetExpertAnalytics(expertID string, startTime time.Time, endTime time.Time) ([]domain.AnalyticsInterval, error)
+	UpdateExpertSkill(expertID string, skill int) error
 }
 
 type directorService struct {
@@ -98,4 +99,8 @@ func (s *directorService) GetExpertAnalytics(
 	})
 
 	return analyticsIntervals, nil
+}
+
+func (s *directorService) UpdateExpertSkill(expertID string, skill int) error {
+	return s.directorRepo.UpdateExpertSkill(expertID, skill)
 }

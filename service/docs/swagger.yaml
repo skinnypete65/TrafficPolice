@@ -238,6 +238,13 @@ definitions:
       region:
         type: string
     type: object
+  dto.UpdateExpertSkill:
+    properties:
+      expert_id:
+        type: string
+      skill:
+        type: integer
+    type: object
   dto.Violation:
     properties:
       fine_amount:
@@ -743,6 +750,46 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Получение состояния для случая
+      tags:
+      - director
+  /director/expert_skill:
+    patch:
+      description: Обновление уровня компетенций у эксперта по его id. Воспользоваться
+        может только директор
+      operationId: director-expert-skill
+      parameters:
+      - description: id эксперта и его новый уровень компетенций
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateExpertSkill'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Body'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Body'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Body'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Body'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/response.Body'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление уровня компетенций у эксперта
       tags:
       - director
   /expert/{id}/img:
