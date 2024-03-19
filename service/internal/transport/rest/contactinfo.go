@@ -14,6 +14,10 @@ const (
 	contactInfoFileKey = "file"
 )
 
+const (
+	contactInfoMaxMemory = int64(10 << 30)
+)
+
 type ContactInfoHandler struct {
 	service service.ContactInfoService
 }
@@ -37,9 +41,7 @@ func NewContactInfoHandler(service service.ContactInfoService) *ContactInfoHandl
 // @Failure default {object} response.Body
 // @Router /contact_info [post]
 func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Request) {
-	maxMemory := int64(10 << 30)
-
-	err := r.ParseMultipartForm(maxMemory)
+	err := r.ParseMultipartForm(contactInfoMaxMemory)
 	if err != nil {
 		response.BadRequest(w, err.Error())
 		return
@@ -67,6 +69,19 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	info := h.parseContactInfo(rows)
+
+	err = h.service.InsertContactInfo(info)
+	if err != nil {
+		log.Println(err)
+		response.InternalServerError(w)
+		return
+	}
+
+	response.OKMessage(w, "Contact info added successfully")
+}
+
+func (h *ContactInfoHandler) parseContactInfo(rows [][]string) map[string][]*domain.Transport {
 	m := make(map[string][]*domain.Transport)
 
 	for _, row := range rows {
@@ -90,12 +105,5 @@ func (h *ContactInfoHandler) InsertContactInfo(w http.ResponseWriter, r *http.Re
 		m[person.PhoneNum] = append(m[person.PhoneNum], transport)
 	}
 
-	err = h.service.InsertContactInfo(m)
-	if err != nil {
-		log.Println(err)
-		response.InternalServerError(w)
-		return
-	}
-
-	response.OKMessage(w, "Contact info added successfully")
+	return m
 }

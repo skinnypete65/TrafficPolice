@@ -240,26 +240,7 @@ func (h *ExpertHandler) SetCaseDecision(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if caseDecision.ShouldSendFine {
-		caseInfo, err := h.expertService.GetCaseWithPersonInfo(decision.CaseID)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		c := h.caseConverter.MapCaseWithPersonToDTO(caseInfo)
-		image, extension, err := h.getCaseImage(caseInfo.ID)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		err = h.finePublisher.PublishFineNotification(dto.CaseWithImage{
-			Case:           c,
-			Image:          image,
-			ImageExtension: extension,
-		})
-		if err != nil {
-			log.Println(err)
-			return
-		}
+		h.sendNotification(decision.CaseID)
 	}
 
 	response.OKMessage(w, "Decision accepted")
@@ -279,4 +260,27 @@ func (h *ExpertHandler) getCaseImage(caseID string) ([]byte, string, error) {
 	extension := h.imageReader.GetExtension(filePath)
 
 	return file, extension, nil
+}
+
+func (h *ExpertHandler) sendNotification(caseID string) {
+	caseInfo, err := h.expertService.GetCaseWithPersonInfo(caseID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	c := h.caseConverter.MapCaseWithPersonToDTO(caseInfo)
+	image, extension, err := h.getCaseImage(caseInfo.ID)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	err = h.finePublisher.PublishFineNotification(dto.CaseWithImage{
+		Case:           c,
+		Image:          image,
+		ImageExtension: extension,
+	})
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
