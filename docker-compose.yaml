@@ -46,8 +46,6 @@ services:
 
   fine_notification:
     build: ./fine_notification
-    ports:
-      - "8081:8081"
     depends_on:
       rabbitmq:
         condition: service_healthy
