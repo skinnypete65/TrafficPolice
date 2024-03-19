@@ -9,7 +9,6 @@ import (
 // @version 1.0
 // @description API Server for Traffic Police Application
 
-// @host localhost:8080
 // @BasePath /
 
 // @securityDefinitions.apikey ApiKeyAuth

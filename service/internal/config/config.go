@@ -7,7 +7,6 @@ import (
 )
 
 type Config struct {
-	ServerPort int            `yaml:"serverPort"`
 	Consensus  int            `yaml:"consensus"`
 	PassSalt   string         `yaml:"passSalt"`
 	SigningKey string         `yaml:"signingKey"`

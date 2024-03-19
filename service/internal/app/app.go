@@ -26,6 +26,7 @@ import (
 const (
 	serviceConfigPath = "service_config.yaml"
 	defaultMinExperts = 3
+	serverPort        = ":8080"
 )
 
 func Run() {
@@ -81,13 +82,12 @@ func Run() {
 	go services.rating.RunReportPeriod(done)
 
 	// Run Server
-	port := fmt.Sprintf(":%d", cfg.ServerPort)
 	server := http.Server{
-		Addr:    port,
+		Addr:    serverPort,
 		Handler: mux,
 	}
 
-	log.Printf("Run server on %s\n", port)
+	log.Printf("Run server on %s\n", serverPort)
 	err = server.ListenAndServe()
 	if err != nil {
 		log.Println(err)
