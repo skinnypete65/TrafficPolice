@@ -18,7 +18,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 5s
 
   rabbitmq:
     image: rabbitmq:3.13.0-management-alpine
@@ -34,10 +33,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-      start_period: 5s
 
   service:
     build: ./service
+    restart: on-failure
     ports:
       - "8080:8080"
     depends_on:
@@ -53,6 +52,7 @@ services:
 
   fine_notification:
     build: ./fine_notification
+    restart: on-failure
     depends_on:
       rabbitmq:
         condition: service_healthy
