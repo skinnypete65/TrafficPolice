@@ -15,7 +15,7 @@ func NewPaginationConverter() *PaginationConverter {
 func (c *PaginationConverter) MapDomainToDto(pagination domain.Pagination) dto.Pagination {
 	return dto.Pagination{
 		Next:          pagination.Next,
-		Previous:      pagination.Next,
+		Previous:      pagination.Previous,
 		RecordPerPage: pagination.RecordPerPage,
 		CurrentPage:   pagination.CurrentPage,
 		TotalPage:     pagination.TotalPage,
