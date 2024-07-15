@@ -1,5 +1,5 @@
 # Backend Traffic Police
-Тестовое задание в RTUITLab
+
 
 # Стек проекта
 Общий стек проекта:
